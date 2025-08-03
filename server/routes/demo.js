@@ -1,4 +1,4 @@
-import { DemoResponse } from "@shared/api.js";
+// Demo response structure
 
 export const handleDemo = (req, res) => {
   const response = {
