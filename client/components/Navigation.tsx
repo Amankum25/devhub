@@ -128,6 +128,12 @@ const Navigation = () => {
                     Dashboard
                   </Button>
                 </Link>
+                <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Admin
+                  </Button>
+                </Link>
                 <Link to="/login" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="ghost" size="sm" className="w-full justify-start">
                     <LogIn className="h-4 w-4 mr-2" />
