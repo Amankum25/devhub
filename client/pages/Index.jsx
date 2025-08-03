@@ -46,7 +46,7 @@ export default function Index() {
     }, 4000);
 
     // Add custom CSS animations
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       @keyframes blob {
         0% { transform: translate(0px, 0px) scale(1); }
@@ -80,15 +80,15 @@ export default function Index() {
       }
     `;
 
-    if (!document.getElementById('index-animations')) {
-      style.id = 'index-animations';
+    if (!document.getElementById("index-animations")) {
+      style.id = "index-animations";
       document.head.appendChild(style);
     }
 
     return () => {
       clearInterval(interval);
       // Clean up styles when component unmounts
-      const existingStyle = document.getElementById('index-animations');
+      const existingStyle = document.getElementById("index-animations");
       if (existingStyle) {
         existingStyle.remove();
       }
@@ -296,7 +296,9 @@ export default function Index() {
                 <div className="text-center">
                   {(() => {
                     const FeatureIcon = features[currentFeature].icon;
-                    return <FeatureIcon className="h-24 w-24 mx-auto mb-6 text-blue-500 animate-float" />;
+                    return (
+                      <FeatureIcon className="h-24 w-24 mx-auto mb-6 text-blue-500 animate-float" />
+                    );
                   })()}
                   <h3 className="text-2xl font-bold mb-4 text-slate-800 dark:text-white">
                     {features[currentFeature].title}
