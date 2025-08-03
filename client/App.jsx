@@ -27,6 +27,9 @@ import AITools from "./pages/AITools";
 import CodeExplain from "./pages/CodeExplain";
 import ResumeReview from "./pages/ResumeReview";
 import ProjectSuggest from "./pages/ProjectSuggest";
+import BugFixer from "./pages/BugFixer";
+import AlgorithmHelper from "./pages/AlgorithmHelper";
+import CodeGenerator from "./pages/CodeGenerator";
 import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
@@ -78,6 +81,9 @@ const App = () => (
             <Route path="/ai/code-explain" element={<CodeExplain />} />
             <Route path="/ai/resume-review" element={<ResumeReview />} />
             <Route path="/ai/project-suggest" element={<ProjectSuggest />} />
+            <Route path="/ai/bug-fixer" element={<BugFixer />} />
+            <Route path="/ai/algorithm-helper" element={<AlgorithmHelper />} />
+            <Route path="/ai/code-generator" element={<CodeGenerator />} />
 
             {/* Communication */}
             <Route path="/chat" element={<Chat />} />

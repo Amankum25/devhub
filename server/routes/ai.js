@@ -1,41 +1,80 @@
 const express = require("express");
 const database = require("../config/database");
+const aiService = require("../services/aiService");
 const { AppError, catchAsync } = require("../middleware/errorHandler");
 const { validationRules } = require("../middleware/validation");
 
 const router = express.Router();
 
-// Mock AI interaction endpoint
+// AI interaction endpoint
 router.post(
   "/interact",
   validationRules.aiInteraction,
   catchAsync(async (req, res) => {
     const { tool, input } = req.body;
-    const db = database.getDb();
-
+    
     // Simulate processing time
     const processingStart = Date.now();
 
-    // Mock AI responses based on tool
+    let aiResult;
     let output = "";
-    switch (tool) {
-      case "code_explain":
-        output = `This code appears to be ${input.includes("function") ? "a JavaScript function" : "a code snippet"} that ${input.includes("async") ? "performs asynchronous operations" : "executes synchronously"}. It ${input.includes("return") ? "returns a value" : "performs operations"} and follows ${input.includes("const") || input.includes("let") ? "modern ES6+ syntax" : "traditional JavaScript patterns"}.`;
-        break;
-      case "project_suggest":
-        output = `Based on your description, I suggest building a ${input.includes("web") ? "web application" : "software project"} using ${input.includes("React") || input.includes("JavaScript") ? "React.js with Node.js backend" : "a modern tech stack"}. Consider implementing features like user authentication, data management, and responsive design.`;
-        break;
-      case "resume_review":
-        output = `Your resume shows ${input.includes("experience") ? "good work experience" : "potential for growth"}. Consider highlighting ${input.includes("skills") ? "your technical skills more prominently" : "specific achievements and quantifiable results"}. The format ${input.includes("organized") ? "appears well-organized" : "could benefit from better structure"}.`;
-        break;
-      default:
-        output =
-          "AI processing completed. Please provide more specific information for detailed analysis.";
+    let tokensUsed = 0;
+    let model = "";
+
+    // Use real AI service based on tool
+    try {
+      switch (tool) {
+        case "code_explain":
+          aiResult = await aiService.explainCode(input);
+          output = aiResult.explanation || aiResult;
+          break;
+        case "project_suggest":
+          aiResult = await aiService.suggestProject(input);
+          output = aiResult.suggestion || aiResult;
+          break;
+        case "resume_review":
+          aiResult = await aiService.reviewResume(input);
+          output = aiResult.review || aiResult;
+          break;
+        case "code_generate":
+          aiResult = await aiService.generateCode(input);
+          output = aiResult.code || aiResult;
+          break;
+        case "bug_fix":
+          // Expecting input format: "code|bugDescription" 
+          const [code, bugDesc] = input.split('|SEPARATOR|');
+          aiResult = await aiService.fixBug(code || input, bugDesc || '');
+          output = aiResult.fixedCode || aiResult;
+          break;
+        case "algorithm_help":
+          aiResult = await aiService.helpWithAlgorithm(input);
+          output = aiResult.solution || aiResult;
+          break;
+        default:
+          output = "AI processing completed. Please provide more specific information for detailed analysis.";
+      }
+
+      // Extract tokens and model info if available
+      if (typeof aiResult === 'object') {
+        tokensUsed = aiResult.tokensUsed || Math.floor(input.length / 4);
+        model = aiResult.model || 'unknown';
+      } else {
+        tokensUsed = Math.floor(input.length / 4);
+        model = 'mock-model';
+      }
+
+    } catch (error) {
+      console.error('AI processing error:', error);
+      output = "Sorry, there was an error processing your request. Please try again.";
+      tokensUsed = Math.floor(input.length / 4);
+      model = 'error';
     }
 
     const processingTime = Date.now() - processingStart;
 
-    // Save interaction to database
+    // Save interaction to database (Note: This is using SQLite syntax, but you're using MongoDB)
+    // TODO: Update this to use MongoDB instead of SQLite
+    /*
     const result = await db.run(
       `
     INSERT INTO ai_interactions (userId, tool, input, output, status, tokensUsed, processingTime)
@@ -47,20 +86,49 @@ router.post(
         input,
         output,
         "completed",
-        Math.floor(input.length / 4),
+        tokensUsed,
         processingTime,
       ],
     );
+    */
 
     res.json({
       success: true,
       data: {
-        id: result.lastID,
+        // id: result.lastID,
         tool,
         input,
         output,
         processingTime,
-        tokensUsed: Math.floor(input.length / 4),
+        tokensUsed,
+        model,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }),
+);
+
+// AI service status endpoint
+router.get(
+  "/status",
+  catchAsync(async (req, res) => {
+    res.json({
+      success: true,
+      data: {
+        aiConfigured: aiService.isConfigured(),
+        model: process.env.AI_MODEL || 'gpt-3.5-turbo',
+        maxTokens: parseInt(process.env.AI_MAX_TOKENS) || 2048,
+        availableTools: [
+          'code_explain',
+          'project_suggest', 
+          'resume_review',
+          'code_generate',
+          'bug_fix',
+          'algorithm_help'
+        ],
+        message: aiService.isConfigured() 
+          ? 'AI service is configured and ready'
+          : 'AI service is using mock responses. Configure OPENAI_API_KEY to enable real AI.'
       },
     });
   }),

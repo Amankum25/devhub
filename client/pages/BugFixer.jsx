@@ -5,26 +5,27 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
-  Code, 
+  Wrench, 
   Play, 
   Copy, 
   Check, 
   AlertCircle, 
   Loader2,
-  BookOpen,
-  Lightbulb
+  Code,
+  Bug
 } from "lucide-react";
 
-export default function CodeExplain() {
+export default function BugFixer() {
   const [code, setCode] = useState("");
+  const [bugDescription, setBugDescription] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const handleExplain = async () => {
+  const handleAnalyze = async () => {
     if (!code.trim()) {
-      setError("Please enter some code to explain");
+      setError("Please enter some code to analyze");
       return;
     }
 
@@ -33,6 +34,9 @@ export default function CodeExplain() {
     setResult(null);
 
     try {
+      // Combine code and bug description with separator
+      const input = `${code}|SEPARATOR|${bugDescription}`;
+      
       const response = await fetch("/api/ai/interact", {
         method: "POST",
         headers: {
@@ -40,8 +44,8 @@ export default function CodeExplain() {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          tool: "code_explain",
-          input: code,
+          tool: "bug_fix",
+          input: input,
         }),
       });
 
@@ -50,11 +54,11 @@ export default function CodeExplain() {
       if (data.success) {
         setResult(data.data);
       } else {
-        setError(data.message || "Failed to explain code");
+        setError(data.message || "Failed to analyze code");
       }
     } catch (err) {
       setError("Network error. Please try again.");
-      console.error("Code explanation error:", err);
+      console.error("Bug fix error:", err);
     } finally {
       setIsAnalyzing(false);
     }
@@ -70,31 +74,25 @@ export default function CodeExplain() {
 
   const handleClear = () => {
     setCode("");
+    setBugDescription("");
     setResult(null);
     setError("");
   };
-
-  const exampleCode = `function fibonacci(n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
-}
-
-console.log(fibonacci(10));`;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-3 bg-blue-500/10 rounded-xl">
-            <Code className="h-8 w-8 text-blue-500" />
+          <div className="p-3 bg-red-500/10 rounded-xl">
+            <Wrench className="h-8 w-8 text-red-500" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
-            Code Explainer
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+            Bug Fixer
           </h1>
         </div>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Get AI-powered explanations for any code snippet in multiple programming languages
+          Get AI-powered solutions for common programming issues and bugs
         </p>
       </div>
 
@@ -113,22 +111,24 @@ console.log(fibonacci(10));`;
                 Paste your code here:
               </label>
               <Textarea
-                placeholder="Enter your code snippet..."
+                placeholder="Enter your code that has a bug..."
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="min-h-[250px] font-mono text-sm"
+                className="min-h-[200px] font-mono text-sm"
               />
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCode(exampleCode)}
-              className="w-full"
-            >
-              <Lightbulb className="h-4 w-4 mr-2" />
-              Try Example Code
-            </Button>
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Bug Description (Optional):
+              </label>
+              <Textarea
+                placeholder="Describe the bug or issue you're experiencing..."
+                value={bugDescription}
+                onChange={(e) => setBugDescription(e.target.value)}
+                className="min-h-[100px]"
+              />
+            </div>
 
             {error && (
               <Alert variant="destructive">
@@ -139,7 +139,7 @@ console.log(fibonacci(10));`;
 
             <div className="flex gap-2">
               <Button
-                onClick={handleExplain}
+                onClick={handleAnalyze}
                 disabled={isAnalyzing}
                 className="flex-1"
               >
@@ -150,8 +150,8 @@ console.log(fibonacci(10));`;
                   </>
                 ) : (
                   <>
-                    <Play className="h-4 w-4 mr-2" />
-                    Explain Code
+                    <Bug className="h-4 w-4 mr-2" />
+                    Fix Bug
                   </>
                 )}
               </Button>
@@ -167,8 +167,8 @@ console.log(fibonacci(10));`;
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                Code Explanation
+                <Wrench className="h-5 w-5" />
+                Bug Fix Results
               </span>
               {result && (
                 <Button
@@ -196,7 +196,7 @@ console.log(fibonacci(10));`;
             {result ? (
               <div className="space-y-4">
                 <div className="p-4 bg-muted rounded-lg">
-                  <pre className="text-sm whitespace-pre-wrap overflow-x-auto">
+                  <pre className="text-sm whitespace-pre-wrap font-mono overflow-x-auto">
                     {result.output}
                   </pre>
                 </div>
@@ -215,8 +215,8 @@ console.log(fibonacci(10));`;
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                <Code className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Enter your code and click "Explain Code" to get detailed explanations</p>
+                <Bug className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Enter your code and click "Fix Bug" to get AI-powered solutions</p>
               </div>
             )}
           </CardContent>
@@ -226,19 +226,19 @@ console.log(fibonacci(10));`;
       {/* Features */}
       <div className="mt-12">
         <h3 className="text-2xl font-semibold mb-6 text-center">
-          Code Explainer Features
+          Bug Fixer Features
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Code className="h-5 w-5 text-blue-500" />
-                Multi-language Support
+                <AlertCircle className="h-5 w-5 text-red-500" />
+                Error Detection
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Support for JavaScript, Python, Java, C++, and many other programming languages
+                Automatically identify syntax errors, logic issues, and common programming mistakes
               </p>
             </CardContent>
           </Card>
@@ -246,13 +246,13 @@ console.log(fibonacci(10));`;
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-green-500" />
-                Line-by-line Breakdown
+                <Wrench className="h-5 w-5 text-blue-500" />
+                Smart Fixes
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Get detailed explanations of what each part of your code does
+                Get corrected code with explanations of what was wrong and how it was fixed
               </p>
             </CardContent>
           </Card>
@@ -260,13 +260,13 @@ console.log(fibonacci(10));`;
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Lightbulb className="h-5 w-5 text-yellow-500" />
-                Best Practices Tips
+                <Code className="h-5 w-5 text-green-500" />
+                Best Practices
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Learn coding best practices and suggestions for improvement
+                Learn better coding practices and patterns to avoid similar issues in the future
               </p>
             </CardContent>
           </Card>

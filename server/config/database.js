@@ -17,7 +17,6 @@ class Database {
         maxPoolSize: 10, // Maximum number of connections in the connection pool
         serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
         socketTimeoutMS: 45000, // Close connections after 45 seconds of inactivity
-        bufferMaxEntries: 0, // Disable mongoose buffering
         bufferCommands: false, // Disable mongoose buffering
       };
 

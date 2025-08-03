@@ -5,26 +5,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
-  Code, 
-  Play, 
+  Target, 
+  Brain, 
   Copy, 
   Check, 
   AlertCircle, 
   Loader2,
   BookOpen,
-  Lightbulb
+  Zap,
+  TrendingUp,
+  Clock
 } from "lucide-react";
 
-export default function CodeExplain() {
-  const [code, setCode] = useState("");
+export default function AlgorithmHelper() {
+  const [problem, setProblem] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const handleExplain = async () => {
-    if (!code.trim()) {
-      setError("Please enter some code to explain");
+  const handleAnalyze = async () => {
+    if (!problem.trim()) {
+      setError("Please describe the algorithm problem you need help with");
       return;
     }
 
@@ -40,8 +42,8 @@ export default function CodeExplain() {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          tool: "code_explain",
-          input: code,
+          tool: "algorithm_help",
+          input: problem,
         }),
       });
 
@@ -50,11 +52,11 @@ export default function CodeExplain() {
       if (data.success) {
         setResult(data.data);
       } else {
-        setError(data.message || "Failed to explain code");
+        setError(data.message || "Failed to analyze algorithm problem");
       }
     } catch (err) {
       setError("Network error. Please try again.");
-      console.error("Code explanation error:", err);
+      console.error("Algorithm help error:", err);
     } finally {
       setIsAnalyzing(false);
     }
@@ -69,32 +71,38 @@ export default function CodeExplain() {
   };
 
   const handleClear = () => {
-    setCode("");
+    setProblem("");
     setResult(null);
     setError("");
   };
 
-  const exampleCode = `function fibonacci(n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
-}
+  const exampleProblems = [
+    "Find the shortest path between two nodes in a graph",
+    "Sort an array of integers in ascending order efficiently", 
+    "Check if a string is a palindrome",
+    "Find the maximum subarray sum (Kadane's algorithm)",
+    "Implement a binary search algorithm",
+    "Reverse a linked list iteratively and recursively"
+  ];
 
-console.log(fibonacci(10));`;
+  const handleExampleClick = (example) => {
+    setProblem(example);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-3 bg-blue-500/10 rounded-xl">
-            <Code className="h-8 w-8 text-blue-500" />
+          <div className="p-3 bg-purple-500/10 rounded-xl">
+            <Target className="h-8 w-8 text-purple-500" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
-            Code Explainer
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+            Algorithm Helper
           </h1>
         </div>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Get AI-powered explanations for any code snippet in multiple programming languages
+          Understand complex algorithms with step-by-step explanations and optimized solutions
         </p>
       </div>
 
@@ -103,32 +111,42 @@ console.log(fibonacci(10));`;
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Code className="h-5 w-5" />
-              Code Input
+              <Brain className="h-5 w-5" />
+              Algorithm Problem
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <label className="text-sm font-medium mb-2 block">
-                Paste your code here:
+                Describe your algorithm problem:
               </label>
               <Textarea
-                placeholder="Enter your code snippet..."
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="min-h-[250px] font-mono text-sm"
+                placeholder="Example: Find the longest common subsequence between two strings..."
+                value={problem}
+                onChange={(e) => setProblem(e.target.value)}
+                className="min-h-[150px]"
               />
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCode(exampleCode)}
-              className="w-full"
-            >
-              <Lightbulb className="h-4 w-4 mr-2" />
-              Try Example Code
-            </Button>
+            {/* Example Problems */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Or try these examples:
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {exampleProblems.map((example, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleExampleClick(example)}
+                    className="text-left justify-start h-auto p-3 text-sm"
+                  >
+                    {example}
+                  </Button>
+                ))}
+              </div>
+            </div>
 
             {error && (
               <Alert variant="destructive">
@@ -139,7 +157,7 @@ console.log(fibonacci(10));`;
 
             <div className="flex gap-2">
               <Button
-                onClick={handleExplain}
+                onClick={handleAnalyze}
                 disabled={isAnalyzing}
                 className="flex-1"
               >
@@ -150,8 +168,8 @@ console.log(fibonacci(10));`;
                   </>
                 ) : (
                   <>
-                    <Play className="h-4 w-4 mr-2" />
-                    Explain Code
+                    <Target className="h-4 w-4 mr-2" />
+                    Get Algorithm Help
                   </>
                 )}
               </Button>
@@ -168,7 +186,7 @@ console.log(fibonacci(10));`;
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5" />
-                Code Explanation
+                Algorithm Solution
               </span>
               {result && (
                 <Button
@@ -196,7 +214,7 @@ console.log(fibonacci(10));`;
             {result ? (
               <div className="space-y-4">
                 <div className="p-4 bg-muted rounded-lg">
-                  <pre className="text-sm whitespace-pre-wrap overflow-x-auto">
+                  <pre className="text-sm whitespace-pre-wrap font-mono overflow-x-auto">
                     {result.output}
                   </pre>
                 </div>
@@ -215,8 +233,8 @@ console.log(fibonacci(10));`;
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                <Code className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Enter your code and click "Explain Code" to get detailed explanations</p>
+                <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Describe your algorithm problem to get detailed explanations and solutions</p>
               </div>
             )}
           </CardContent>
@@ -226,19 +244,19 @@ console.log(fibonacci(10));`;
       {/* Features */}
       <div className="mt-12">
         <h3 className="text-2xl font-semibold mb-6 text-center">
-          Code Explainer Features
+          Algorithm Helper Features
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Code className="h-5 w-5 text-blue-500" />
-                Multi-language Support
+                <BookOpen className="h-5 w-5 text-blue-500" />
+                Step-by-Step
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Support for JavaScript, Python, Java, C++, and many other programming languages
+                Get detailed breakdowns of algorithm logic and implementation steps
               </p>
             </CardContent>
           </Card>
@@ -246,13 +264,13 @@ console.log(fibonacci(10));`;
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-green-500" />
-                Line-by-line Breakdown
+                <Clock className="h-5 w-5 text-green-500" />
+                Complexity Analysis
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Get detailed explanations of what each part of your code does
+                Understand time and space complexity with Big O notation explanations
               </p>
             </CardContent>
           </Card>
@@ -260,13 +278,27 @@ console.log(fibonacci(10));`;
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Lightbulb className="h-5 w-5 text-yellow-500" />
-                Best Practices Tips
+                <Zap className="h-5 w-5 text-yellow-500" />
+                Optimizations
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Learn coding best practices and suggestions for improvement
+                Learn how to optimize algorithms for better performance and efficiency
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-purple-500" />
+                Alternative Approaches
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Explore different algorithmic approaches and when to use each one
               </p>
             </CardContent>
           </Card>
