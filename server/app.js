@@ -8,6 +8,10 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
+// Import utilities
+const database = require('./config/database');
+const logger = require('./utils/logger');
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
@@ -209,7 +213,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Start server
 const server = app.listen(PORT, () => {
-  console.log(`🚀 DevHub API Server running on port ${PORT}`);
+  console.log(`���� DevHub API Server running on port ${PORT}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 API Base URL: http://localhost:${PORT}/api`);
   console.log(`❤️  Health Check: http://localhost:${PORT}/health`);
