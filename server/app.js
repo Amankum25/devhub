@@ -230,13 +230,17 @@ async function startServer() {
       logger.info(`📝 Environment: ${process.env.NODE_ENV || "development"}`);
       logger.info(`🌐 API Base URL: http://localhost:${PORT}/api`);
       logger.info(`❤️  Health Check: http://localhost:${PORT}/health`);
-      logger.info(`🍃 MongoDB Database: ${database.isConnected() ? 'Connected' : 'Disconnected'}`);
+      logger.info(
+        `🍃 MongoDB Database: ${database.isConnected() ? "Connected" : "Disconnected"}`,
+      );
     });
 
     return server;
   } catch (error) {
     logger.error("Failed to start server:", error);
-    console.error("MongoDB connection error. Please ensure MongoDB is running on mongodb://localhost:27017");
+    console.error(
+      "MongoDB connection error. Please ensure MongoDB is running on mongodb://localhost:27017",
+    );
     process.exit(1);
   }
 }

@@ -13,17 +13,20 @@ Before you begin, ensure you have the following installed on your system:
 ## 🛠️ Step 1: Project Setup
 
 ### 1.1 Create Project Directory
+
 ```bash
 mkdir devhub-ai
 cd devhub-ai
 ```
 
 ### 1.2 Initialize Git Repository
+
 ```bash
 git init
 ```
 
 ### 1.3 Copy All Project Files
+
 Copy all the project files to your `devhub-ai` directory, maintaining the following structure:
 
 ```
@@ -57,6 +60,7 @@ devhub-ai/
 ### 2.1 Install MongoDB
 
 #### Windows:
+
 1. Download MongoDB Community Server from [MongoDB Download Center](https://www.mongodb.com/try/download/community)
 2. Run the installer and follow the setup wizard
 3. Choose "Complete" installation
@@ -64,6 +68,7 @@ devhub-ai/
 5. Install MongoDB Compass (optional GUI tool)
 
 #### macOS:
+
 ```bash
 # Using Homebrew
 brew tap mongodb/brew
@@ -71,6 +76,7 @@ brew install mongodb-community
 ```
 
 #### Linux (Ubuntu/Debian):
+
 ```bash
 # Import MongoDB public GPG Key
 wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
@@ -88,23 +94,28 @@ sudo apt-get install -y mongodb-org
 ### 2.2 Start MongoDB Service
 
 #### Windows:
+
 MongoDB should start automatically as a Windows service. If not:
+
 ```cmd
 net start MongoDB
 ```
 
 #### macOS:
+
 ```bash
 brew services start mongodb-community
 ```
 
 #### Linux:
+
 ```bash
 sudo systemctl start mongod
 sudo systemctl enable mongod
 ```
 
 ### 2.3 Verify MongoDB Installation
+
 ```bash
 # Check if MongoDB is running
 mongosh --eval "db.adminCommand('ismaster')"
@@ -113,11 +124,13 @@ mongosh --eval "db.adminCommand('ismaster')"
 ## 📦 Step 3: Install Dependencies
 
 ### 3.1 Install All Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3.2 Install Additional MongoDB Dependencies
+
 ```bash
 npm install mongoose slugify
 ```
@@ -125,6 +138,7 @@ npm install mongoose slugify
 ## ⚙️ Step 4: Environment Configuration
 
 ### 4.1 Create Environment File
+
 Copy the example environment file and customize it:
 
 ```bash
@@ -132,6 +146,7 @@ cp .env.example .env
 ```
 
 ### 4.2 Configure .env File
+
 Edit the `.env` file with your settings:
 
 ```env
@@ -198,6 +213,7 @@ SECURE_COOKIES=false
 ## 🎨 Step 5: VS Code Setup
 
 ### 5.1 Install Recommended Extensions
+
 Open VS Code and install these extensions:
 
 ```bash
@@ -206,6 +222,7 @@ code .
 ```
 
 Install the following extensions:
+
 - **ES7+ React/Redux/React-Native snippets**
 - **Prettier - Code formatter**
 - **ESLint**
@@ -218,6 +235,7 @@ Install the following extensions:
 - **JavaScript (ES6) code snippets**
 
 ### 5.2 Configure VS Code Settings
+
 Create `.vscode/settings.json`:
 
 ```json
@@ -244,6 +262,7 @@ Create `.vscode/settings.json`:
 ```
 
 ### 5.3 Configure Launch Configuration
+
 Create `.vscode/launch.json`:
 
 ```json
@@ -281,6 +300,7 @@ Create `.vscode/launch.json`:
 ```
 
 ### 5.4 Configure Tasks
+
 Create `.vscode/tasks.json`:
 
 ```json
@@ -333,6 +353,7 @@ Create `.vscode/tasks.json`:
 ## 🚀 Step 6: Running the Application
 
 ### 6.1 Start Development Environment
+
 ```bash
 # Make sure MongoDB is running first
 mongosh --eval "db.adminCommand('ismaster')"
@@ -347,16 +368,19 @@ npm run dev
 ### 6.2 Alternative: Start Services Separately
 
 #### Terminal 1 - Backend:
+
 ```bash
 npm run server:dev
 ```
 
 #### Terminal 2 - Frontend:
+
 ```bash
 npm run client:dev
 ```
 
 ### 6.3 Verify Installation
+
 - **Frontend**: http://localhost:8080
 - **Backend API**: http://localhost:3001/api
 - **Health Check**: http://localhost:3001/health
@@ -364,6 +388,7 @@ npm run client:dev
 ## 🔧 Step 7: Development Commands
 
 ### Essential Commands:
+
 ```bash
 # Install dependencies
 npm install
@@ -394,6 +419,7 @@ npm run lint:fix
 ```
 
 ### MongoDB Commands:
+
 ```bash
 # Connect to MongoDB shell
 mongosh
@@ -475,6 +501,7 @@ devhub-ai/
 ## 🎯 Step 10: Features Overview
 
 ### ✅ Completed Features:
+
 - **User Authentication**: Registration, login, JWT tokens, sessions
 - **Dashboard**: User statistics, quick actions, recent activity
 - **Blog System**: Create, edit, view posts with rich content
@@ -487,6 +514,7 @@ devhub-ai/
 - **File Uploads**: Avatar and document upload system
 
 ### 🎨 UI Enhancements:
+
 - **Modern Design**: Gradient backgrounds, glass effects, animations
 - **Dark/Light Theme**: Toggle between themes
 - **Smooth Animations**: Page transitions, hover effects, loading states
@@ -498,6 +526,7 @@ devhub-ai/
 ### Common Issues:
 
 #### 1. MongoDB Connection Error:
+
 ```bash
 # Check if MongoDB is running
 mongosh --eval "db.adminCommand('ismaster')"
@@ -509,6 +538,7 @@ mongosh --eval "db.adminCommand('ismaster')"
 ```
 
 #### 2. Port Already in Use:
+
 ```bash
 # Kill process on port 3001
 npx kill-port 3001
@@ -518,6 +548,7 @@ npx kill-port 8080
 ```
 
 #### 3. Node Modules Issues:
+
 ```bash
 # Clear npm cache and reinstall
 rm -rf node_modules package-lock.json
@@ -526,6 +557,7 @@ npm install
 ```
 
 #### 4. Environment Variables Not Loading:
+
 - Ensure `.env` file is in the root directory
 - Check for typos in variable names
 - Restart the development server

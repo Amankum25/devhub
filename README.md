@@ -11,6 +11,7 @@ A modern, full-stack developer community platform with AI-powered tools, real-ti
 ## ✨ Features
 
 ### 🎯 Core Features
+
 - **🔐 User Authentication** - Secure JWT-based authentication with sessions
 - **📊 Interactive Dashboard** - User statistics, activity tracking, and quick actions
 - **📝 Blog System** - Rich content creation with markdown support
@@ -21,6 +22,7 @@ A modern, full-stack developer community platform with AI-powered tools, real-ti
 - **⚡ Admin Panel** - Comprehensive platform management and analytics
 
 ### 🎨 UI/UX Features
+
 - **🌙 Dark/Light Theme** - Toggle between beautiful themes
 - **📱 Responsive Design** - Mobile-first, optimized for all devices
 - **✨ Modern Animations** - Smooth transitions and micro-interactions
@@ -31,11 +33,13 @@ A modern, full-stack developer community platform with AI-powered tools, real-ti
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js (v16+)
 - MongoDB (v5.0+)
 - Git
 
 ### 1. Clone & Setup
+
 ```bash
 # Clone the repository
 git clone <your-repo-url>
@@ -46,6 +50,7 @@ npm install
 ```
 
 ### 2. Start MongoDB
+
 ```bash
 # Windows
 net start MongoDB
@@ -58,6 +63,7 @@ sudo systemctl start mongod
 ```
 
 ### 3. Configure Environment
+
 ```bash
 # Copy environment template
 cp .env.example .env
@@ -69,6 +75,7 @@ cp .env.example .env
 ```
 
 ### 4. Start Development
+
 ```bash
 # Start both frontend and backend
 npm run dev
@@ -79,17 +86,20 @@ npm run client:dev  # Frontend only
 ```
 
 ### 5. Access Application
+
 - **Frontend**: http://localhost:8080
 - **Backend API**: http://localhost:3001/api
 - **Admin Panel**: http://localhost:8080/admin
 
 ### 6. Default Admin Login
+
 - **Email**: admin@devhub.com
 - **Password**: admin123
 
 ## 📦 Commands Reference
 
 ### Development
+
 ```bash
 npm run dev              # Start full development environment
 npm run server:dev       # Start backend only
@@ -99,6 +109,7 @@ npm run start            # Start production server
 ```
 
 ### Code Quality
+
 ```bash
 npm run lint             # Check code style
 npm run lint:fix         # Fix linting issues
@@ -107,6 +118,7 @@ npm test                 # Run tests
 ```
 
 ### Database
+
 ```bash
 # MongoDB shell commands
 mongosh                  # Connect to MongoDB
@@ -118,6 +130,7 @@ db.users.find()         # List all users
 ## 🏗️ Architecture
 
 ### Tech Stack
+
 - **Frontend**: React 18 + Vite + Tailwind CSS
 - **Backend**: Node.js + Express.js + MongoDB
 - **Database**: MongoDB with Mongoose ODM
@@ -127,6 +140,7 @@ db.users.find()         # List all users
 - **UI Components**: Radix UI + Custom components
 
 ### Project Structure
+
 ```
 devhub-ai/
 ├── client/              # React frontend
@@ -147,6 +161,7 @@ devhub-ai/
 ## 🎨 UI Components
 
 ### Enhanced Components
+
 - **Navigation** - Responsive navbar with user menu
 - **Dashboard Cards** - Statistics and quick actions
 - **Blog Editor** - Rich text editor with preview
@@ -157,6 +172,7 @@ devhub-ai/
 - **Error Boundaries** - Graceful error handling
 
 ### Design System
+
 - **Colors**: Blue/Purple gradients with semantic colors
 - **Typography**: Inter font family with custom weights
 - **Spacing**: Consistent spacing scale
@@ -166,6 +182,7 @@ devhub-ai/
 ## 🔐 Authentication
 
 ### Features
+
 - User registration with email verification
 - Secure login with JWT tokens
 - Refresh token rotation
@@ -175,6 +192,7 @@ devhub-ai/
 - Admin role management
 
 ### API Endpoints
+
 ```
 POST /api/auth/register    # User registration
 POST /api/auth/login       # User login
@@ -186,6 +204,7 @@ GET  /api/auth/me          # Get current user
 ## 📊 API Documentation
 
 ### Core Endpoints
+
 ```
 # Authentication
 POST /api/auth/register
@@ -230,6 +249,7 @@ GET  /api/admin/posts
 ## 🎯 Deployment
 
 ### Production Build
+
 ```bash
 # Build the application
 npm run build
@@ -239,6 +259,7 @@ npm start
 ```
 
 ### Environment Variables
+
 ```env
 NODE_ENV=production
 MONGODB_URI=your-production-mongodb-uri
@@ -247,6 +268,7 @@ FRONTEND_URL=your-production-frontend-url
 ```
 
 ### Docker Deployment
+
 ```dockerfile
 # Dockerfile example
 FROM node:18-alpine
@@ -268,6 +290,7 @@ CMD ["npm", "start"]
 5. Open a pull request
 
 ### Development Guidelines
+
 - Follow the existing code style
 - Write meaningful commit messages
 - Add tests for new features
