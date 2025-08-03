@@ -294,9 +294,10 @@ export default function Index() {
             <div className="relative">
               <div className="glass rounded-2xl p-8 h-96 flex items-center justify-center">
                 <div className="text-center">
-                  {React.createElement(features[currentFeature].icon, {
-                    className: `h-24 w-24 mx-auto mb-6 text-blue-500 animate-float`,
-                  })}
+                  {(() => {
+                    const FeatureIcon = features[currentFeature].icon;
+                    return <FeatureIcon className="h-24 w-24 mx-auto mb-6 text-blue-500 animate-float" />;
+                  })()}
                   <h3 className="text-2xl font-bold mb-4 text-slate-800 dark:text-white">
                     {features[currentFeature].title}
                   </h3>
