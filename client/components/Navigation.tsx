@@ -70,6 +70,12 @@ const Navigation = () => {
                 Dashboard
               </Button>
             </Link>
+            <Link to="/admin">
+              <Button variant="ghost" size="sm">
+                <Settings className="h-4 w-4 mr-1" />
+                Admin
+              </Button>
+            </Link>
             <Link to="/login">
               <Button variant="ghost" size="sm">
                 <LogIn className="h-4 w-4 mr-1" />
