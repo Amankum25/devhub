@@ -1,57 +1,63 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Eye, 
-  EyeOff, 
-  LogIn, 
-  Chrome, 
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Eye,
+  EyeOff,
+  LogIn,
+  Chrome,
   Github,
   Mail,
   Lock,
-  ArrowLeft
-} from 'lucide-react';
+  ArrowLeft,
+} from "lucide-react";
 
 export default function Login() {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear error when user starts typing
-    if (error) setError('');
+    if (error) setError("");
   };
 
   const validateForm = () => {
     if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       return false;
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
+      setError("Please enter a valid email address");
       return false;
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError("Password must be at least 6 characters long");
       return false;
     }
 
@@ -60,38 +66,41 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       // For demo purposes, accept any valid email/password
       if (formData.email && formData.password.length >= 6) {
         toast({
           title: "Login Successful!",
           description: "Welcome back to DevHub.",
         });
-        
+
         // Store user session (in real app, this would be JWT token)
-        localStorage.setItem('devhub_user', JSON.stringify({
-          email: formData.email,
-          name: formData.email.split('@')[0],
-          loggedIn: true,
-          loginTime: new Date().toISOString()
-        }));
-        
+        localStorage.setItem(
+          "devhub_user",
+          JSON.stringify({
+            email: formData.email,
+            name: formData.email.split("@")[0],
+            loggedIn: true,
+            loginTime: new Date().toISOString(),
+          }),
+        );
+
         // Redirect to dashboard
-        navigate('/dashboard');
+        navigate("/dashboard");
       } else {
-        setError('Invalid email or password');
+        setError("Invalid email or password");
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -115,8 +124,8 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Back to Home */}
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
@@ -134,7 +143,7 @@ export default function Login() {
               Sign in to your DevHub account to continue
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-4">
             {/* Error Alert */}
             {error && (
@@ -182,7 +191,11 @@ export default function Login() {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     disabled={isLoading}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -198,19 +211,15 @@ export default function Login() {
                     Remember me
                   </Label>
                 </div>
-                <Link 
-                  to="/forgot-password" 
+                <Link
+                  to="/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
                   Forgot password?
                 </Link>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
@@ -239,16 +248,16 @@ export default function Login() {
 
             {/* OAuth Buttons */}
             <div className="grid grid-cols-2 gap-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
               >
                 <Chrome className="h-4 w-4 mr-2" />
                 Google
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleGithubLogin}
                 disabled={isLoading}
               >
@@ -260,8 +269,11 @@ export default function Login() {
             {/* Sign Up Link */}
             <div className="text-center">
               <span className="text-sm text-muted-foreground">
-                Don't have an account?{' '}
-                <Link to="/register" className="text-primary hover:underline font-medium">
+                Don't have an account?{" "}
+                <Link
+                  to="/register"
+                  className="text-primary hover:underline font-medium"
+                >
                   Sign up
                 </Link>
               </span>
@@ -273,7 +285,8 @@ export default function Login() {
         <Card className="bg-muted/50">
           <CardContent className="pt-4">
             <p className="text-xs text-muted-foreground text-center">
-              <strong>Demo:</strong> Use any valid email and password (6+ chars) to login
+              <strong>Demo:</strong> Use any valid email and password (6+ chars)
+              to login
             </p>
           </CardContent>
         </Card>

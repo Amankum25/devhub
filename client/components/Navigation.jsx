@@ -1,12 +1,25 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Button } from './ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { 
-  Menu, X, Bell, Search, Settings, LogOut, User, 
-  Code, MessageSquare, BookOpen, Zap, Shield,
-  ChevronDown, Sun, Moon, Sparkles
-} from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  Menu,
+  X,
+  Bell,
+  Search,
+  Settings,
+  LogOut,
+  User,
+  Code,
+  MessageSquare,
+  BookOpen,
+  Zap,
+  Shield,
+  ChevronDown,
+  Sun,
+  Moon,
+  Sparkles,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +27,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
+} from "./ui/dropdown-menu";
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,13 +44,13 @@ export default function Navigation() {
       setIsScrolled(window.scrollY > 20);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
     // Check localStorage for user session
-    const savedUser = localStorage.getItem('user');
+    const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -45,40 +58,41 @@ export default function Navigation() {
 
   const toggleTheme = () => {
     setIsDark(!isDark);
-    document.documentElement.classList.toggle('dark');
+    document.documentElement.classList.toggle("dark");
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
     setUser(null);
-    navigate('/');
+    navigate("/");
   };
 
   const navItems = [
-    { name: 'Home', path: '/', icon: null },
-    { name: 'Blog', path: '/blog', icon: BookOpen },
-    { name: 'AI Tools', path: '/ai-tools', icon: Zap },
-    { name: 'Snippets', path: '/code-snippets', icon: Code },
-    { name: 'Chat', path: '/chat', icon: MessageSquare },
+    { name: "Home", path: "/", icon: null },
+    { name: "Blog", path: "/blog", icon: BookOpen },
+    { name: "AI Tools", path: "/ai-tools", icon: Zap },
+    { name: "Snippets", path: "/code-snippets", icon: Code },
+    { name: "Chat", path: "/chat", icon: MessageSquare },
   ];
 
   const isActive = (path) => {
-    if (path === '/') {
-      return location.pathname === '/';
+    if (path === "/") {
+      return location.pathname === "/";
     }
     return location.pathname.startsWith(path);
   };
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/20 dark:border-slate-700/20 shadow-lg' 
-          : 'bg-transparent'
-      }`}>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/20 dark:border-slate-700/20 shadow-lg"
+            : "bg-transparent"
+        }`}
+      >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group">
               <div className="relative">
@@ -93,7 +107,9 @@ export default function Navigation() {
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   DevHub
                 </h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 -mt-1">AI-Powered</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 -mt-1">
+                  AI-Powered
+                </p>
               </div>
             </Link>
 
@@ -107,8 +123,8 @@ export default function Navigation() {
                     to={item.path}
                     className={`relative flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 group ${
                       isActive(item.path)
-                        ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                        : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                        ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                        : "text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                     }`}
                   >
                     {Icon && <Icon className="h-4 w-4" />}
@@ -123,11 +139,10 @@ export default function Navigation() {
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-4">
-              
               {/* Search */}
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="hidden sm:flex items-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
               >
                 <Search className="h-4 w-4" />
@@ -141,15 +156,19 @@ export default function Navigation() {
                 onClick={toggleTheme}
                 className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
               >
-                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {isDark ? (
+                  <Sun className="h-4 w-4" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
               </Button>
 
               {user ? (
                 <>
                   {/* Notifications */}
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="relative text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
                   >
                     <Bell className="h-4 w-4" />
@@ -161,14 +180,17 @@ export default function Navigation() {
                   {/* User Menu */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         className="relative h-10 w-10 rounded-full ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all duration-300"
                       >
                         <Avatar className="h-9 w-9">
-                          <AvatarImage src={user.avatar || "/placeholder.svg"} />
+                          <AvatarImage
+                            src={user.avatar || "/placeholder.svg"}
+                          />
                           <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                            {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                            {user.firstName?.charAt(0)}
+                            {user.lastName?.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       </Button>
@@ -177,32 +199,48 @@ export default function Navigation() {
                       <DropdownMenuLabel className="pb-2">
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={user.avatar || "/placeholder.svg"} />
+                            <AvatarImage
+                              src={user.avatar || "/placeholder.svg"}
+                            />
                             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                              {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                              {user.firstName?.charAt(0)}
+                              {user.lastName?.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{user.firstName} {user.lastName}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
+                            <p className="font-medium">
+                              {user.firstName} {user.lastName}
+                            </p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                              {user.email}
+                            </p>
                           </div>
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link to="/dashboard" className="flex items-center space-x-2 cursor-pointer">
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center space-x-2 cursor-pointer"
+                        >
                           <User className="h-4 w-4" />
                           <span>Dashboard</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/profile" className="flex items-center space-x-2 cursor-pointer">
+                        <Link
+                          to="/profile"
+                          className="flex items-center space-x-2 cursor-pointer"
+                        >
                           <User className="h-4 w-4" />
                           <span>Profile</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/settings" className="flex items-center space-x-2 cursor-pointer">
+                        <Link
+                          to="/settings"
+                          className="flex items-center space-x-2 cursor-pointer"
+                        >
                           <Settings className="h-4 w-4" />
                           <span>Settings</span>
                         </Link>
@@ -211,7 +249,10 @@ export default function Navigation() {
                         <>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild>
-                            <Link to="/admin" className="flex items-center space-x-2 cursor-pointer text-purple-600 dark:text-purple-400">
+                            <Link
+                              to="/admin"
+                              className="flex items-center space-x-2 cursor-pointer text-purple-600 dark:text-purple-400"
+                            >
                               <Shield className="h-4 w-4" />
                               <span>Admin Panel</span>
                             </Link>
@@ -219,7 +260,7 @@ export default function Navigation() {
                         </>
                       )}
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={handleLogout}
                         className="flex items-center space-x-2 cursor-pointer text-red-600 dark:text-red-400"
                       >
@@ -232,7 +273,10 @@ export default function Navigation() {
               ) : (
                 <div className="hidden sm:flex items-center space-x-3">
                   <Link to="/login">
-                    <Button variant="ghost" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400">
+                    <Button
+                      variant="ghost"
+                      className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
+                    >
                       Sign In
                     </Button>
                   </Link>
@@ -251,7 +295,11 @@ export default function Navigation() {
                 onClick={() => setIsOpen(!isOpen)}
                 className="lg:hidden text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
               >
-                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
               </Button>
             </div>
           </div>
@@ -261,14 +309,22 @@ export default function Navigation() {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setIsOpen(false)}
+          />
           <div className="fixed top-0 right-0 h-full w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-l border-slate-200/20 dark:border-slate-700/20 shadow-2xl animate-slide-left">
             <div className="p-6 space-y-6">
-              
               {/* Mobile Header */}
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Menu</h2>
-                <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                  Menu
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsOpen(false)}
+                >
                   <X className="h-5 w-5" />
                 </Button>
               </div>
@@ -284,8 +340,8 @@ export default function Navigation() {
                       onClick={() => setIsOpen(false)}
                       className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                         isActive(item.path)
-                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                       }`}
                     >
                       {Icon && <Icon className="h-5 w-5" />}
@@ -318,17 +374,20 @@ export default function Navigation() {
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={user.avatar || "/placeholder.svg"} />
                       <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                        {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                        {user.firstName?.charAt(0)}
+                        {user.lastName?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium text-slate-800 dark:text-white">
                         {user.firstName} {user.lastName}
                       </p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {user.email}
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Link
                       to="/dashboard"

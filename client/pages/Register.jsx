@@ -1,61 +1,68 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Eye, 
-  EyeOff, 
-  UserPlus, 
-  Chrome, 
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Eye,
+  EyeOff,
+  UserPlus,
+  Chrome,
   Github,
   Mail,
   Lock,
   User,
   ArrowLeft,
   CheckCircle,
-  Upload
-} from 'lucide-react';
+  Upload,
+} from "lucide-react";
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    githubProfile: '',
-    linkedinProfile: ''
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    githubProfile: "",
+    linkedinProfile: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [avatar, setAvatar] = useState(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear error when user starts typing
-    if (error) setError('');
+    if (error) setError("");
   };
 
   const handleAvatarUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setError('Avatar file size must be less than 5MB');
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB limit
+        setError("Avatar file size must be less than 5MB");
         return;
       }
-      
+
       const reader = new FileReader();
       reader.onload = (e) => {
         setAvatar(e.target.result);
@@ -65,35 +72,47 @@ export default function Register() {
   };
 
   const validateForm = () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError('Please fill in all required fields');
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      setError("Please fill in all required fields");
       return false;
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
+      setError("Please enter a valid email address");
       return false;
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError("Password must be at least 6 characters long");
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return false;
     }
 
     // Validate URLs if provided
-    if (formData.githubProfile && !formData.githubProfile.includes('github.com')) {
-      setError('Please enter a valid GitHub profile URL');
+    if (
+      formData.githubProfile &&
+      !formData.githubProfile.includes("github.com")
+    ) {
+      setError("Please enter a valid GitHub profile URL");
       return false;
     }
 
-    if (formData.linkedinProfile && !formData.linkedinProfile.includes('linkedin.com')) {
-      setError('Please enter a valid LinkedIn profile URL');
+    if (
+      formData.linkedinProfile &&
+      !formData.linkedinProfile.includes("linkedin.com")
+    ) {
+      setError("Please enter a valid LinkedIn profile URL");
       return false;
     }
 
@@ -102,38 +121,42 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       toast({
         title: "Account Created Successfully!",
-        description: "Welcome to DevHub! Please check your email for verification.",
+        description:
+          "Welcome to DevHub! Please check your email for verification.",
       });
-      
+
       // Store user session
-      localStorage.setItem('devhub_user', JSON.stringify({
-        email: formData.email,
-        name: `${formData.firstName} ${formData.lastName}`,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        githubProfile: formData.githubProfile,
-        linkedinProfile: formData.linkedinProfile,
-        avatar: avatar,
-        loggedIn: true,
-        registeredAt: new Date().toISOString()
-      }));
-      
+      localStorage.setItem(
+        "devhub_user",
+        JSON.stringify({
+          email: formData.email,
+          name: `${formData.firstName} ${formData.lastName}`,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          githubProfile: formData.githubProfile,
+          linkedinProfile: formData.linkedinProfile,
+          avatar: avatar,
+          loggedIn: true,
+          registeredAt: new Date().toISOString(),
+        }),
+      );
+
       // Redirect to dashboard
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      setError("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -157,8 +180,8 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
       <div className="w-full max-w-lg space-y-6">
         {/* Back to Home */}
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
@@ -176,7 +199,7 @@ export default function Register() {
               Create your account to start building, learning, and sharing
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-4">
             {/* Error Alert */}
             {error && (
@@ -192,12 +215,19 @@ export default function Register() {
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                     {avatar ? (
-                      <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                      <img
+                        src={avatar}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <User className="h-8 w-8 text-muted-foreground" />
                     )}
                   </div>
-                  <label htmlFor="avatar" className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-1 cursor-pointer hover:bg-primary/90 transition-colors">
+                  <label
+                    htmlFor="avatar"
+                    className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-1 cursor-pointer hover:bg-primary/90 transition-colors"
+                  >
                     <Upload className="h-3 w-3" />
                   </label>
                   <input
@@ -209,7 +239,9 @@ export default function Register() {
                     disabled={isLoading}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">Upload your profile picture (optional)</p>
+                <p className="text-xs text-muted-foreground">
+                  Upload your profile picture (optional)
+                </p>
               </div>
 
               {/* Name Fields */}
@@ -283,7 +315,11 @@ export default function Register() {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     disabled={isLoading}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -310,15 +346,21 @@ export default function Register() {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     disabled={isLoading}
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
 
               {/* Social Profiles (Optional) */}
               <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Social Profiles (Optional)</h4>
-                
+                <h4 className="text-sm font-medium text-muted-foreground">
+                  Social Profiles (Optional)
+                </h4>
+
                 <div className="space-y-2">
                   <Label htmlFor="githubProfile">GitHub Profile</Label>
                   <div className="relative">
@@ -363,22 +405,18 @@ export default function Register() {
                   required
                 />
                 <Label htmlFor="terms" className="text-sm">
-                  I agree to the{' '}
+                  I agree to the{" "}
                   <Link to="/terms" className="text-primary hover:underline">
                     Terms of Service
-                  </Link>{' '}
-                  and{' '}
+                  </Link>{" "}
+                  and{" "}
                   <Link to="/privacy" className="text-primary hover:underline">
                     Privacy Policy
                   </Link>
                 </Label>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
@@ -407,16 +445,16 @@ export default function Register() {
 
             {/* OAuth Buttons */}
             <div className="grid grid-cols-2 gap-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleGoogleSignup}
                 disabled={isLoading}
               >
                 <Chrome className="h-4 w-4 mr-2" />
                 Google
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleGithubSignup}
                 disabled={isLoading}
               >
@@ -428,8 +466,11 @@ export default function Register() {
             {/* Login Link */}
             <div className="text-center">
               <span className="text-sm text-muted-foreground">
-                Already have an account?{' '}
-                <Link to="/login" className="text-primary hover:underline font-medium">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="text-primary hover:underline font-medium"
+                >
                   Sign in
                 </Link>
               </span>

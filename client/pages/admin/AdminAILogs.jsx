@@ -1,43 +1,42 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Activity,
-  Bot,
-  User,
-  Clock,
-  TrendingUp,
-  FileText
-} from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Activity, Bot, User, Clock, TrendingUp, FileText } from "lucide-react";
 
 const AdminAILogs = () => {
   const logs = [
     {
       id: 1,
-      user: 'John Doe',
-      tool: 'Code Explainer',
-      prompt: 'Explain this React component...',
-      response: 'This React component is a functional component that...',
-      time: '2 hours ago',
-      status: 'completed'
+      user: "John Doe",
+      tool: "Code Explainer",
+      prompt: "Explain this React component...",
+      response: "This React component is a functional component that...",
+      time: "2 hours ago",
+      status: "completed",
     },
     {
       id: 2,
-      user: 'Jane Smith',
-      tool: 'Resume Review',
-      prompt: 'Review my software engineer resume',
-      response: 'Your resume shows strong technical skills...',
-      time: '3 hours ago',
-      status: 'completed'
+      user: "Jane Smith",
+      tool: "Resume Review",
+      prompt: "Review my software engineer resume",
+      response: "Your resume shows strong technical skills...",
+      time: "3 hours ago",
+      status: "completed",
     },
     {
       id: 3,
-      user: 'Alice Johnson',
-      tool: 'Project Suggestions',
-      prompt: 'Suggest projects for React and Node.js',
-      response: 'Here are 5 project ideas for your skill level...',
-      time: '5 hours ago',
-      status: 'completed'
-    }
+      user: "Alice Johnson",
+      tool: "Project Suggestions",
+      prompt: "Suggest projects for React and Node.js",
+      response: "Here are 5 project ideas for your skill level...",
+      time: "5 hours ago",
+      status: "completed",
+    },
   ];
 
   return (
@@ -51,7 +50,9 @@ const AdminAILogs = () => {
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold text-gray-900">1,245</div>
-            <p className="text-sm text-blue-600 font-medium">Total Interactions</p>
+            <p className="text-sm text-blue-600 font-medium">
+              Total Interactions
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -63,7 +64,9 @@ const AdminAILogs = () => {
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold text-gray-900">4.2s</div>
-            <p className="text-sm text-purple-600 font-medium">Avg Response Time</p>
+            <p className="text-sm text-purple-600 font-medium">
+              Avg Response Time
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -88,7 +91,9 @@ const AdminAILogs = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
                         <User className="h-4 w-4 text-gray-400" />
-                        <span className="font-medium text-gray-900">{log.user}</span>
+                        <span className="font-medium text-gray-900">
+                          {log.user}
+                        </span>
                         <Badge variant="outline">{log.tool}</Badge>
                       </div>
                       <div className="space-y-2">
@@ -97,8 +102,12 @@ const AdminAILogs = () => {
                           <p className="text-sm text-gray-700">{log.prompt}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Response:</p>
-                          <p className="text-sm text-gray-700 truncate">{log.response}</p>
+                          <p className="text-xs text-gray-500 mb-1">
+                            Response:
+                          </p>
+                          <p className="text-sm text-gray-700 truncate">
+                            {log.response}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2 text-xs text-gray-500 mt-2">
@@ -121,22 +130,31 @@ const AdminAILogs = () => {
           <CardContent>
             <div className="space-y-3">
               {[
-                { name: 'Code Explainer', usage: 345, growth: '+12%' },
-                { name: 'Resume Review', usage: 234, growth: '+8%' },
-                { name: 'Project Suggestions', usage: 189, growth: '+15%' },
-                { name: 'Bug Fixer', usage: 156, growth: '+5%' }
+                { name: "Code Explainer", usage: 345, growth: "+12%" },
+                { name: "Resume Review", usage: 234, growth: "+8%" },
+                { name: "Project Suggestions", usage: 189, growth: "+15%" },
+                { name: "Bug Fixer", usage: 156, growth: "+5%" },
               ].map((tool, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div className="flex items-center space-x-3">
                     <Bot className="h-5 w-5 text-blue-500" />
                     <div>
-                      <div className="font-medium text-gray-900">{tool.name}</div>
-                      <div className="text-sm text-gray-500">{tool.usage} uses this month</div>
+                      <div className="font-medium text-gray-900">
+                        {tool.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {tool.usage} uses this month
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <TrendingUp className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-green-600">{tool.growth}</span>
+                    <span className="text-sm text-green-600">
+                      {tool.growth}
+                    </span>
                   </div>
                 </div>
               ))}

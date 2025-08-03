@@ -6,5 +6,5 @@
 
 // Example response object structure for /api/demo
 export const DemoResponse = {
-  message: ""
+  message: "",
 };

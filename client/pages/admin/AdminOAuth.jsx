@@ -1,7 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
   Key,
   Plus,
   Edit,
@@ -9,50 +15,50 @@ import {
   Eye,
   EyeOff,
   Calendar,
-  Activity
-} from 'lucide-react';
+  Activity,
+} from "lucide-react";
 
 const AdminOAuth = () => {
   const oauthClients = [
     {
       id: 1,
-      name: 'DevHub Mobile App',
-      clientId: 'devhub_mobile_***',
-      type: 'Native Application',
-      status: 'active',
-      created: '2023-01-15',
-      lastUsed: '2 hours ago',
-      requests: 1250
+      name: "DevHub Mobile App",
+      clientId: "devhub_mobile_***",
+      type: "Native Application",
+      status: "active",
+      created: "2023-01-15",
+      lastUsed: "2 hours ago",
+      requests: 1250,
     },
     {
       id: 2,
-      name: 'VS Code Extension',
-      clientId: 'vscode_ext_***',
-      type: 'Desktop Application',
-      status: 'active',
-      created: '2023-03-20',
-      lastUsed: '1 day ago',
-      requests: 890
+      name: "VS Code Extension",
+      clientId: "vscode_ext_***",
+      type: "Desktop Application",
+      status: "active",
+      created: "2023-03-20",
+      lastUsed: "1 day ago",
+      requests: 890,
     },
     {
       id: 3,
-      name: 'Third-party Analytics',
-      clientId: 'analytics_***',
-      type: 'Web Application',
-      status: 'suspended',
-      created: '2023-02-10',
-      lastUsed: '1 week ago',
-      requests: 234
-    }
+      name: "Third-party Analytics",
+      clientId: "analytics_***",
+      type: "Web Application",
+      status: "suspended",
+      created: "2023-02-10",
+      lastUsed: "1 week ago",
+      requests: 234,
+    },
   ];
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'active':
+      case "active":
         return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case 'suspended':
+      case "suspended":
         return <Badge className="bg-red-100 text-red-800">Suspended</Badge>;
-      case 'pending':
+      case "pending":
         return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
@@ -61,12 +67,24 @@ const AdminOAuth = () => {
 
   const getTypeBadge = (type) => {
     switch (type) {
-      case 'Native Application':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700">Native</Badge>;
-      case 'Web Application':
-        return <Badge variant="outline" className="bg-green-50 text-green-700">Web</Badge>;
-      case 'Desktop Application':
-        return <Badge variant="outline" className="bg-purple-50 text-purple-700">Desktop</Badge>;
+      case "Native Application":
+        return (
+          <Badge variant="outline" className="bg-blue-50 text-blue-700">
+            Native
+          </Badge>
+        );
+      case "Web Application":
+        return (
+          <Badge variant="outline" className="bg-green-50 text-green-700">
+            Web
+          </Badge>
+        );
+      case "Desktop Application":
+        return (
+          <Badge variant="outline" className="bg-purple-50 text-purple-700">
+            Desktop
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{type}</Badge>;
     }
@@ -77,7 +95,9 @@ const AdminOAuth = () => {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">OAuth Clients</h1>
-          <p className="text-gray-600 mt-2">Manage third-party application access</p>
+          <p className="text-gray-600 mt-2">
+            Manage third-party application access
+          </p>
         </div>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
@@ -101,7 +121,9 @@ const AdminOAuth = () => {
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold text-gray-900">2.4K</div>
-            <p className="text-sm text-purple-600 font-medium">API Requests Today</p>
+            <p className="text-sm text-purple-600 font-medium">
+              API Requests Today
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -115,31 +137,54 @@ const AdminOAuth = () => {
       <Card>
         <CardHeader>
           <CardTitle>Registered Applications</CardTitle>
-          <CardDescription>OAuth clients with access to your platform</CardDescription>
+          <CardDescription>
+            OAuth clients with access to your platform
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Application</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Client ID</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Type</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Created</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Last Used</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Requests</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-600">Actions</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">
+                    Application
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">
+                    Client ID
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">
+                    Type
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">
+                    Status
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">
+                    Created
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">
+                    Last Used
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">
+                    Requests
+                  </th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-600">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {oauthClients.map((client) => (
-                  <tr key={client.id} className="border-b hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={client.id}
+                    className="border-b hover:bg-gray-50 transition-colors"
+                  >
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-3">
                         <Key className="h-5 w-5 text-blue-500" />
                         <div>
-                          <div className="font-medium text-gray-900">{client.name}</div>
+                          <div className="font-medium text-gray-900">
+                            {client.name}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -153,9 +198,7 @@ const AdminOAuth = () => {
                         </Button>
                       </div>
                     </td>
-                    <td className="py-4 px-4">
-                      {getTypeBadge(client.type)}
-                    </td>
+                    <td className="py-4 px-4">{getTypeBadge(client.type)}</td>
                     <td className="py-4 px-4">
                       {getStatusBadge(client.status)}
                     </td>
@@ -182,7 +225,11 @@ const AdminOAuth = () => {
                         <Button variant="ghost" size="sm">
                           <EyeOff className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600"
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

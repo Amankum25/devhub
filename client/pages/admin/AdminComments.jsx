@@ -1,54 +1,70 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
   MessageSquare,
   Flag,
   CheckCircle,
   XCircle,
   User,
-  Calendar
-} from 'lucide-react';
+  Calendar,
+} from "lucide-react";
 
 const AdminComments = () => {
   const comments = [
     {
       id: 1,
-      content: 'Great article! Really helped me understand React hooks better.',
-      author: 'John Doe',
-      post: 'Advanced React Patterns for 2024',
-      date: '2023-12-01',
-      status: 'approved',
-      flagged: false
+      content: "Great article! Really helped me understand React hooks better.",
+      author: "John Doe",
+      post: "Advanced React Patterns for 2024",
+      date: "2023-12-01",
+      status: "approved",
+      flagged: false,
     },
     {
       id: 2,
-      content: 'This is spam content with promotional links...',
-      author: 'Spam User',
-      post: 'Building Scalable APIs',
-      date: '2023-12-01',
-      status: 'flagged',
-      flagged: true
+      content: "This is spam content with promotional links...",
+      author: "Spam User",
+      post: "Building Scalable APIs",
+      date: "2023-12-01",
+      status: "flagged",
+      flagged: true,
     },
     {
       id: 3,
-      content: 'Thanks for sharing this knowledge!',
-      author: 'Alice Johnson',
-      post: 'CSS Grid vs Flexbox',
-      date: '2023-11-30',
-      status: 'pending',
-      flagged: false
-    }
+      content: "Thanks for sharing this knowledge!",
+      author: "Alice Johnson",
+      post: "CSS Grid vs Flexbox",
+      date: "2023-11-30",
+      status: "pending",
+      flagged: false,
+    },
   ];
 
   const getStatusBadge = (status, flagged) => {
     if (flagged) {
-      return <Badge className="bg-red-100 text-red-800"><Flag className="h-3 w-3 mr-1" />Flagged</Badge>;
+      return (
+        <Badge className="bg-red-100 text-red-800">
+          <Flag className="h-3 w-3 mr-1" />
+          Flagged
+        </Badge>
+      );
     }
     switch (status) {
-      case 'approved':
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" />Approved</Badge>;
-      case 'pending':
+      case "approved":
+        return (
+          <Badge className="bg-green-100 text-green-800">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Approved
+          </Badge>
+        );
+      case "pending":
         return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
@@ -58,7 +74,9 @@ const AdminComments = () => {
   return (
     <div className="p-8 space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Comments Moderation</h1>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Comments Moderation
+        </h1>
         <p className="text-gray-600 mt-2">Review and moderate user comments</p>
       </div>
 
@@ -66,13 +84,17 @@ const AdminComments = () => {
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold text-gray-900">156</div>
-            <p className="text-sm text-green-600 font-medium">Approved Comments</p>
+            <p className="text-sm text-green-600 font-medium">
+              Approved Comments
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold text-gray-900">23</div>
-            <p className="text-sm text-yellow-600 font-medium">Pending Review</p>
+            <p className="text-sm text-yellow-600 font-medium">
+              Pending Review
+            </p>
           </CardContent>
         </Card>
         <Card>

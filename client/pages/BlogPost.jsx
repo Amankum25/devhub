@@ -1,4 +1,4 @@
-import PagePlaceholder from '@/components/PagePlaceholder';
+import PagePlaceholder from "@/components/PagePlaceholder";
 
 export default function BlogPost() {
   return (
@@ -6,12 +6,12 @@ export default function BlogPost() {
       title="Blog Post View"
       description="Read and interact with blog posts"
       features={[
-        'Full blog post display (Markdown support)',
-        'Author information section',
-        'Interactive comment system',
-        'Social sharing buttons',
-        'Like/bookmark functionality',
-        'Related posts suggestions'
+        "Full blog post display (Markdown support)",
+        "Author information section",
+        "Interactive comment system",
+        "Social sharing buttons",
+        "Like/bookmark functionality",
+        "Related posts suggestions",
       ]}
     />
   );

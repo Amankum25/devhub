@@ -1,61 +1,62 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Code,
-  TrendingUp,
-  Heart,
-  Copy,
-  User,
-  Calendar
-} from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Code, TrendingUp, Heart, Copy, User, Calendar } from "lucide-react";
 
 const AdminSnippets = () => {
   const snippets = [
     {
       id: 1,
-      title: 'React useEffect Hook',
-      language: 'JavaScript',
-      author: 'Jane Smith',
-      date: '2023-12-01',
+      title: "React useEffect Hook",
+      language: "JavaScript",
+      author: "Jane Smith",
+      date: "2023-12-01",
       views: 234,
       likes: 45,
-      copies: 89
+      copies: 89,
     },
     {
       id: 2,
-      title: 'Python List Comprehension',
-      language: 'Python',
-      author: 'John Doe',
-      date: '2023-11-30',
+      title: "Python List Comprehension",
+      language: "Python",
+      author: "John Doe",
+      date: "2023-11-30",
       views: 189,
       likes: 32,
-      copies: 67
+      copies: 67,
     },
     {
       id: 3,
-      title: 'CSS Flexbox Center',
-      language: 'CSS',
-      author: 'Alice Johnson',
-      date: '2023-11-29',
+      title: "CSS Flexbox Center",
+      language: "CSS",
+      author: "Alice Johnson",
+      date: "2023-11-29",
       views: 156,
       likes: 28,
-      copies: 43
-    }
+      copies: 43,
+    },
   ];
 
   const languages = [
-    { name: 'JavaScript', count: 89, color: 'bg-yellow-100 text-yellow-800' },
-    { name: 'Python', count: 67, color: 'bg-blue-100 text-blue-800' },
-    { name: 'CSS', count: 45, color: 'bg-pink-100 text-pink-800' },
-    { name: 'TypeScript', count: 34, color: 'bg-indigo-100 text-indigo-800' },
-    { name: 'React', count: 29, color: 'bg-cyan-100 text-cyan-800' }
+    { name: "JavaScript", count: 89, color: "bg-yellow-100 text-yellow-800" },
+    { name: "Python", count: 67, color: "bg-blue-100 text-blue-800" },
+    { name: "CSS", count: 45, color: "bg-pink-100 text-pink-800" },
+    { name: "TypeScript", count: 34, color: "bg-indigo-100 text-indigo-800" },
+    { name: "React", count: 29, color: "bg-cyan-100 text-cyan-800" },
   ];
 
   return (
     <div className="p-8 space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Code Snippets</h1>
-        <p className="text-gray-600 mt-2">Manage and analyze code snippet statistics</p>
+        <p className="text-gray-600 mt-2">
+          Manage and analyze code snippet statistics
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -89,14 +90,18 @@ const AdminSnippets = () => {
         <Card>
           <CardHeader>
             <CardTitle>Popular Snippets</CardTitle>
-            <CardDescription>Most viewed and liked code snippets</CardDescription>
+            <CardDescription>
+              Most viewed and liked code snippets
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {snippets.map((snippet) => (
                 <div key={snippet.id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">{snippet.title}</h3>
+                    <h3 className="font-medium text-gray-900">
+                      {snippet.title}
+                    </h3>
                     <Badge variant="outline">{snippet.language}</Badge>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
@@ -140,7 +145,9 @@ const AdminSnippets = () => {
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <Code className="h-4 w-4 text-gray-400" />
-                    <span className="font-medium text-gray-900">{lang.name}</span>
+                    <span className="font-medium text-gray-900">
+                      {lang.name}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-600">{lang.count}</span>

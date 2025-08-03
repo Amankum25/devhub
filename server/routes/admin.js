@@ -1,7 +1,7 @@
-const express = require('express');
-const database = require('../config/database');
-const { AppError, catchAsync } = require('../middleware/errorHandler');
-const { requireAdmin } = require('../middleware/auth');
+const express = require("express");
+const database = require("../config/database");
+const { AppError, catchAsync } = require("../middleware/errorHandler");
+const { requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -9,11 +9,13 @@ const router = express.Router();
 router.use(requireAdmin);
 
 // Dashboard statistics
-router.get('/dashboard', catchAsync(async (req, res) => {
-  const db = database.getDb();
+router.get(
+  "/dashboard",
+  catchAsync(async (req, res) => {
+    const db = database.getDb();
 
-  // Get basic counts
-  const stats = await db.get(`
+    // Get basic counts
+    const stats = await db.get(`
     SELECT 
       (SELECT COUNT(*) FROM users WHERE isActive = 1) as totalUsers,
       (SELECT COUNT(*) FROM posts WHERE status = 'published') as totalPosts,
@@ -23,8 +25,8 @@ router.get('/dashboard', catchAsync(async (req, res) => {
       (SELECT COUNT(*) FROM ai_interactions) as totalAIInteractions
   `);
 
-  // Get recent activity
-  const recentUsers = await db.all(`
+    // Get recent activity
+    const recentUsers = await db.all(`
     SELECT id, firstName, lastName, email, createdAt
     FROM users 
     WHERE isActive = 1
@@ -32,7 +34,7 @@ router.get('/dashboard', catchAsync(async (req, res) => {
     LIMIT 5
   `);
 
-  const recentPosts = await db.all(`
+    const recentPosts = await db.all(`
     SELECT 
       p.id, p.title, p.createdAt,
       u.firstName, u.lastName, u.username
@@ -43,16 +45,16 @@ router.get('/dashboard', catchAsync(async (req, res) => {
     LIMIT 5
   `);
 
-  // Get growth metrics (last 30 days)
-  const growth = await db.get(`
+    // Get growth metrics (last 30 days)
+    const growth = await db.get(`
     SELECT 
       (SELECT COUNT(*) FROM users WHERE createdAt > datetime('now', '-30 days')) as newUsers30d,
       (SELECT COUNT(*) FROM posts WHERE createdAt > datetime('now', '-30 days')) as newPosts30d,
       (SELECT COUNT(*) FROM comments WHERE createdAt > datetime('now', '-30 days')) as newComments30d
   `);
 
-  // Get top contributors
-  const topContributors = await db.all(`
+    // Get top contributors
+    const topContributors = await db.all(`
     SELECT 
       u.id, u.firstName, u.lastName, u.username, u.avatar,
       COUNT(p.id) as postCount,
@@ -67,66 +69,73 @@ router.get('/dashboard', catchAsync(async (req, res) => {
     LIMIT 5
   `);
 
-  res.json({
-    success: true,
-    data: {
-      stats,
-      recentUsers,
-      recentPosts,
-      growth,
-      topContributors
-    }
-  });
-}));
+    res.json({
+      success: true,
+      data: {
+        stats,
+        recentUsers,
+        recentPosts,
+        growth,
+        topContributors,
+      },
+    });
+  }),
+);
 
 // User management
-router.get('/users', catchAsync(async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 20;
-  const search = req.query.search || '';
-  const status = req.query.status || 'all';
-  const sort = req.query.sort || 'created';
-  const offset = (page - 1) * limit;
+router.get(
+  "/users",
+  catchAsync(async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const search = req.query.search || "";
+    const status = req.query.status || "all";
+    const sort = req.query.sort || "created";
+    const offset = (page - 1) * limit;
 
-  const db = database.getDb();
+    const db = database.getDb();
 
-  // Build conditions
-  let conditions = [];
-  let params = [];
+    // Build conditions
+    let conditions = [];
+    let params = [];
 
-  if (status !== 'all') {
-    conditions.push('u.isActive = ?');
-    params.push(status === 'active' ? 1 : 0);
-  }
+    if (status !== "all") {
+      conditions.push("u.isActive = ?");
+      params.push(status === "active" ? 1 : 0);
+    }
 
-  if (search) {
-    conditions.push('(u.firstName LIKE ? OR u.lastName LIKE ? OR u.email LIKE ? OR u.username LIKE ?)');
-    const searchTerm = `%${search}%`;
-    params.push(searchTerm, searchTerm, searchTerm, searchTerm);
-  }
+    if (search) {
+      conditions.push(
+        "(u.firstName LIKE ? OR u.lastName LIKE ? OR u.email LIKE ? OR u.username LIKE ?)",
+      );
+      const searchTerm = `%${search}%`;
+      params.push(searchTerm, searchTerm, searchTerm, searchTerm);
+    }
 
-  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-  // Build sort
-  let sortClause = '';
-  switch (sort) {
-    case 'name':
-      sortClause = 'ORDER BY u.firstName, u.lastName';
-      break;
-    case 'email':
-      sortClause = 'ORDER BY u.email';
-      break;
-    case 'login':
-      sortClause = 'ORDER BY u.lastLoginAt DESC NULLS LAST';
-      break;
-    case 'created':
-    default:
-      sortClause = 'ORDER BY u.createdAt DESC';
-      break;
-  }
+    // Build sort
+    let sortClause = "";
+    switch (sort) {
+      case "name":
+        sortClause = "ORDER BY u.firstName, u.lastName";
+        break;
+      case "email":
+        sortClause = "ORDER BY u.email";
+        break;
+      case "login":
+        sortClause = "ORDER BY u.lastLoginAt DESC NULLS LAST";
+        break;
+      case "created":
+      default:
+        sortClause = "ORDER BY u.createdAt DESC";
+        break;
+    }
 
-  // Get users with stats
-  const users = await db.all(`
+    // Get users with stats
+    const users = await db.all(
+      `
     SELECT 
       u.id, u.email, u.firstName, u.lastName, u.username, u.avatar,
       u.isAdmin, u.isActive, u.emailVerified, u.lastLoginAt, u.createdAt,
@@ -146,61 +155,73 @@ router.get('/users', catchAsync(async (req, res) => {
     ${whereClause}
     ${sortClause}
     LIMIT ? OFFSET ?
-  `, [...params, limit, offset]);
+  `,
+      [...params, limit, offset],
+    );
 
-  // Get total count
-  const countResult = await db.get(`
+    // Get total count
+    const countResult = await db.get(
+      `
     SELECT COUNT(*) as total FROM users u ${whereClause}
-  `, params);
+  `,
+      params,
+    );
 
-  const total = countResult.total;
-  const totalPages = Math.ceil(total / limit);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / limit);
 
-  res.json({
-    success: true,
-    data: {
-      users,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
-    }
-  });
-}));
+    res.json({
+      success: true,
+      data: {
+        users,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        },
+      },
+    });
+  }),
+);
 
 // Posts management
-router.get('/posts', catchAsync(async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 20;
-  const status = req.query.status || 'all';
-  const search = req.query.search || '';
-  const offset = (page - 1) * limit;
+router.get(
+  "/posts",
+  catchAsync(async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const status = req.query.status || "all";
+    const search = req.query.search || "";
+    const offset = (page - 1) * limit;
 
-  const db = database.getDb();
+    const db = database.getDb();
 
-  // Build conditions
-  let conditions = [];
-  let params = [];
+    // Build conditions
+    let conditions = [];
+    let params = [];
 
-  if (status !== 'all') {
-    conditions.push('p.status = ?');
-    params.push(status);
-  }
+    if (status !== "all") {
+      conditions.push("p.status = ?");
+      params.push(status);
+    }
 
-  if (search) {
-    conditions.push('(p.title LIKE ? OR p.content LIKE ? OR u.firstName LIKE ? OR u.lastName LIKE ?)');
-    const searchTerm = `%${search}%`;
-    params.push(searchTerm, searchTerm, searchTerm, searchTerm);
-  }
+    if (search) {
+      conditions.push(
+        "(p.title LIKE ? OR p.content LIKE ? OR u.firstName LIKE ? OR u.lastName LIKE ?)",
+      );
+      const searchTerm = `%${search}%`;
+      params.push(searchTerm, searchTerm, searchTerm, searchTerm);
+    }
 
-  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-  // Get posts
-  const posts = await db.all(`
+    // Get posts
+    const posts = await db.all(
+      `
     SELECT 
       p.id, p.title, p.excerpt, p.status, p.views, p.likes, p.createdAt, p.publishedAt,
       u.firstName, u.lastName, u.username, u.avatar,
@@ -212,56 +233,66 @@ router.get('/posts', catchAsync(async (req, res) => {
     GROUP BY p.id
     ORDER BY p.createdAt DESC
     LIMIT ? OFFSET ?
-  `, [...params, limit, offset]);
+  `,
+      [...params, limit, offset],
+    );
 
-  // Get total count
-  const countResult = await db.get(`
+    // Get total count
+    const countResult = await db.get(
+      `
     SELECT COUNT(*) as total 
     FROM posts p
     JOIN users u ON p.userId = u.id
     ${whereClause}
-  `, params);
+  `,
+      params,
+    );
 
-  const total = countResult.total;
-  const totalPages = Math.ceil(total / limit);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / limit);
 
-  res.json({
-    success: true,
-    data: {
-      posts,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
-    }
-  });
-}));
+    res.json({
+      success: true,
+      data: {
+        posts,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        },
+      },
+    });
+  }),
+);
 
 // System logs and monitoring
-router.get('/logs', catchAsync(async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 50;
-  const type = req.query.type || 'all';
-  const offset = (page - 1) * limit;
+router.get(
+  "/logs",
+  catchAsync(async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const type = req.query.type || "all";
+    const offset = (page - 1) * limit;
 
-  const db = database.getDb();
+    const db = database.getDb();
 
-  // Get recent AI interactions as logs
-  let conditions = [];
-  let params = [];
+    // Get recent AI interactions as logs
+    let conditions = [];
+    let params = [];
 
-  if (type !== 'all') {
-    conditions.push('ai.tool = ?');
-    params.push(type);
-  }
+    if (type !== "all") {
+      conditions.push("ai.tool = ?");
+      params.push(type);
+    }
 
-  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-  const logs = await db.all(`
+    const logs = await db.all(
+      `
     SELECT 
       ai.id, ai.tool, ai.status, ai.tokensUsed, ai.processingTime, ai.createdAt,
       u.firstName, u.lastName, u.username
@@ -270,122 +301,145 @@ router.get('/logs', catchAsync(async (req, res) => {
     ${whereClause}
     ORDER BY ai.createdAt DESC
     LIMIT ? OFFSET ?
-  `, [...params, limit, offset]);
+  `,
+      [...params, limit, offset],
+    );
 
-  // Get total count
-  const countResult = await db.get(`
+    // Get total count
+    const countResult = await db.get(
+      `
     SELECT COUNT(*) as total 
     FROM ai_interactions ai
     JOIN users u ON ai.userId = u.id
     ${whereClause}
-  `, params);
+  `,
+      params,
+    );
 
-  const total = countResult.total;
-  const totalPages = Math.ceil(total / limit);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / limit);
 
-  res.json({
-    success: true,
-    data: {
-      logs,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
-    }
-  });
-}));
+    res.json({
+      success: true,
+      data: {
+        logs,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        },
+      },
+    });
+  }),
+);
 
 // Update user status
-router.patch('/users/:userId/status', catchAsync(async (req, res) => {
-  const { userId } = req.params;
-  const { isActive, isAdmin } = req.body;
+router.patch(
+  "/users/:userId/status",
+  catchAsync(async (req, res) => {
+    const { userId } = req.params;
+    const { isActive, isAdmin } = req.body;
 
-  if (parseInt(userId) === req.user.id) {
-    throw new AppError('Cannot modify your own account status', 400, 'CANNOT_MODIFY_SELF');
-  }
+    if (parseInt(userId) === req.user.id) {
+      throw new AppError(
+        "Cannot modify your own account status",
+        400,
+        "CANNOT_MODIFY_SELF",
+      );
+    }
 
-  const db = database.getDb();
+    const db = database.getDb();
 
-  // Check if user exists
-  const user = await db.get('SELECT id FROM users WHERE id = ?', [userId]);
-  if (!user) {
-    throw new AppError('User not found', 404, 'USER_NOT_FOUND');
-  }
+    // Check if user exists
+    const user = await db.get("SELECT id FROM users WHERE id = ?", [userId]);
+    if (!user) {
+      throw new AppError("User not found", 404, "USER_NOT_FOUND");
+    }
 
-  // Build update query
-  const updates = [];
-  const values = [];
+    // Build update query
+    const updates = [];
+    const values = [];
 
-  if (isActive !== undefined) {
-    updates.push('isActive = ?');
-    values.push(isActive);
-  }
+    if (isActive !== undefined) {
+      updates.push("isActive = ?");
+      values.push(isActive);
+    }
 
-  if (isAdmin !== undefined) {
-    updates.push('isAdmin = ?');
-    values.push(isAdmin);
-  }
+    if (isAdmin !== undefined) {
+      updates.push("isAdmin = ?");
+      values.push(isAdmin);
+    }
 
-  if (updates.length === 0) {
-    throw new AppError('No updates provided', 400, 'NO_UPDATES');
-  }
+    if (updates.length === 0) {
+      throw new AppError("No updates provided", 400, "NO_UPDATES");
+    }
 
-  updates.push('updatedAt = datetime("now")');
-  values.push(userId);
+    updates.push('updatedAt = datetime("now")');
+    values.push(userId);
 
-  await db.run(`
-    UPDATE users SET ${updates.join(', ')} WHERE id = ?
-  `, values);
+    await db.run(
+      `
+    UPDATE users SET ${updates.join(", ")} WHERE id = ?
+  `,
+      values,
+    );
 
-  // If deactivating user, invalidate their sessions
-  if (isActive === false) {
-    await db.run('UPDATE user_sessions SET isActive = 0 WHERE userId = ?', [userId]);
-  }
+    // If deactivating user, invalidate their sessions
+    if (isActive === false) {
+      await db.run("UPDATE user_sessions SET isActive = 0 WHERE userId = ?", [
+        userId,
+      ]);
+    }
 
-  res.json({
-    success: true,
-    message: 'User status updated successfully'
-  });
-}));
+    res.json({
+      success: true,
+      message: "User status updated successfully",
+    });
+  }),
+);
 
 // Update post status
-router.patch('/posts/:postId/status', catchAsync(async (req, res) => {
-  const { postId } = req.params;
-  const { status } = req.body;
+router.patch(
+  "/posts/:postId/status",
+  catchAsync(async (req, res) => {
+    const { postId } = req.params;
+    const { status } = req.body;
 
-  if (!['draft', 'published', 'archived'].includes(status)) {
-    throw new AppError('Invalid status', 400, 'INVALID_STATUS');
-  }
+    if (!["draft", "published", "archived"].includes(status)) {
+      throw new AppError("Invalid status", 400, "INVALID_STATUS");
+    }
 
-  const db = database.getDb();
+    const db = database.getDb();
 
-  // Check if post exists
-  const post = await db.get('SELECT id FROM posts WHERE id = ?', [postId]);
-  if (!post) {
-    throw new AppError('Post not found', 404, 'POST_NOT_FOUND');
-  }
+    // Check if post exists
+    const post = await db.get("SELECT id FROM posts WHERE id = ?", [postId]);
+    if (!post) {
+      throw new AppError("Post not found", 404, "POST_NOT_FOUND");
+    }
 
-  await db.run(
-    'UPDATE posts SET status = ?, updatedAt = datetime("now") WHERE id = ?',
-    [status, postId]
-  );
+    await db.run(
+      'UPDATE posts SET status = ?, updatedAt = datetime("now") WHERE id = ?',
+      [status, postId],
+    );
 
-  res.json({
-    success: true,
-    message: 'Post status updated successfully'
-  });
-}));
+    res.json({
+      success: true,
+      message: "Post status updated successfully",
+    });
+  }),
+);
 
 // Get system information
-router.get('/system', catchAsync(async (req, res) => {
-  const db = database.getDb();
+router.get(
+  "/system",
+  catchAsync(async (req, res) => {
+    const db = database.getDb();
 
-  // Get database info
-  const dbStats = await db.get(`
+    // Get database info
+    const dbStats = await db.get(`
     SELECT 
       (SELECT COUNT(*) FROM users) as totalUsers,
       (SELECT COUNT(*) FROM posts) as totalPosts,
@@ -396,22 +450,23 @@ router.get('/system', catchAsync(async (req, res) => {
       (SELECT COUNT(*) FROM user_sessions WHERE isActive = 1) as activeSessions
   `);
 
-  // System info
-  const systemInfo = {
-    nodeVersion: process.version,
-    platform: process.platform,
-    uptime: process.uptime(),
-    memoryUsage: process.memoryUsage(),
-    environment: process.env.NODE_ENV || 'development'
-  };
+    // System info
+    const systemInfo = {
+      nodeVersion: process.version,
+      platform: process.platform,
+      uptime: process.uptime(),
+      memoryUsage: process.memoryUsage(),
+      environment: process.env.NODE_ENV || "development",
+    };
 
-  res.json({
-    success: true,
-    data: {
-      database: dbStats,
-      system: systemInfo
-    }
-  });
-}));
+    res.json({
+      success: true,
+      data: {
+        database: dbStats,
+        system: systemInfo,
+      },
+    });
+  }),
+);
 
 module.exports = router;

@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 class Database {
   constructor() {
     this.db = null;
-    this.connectionString = process.env.MONGODB_URI || 'mongodb://localhost:27017/devhub';
+    this.connectionString =
+      process.env.MONGODB_URI || "mongodb://localhost:27017/devhub";
   }
 
   async connect() {
@@ -22,108 +23,108 @@ class Database {
 
       // Connect to MongoDB
       await mongoose.connect(this.connectionString, options);
-      
-      console.log('🍃 Connected to MongoDB successfully');
-      
+
+      console.log("🍃 Connected to MongoDB successfully");
+
       // Set up connection event listeners
-      mongoose.connection.on('connected', () => {
-        console.log('📦 Mongoose connected to MongoDB');
+      mongoose.connection.on("connected", () => {
+        console.log("📦 Mongoose connected to MongoDB");
       });
 
-      mongoose.connection.on('error', (err) => {
-        console.error('❌ Mongoose connection error:', err);
+      mongoose.connection.on("error", (err) => {
+        console.error("❌ Mongoose connection error:", err);
       });
 
-      mongoose.connection.on('disconnected', () => {
-        console.log('🔌 Mongoose disconnected from MongoDB');
+      mongoose.connection.on("disconnected", () => {
+        console.log("🔌 Mongoose disconnected from MongoDB");
       });
 
       // Graceful shutdown
-      process.on('SIGINT', async () => {
+      process.on("SIGINT", async () => {
         await this.close();
         process.exit(0);
       });
 
       // Initialize default data
       await this.initializeDefaultData();
-      
+
       return mongoose.connection;
     } catch (error) {
-      console.error('❌ MongoDB connection failed:', error);
+      console.error("❌ MongoDB connection failed:", error);
       throw error;
     }
   }
 
   async initializeDefaultData() {
     try {
-      const User = require('../models/User');
-      const ChatRoom = require('../models/ChatRoom');
+      const User = require("../models/User");
+      const ChatRoom = require("../models/ChatRoom");
 
       // Check if admin user exists
-      const adminExists = await User.findOne({ email: 'admin@devhub.com' });
-      
+      const adminExists = await User.findOne({ email: "admin@devhub.com" });
+
       if (!adminExists) {
         // Create default admin user
-        const hashedPassword = await bcrypt.hash('admin123', 12);
-        
+        const hashedPassword = await bcrypt.hash("admin123", 12);
+
         const adminUser = new User({
-          email: 'admin@devhub.com',
+          email: "admin@devhub.com",
           password: hashedPassword,
-          firstName: 'Admin',
-          lastName: 'User',
-          username: 'admin',
+          firstName: "Admin",
+          lastName: "User",
+          username: "admin",
           isAdmin: true,
           isActive: true,
-          emailVerified: true
+          emailVerified: true,
         });
 
         await adminUser.save();
-        console.log('✅ Default admin user created');
+        console.log("✅ Default admin user created");
 
         // Create default chat rooms
         const defaultRooms = [
           {
-            name: 'General',
-            description: 'General discussion for all developers',
-            type: 'public',
+            name: "General",
+            description: "General discussion for all developers",
+            type: "public",
             createdBy: adminUser._id,
-            memberCount: 0
+            memberCount: 0,
           },
           {
-            name: 'React Help',
-            description: 'Get help with React development',
-            type: 'public',
+            name: "React Help",
+            description: "Get help with React development",
+            type: "public",
             createdBy: adminUser._id,
-            memberCount: 0
+            memberCount: 0,
           },
           {
-            name: 'JavaScript Tips',
-            description: 'Share JavaScript tips and tricks',
-            type: 'public',
+            name: "JavaScript Tips",
+            description: "Share JavaScript tips and tricks",
+            type: "public",
             createdBy: adminUser._id,
-            memberCount: 0
+            memberCount: 0,
           },
           {
-            name: 'Career Advice',
-            description: 'Career guidance and advice',
-            type: 'public',
+            name: "Career Advice",
+            description: "Career guidance and advice",
+            type: "public",
             createdBy: adminUser._id,
-            memberCount: 0
+            memberCount: 0,
           },
           {
-            name: 'Code Review',
-            description: 'Request code reviews from the community',
-            type: 'public',
+            name: "Code Review",
+            description: "Request code reviews from the community",
+            type: "public",
             createdBy: adminUser._id,
-            memberCount: 0
+            memberCount: 0,
           },
           {
-            name: 'Random',
-            description: 'Off-topic discussions',
-            type: 'public',
+            name: "Random",
+            description: "Off-topic discussions",
+            type: "public",
             createdBy: adminUser._id,
-            memberCount: 0
-          }
+            memberCount: 0,
+          },
         ];
 
         for (const roomData of defaultRooms) {
@@ -134,19 +135,19 @@ class Database {
           }
         }
 
-        console.log('✅ Default chat rooms created');
+        console.log("✅ Default chat rooms created");
       }
     } catch (error) {
-      console.error('❌ Failed to initialize default data:', error);
+      console.error("❌ Failed to initialize default data:", error);
     }
   }
 
   async close() {
     try {
       await mongoose.connection.close();
-      console.log('🔌 MongoDB connection closed');
+      console.log("🔌 MongoDB connection closed");
     } catch (error) {
-      console.error('❌ Error closing MongoDB connection:', error);
+      console.error("❌ Error closing MongoDB connection:", error);
     }
   }
 
@@ -165,7 +166,7 @@ class Database {
       readyState: mongoose.connection.readyState,
       host: mongoose.connection.host,
       port: mongoose.connection.port,
-      name: mongoose.connection.name
+      name: mongoose.connection.name,
     };
   }
 }

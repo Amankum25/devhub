@@ -58,34 +58,34 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            
+
             {/* Main User Pages */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:id" element={<UserProfile />} />
-            
+
             {/* Blog & Posts */}
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/blog/new" element={<BlogNew />} />
             <Route path="/blog/edit/:id" element={<BlogEdit />} />
-            
+
             {/* Code Snippets */}
             <Route path="/code-snippets" element={<CodeSnippets />} />
-            
+
             {/* AI Tools */}
             <Route path="/ai-tools" element={<AITools />} />
             <Route path="/ai/code-explain" element={<CodeExplain />} />
             <Route path="/ai/resume-review" element={<ResumeReview />} />
             <Route path="/ai/project-suggest" element={<ProjectSuggest />} />
-            
+
             {/* Communication */}
             <Route path="/chat" element={<Chat />} />
             <Route path="/messages" element={<Messages />} />
-            
+
             {/* Settings */}
             <Route path="/settings" element={<Settings />} />
-            
+
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
@@ -98,7 +98,7 @@ const App = () => (
               <Route path="oauth" element={<AdminOAuth />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
-            
+
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
