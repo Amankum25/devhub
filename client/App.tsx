@@ -85,7 +85,20 @@ const App = () => (
             
             {/* Settings */}
             <Route path="/settings" element={<Settings />} />
-            
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="posts" element={<AdminPosts />} />
+              <Route path="comments" element={<AdminComments />} />
+              <Route path="snippets" element={<AdminSnippets />} />
+              <Route path="chat" element={<AdminChat />} />
+              <Route path="ai-logs" element={<AdminAILogs />} />
+              <Route path="oauth" element={<AdminOAuth />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
+
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
