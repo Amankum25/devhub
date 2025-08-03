@@ -31,6 +31,18 @@ import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
 
+// Admin components
+import AdminLayout from "./components/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPosts from "./pages/admin/AdminPosts";
+import AdminComments from "./pages/admin/AdminComments";
+import AdminSnippets from "./pages/admin/AdminSnippets";
+import AdminChat from "./pages/admin/AdminChat";
+import AdminAILogs from "./pages/admin/AdminAILogs";
+import AdminOAuth from "./pages/admin/AdminOAuth";
+import AdminSettings from "./pages/admin/AdminSettings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
