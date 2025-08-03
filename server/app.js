@@ -220,9 +220,9 @@ process.on("unhandledRejection", (reason, promise) => {
 // Initialize database and start server
 async function startServer() {
   try {
-    // Connect to database
+    // Connect to MongoDB
     await database.connect();
-    logger.info("Database connected successfully");
+    logger.info("MongoDB connected successfully");
 
     // Start server
     const server = app.listen(PORT, () => {
@@ -230,11 +230,13 @@ async function startServer() {
       logger.info(`📝 Environment: ${process.env.NODE_ENV || "development"}`);
       logger.info(`🌐 API Base URL: http://localhost:${PORT}/api`);
       logger.info(`❤️  Health Check: http://localhost:${PORT}/health`);
+      logger.info(`🍃 MongoDB Database: ${database.isConnected() ? 'Connected' : 'Disconnected'}`);
     });
 
     return server;
   } catch (error) {
     logger.error("Failed to start server:", error);
+    console.error("MongoDB connection error. Please ensure MongoDB is running on mongodb://localhost:27017");
     process.exit(1);
   }
 }
