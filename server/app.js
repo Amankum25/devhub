@@ -211,12 +211,28 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 
-// Start server
-const server = app.listen(PORT, () => {
-  console.log(`���� DevHub API Server running on port ${PORT}`);
-  console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 API Base URL: http://localhost:${PORT}/api`);
-  console.log(`❤️  Health Check: http://localhost:${PORT}/health`);
-});
+// Initialize database and start server
+async function startServer() {
+  try {
+    // Connect to database
+    await database.connect();
+    logger.info('Database connected successfully');
+
+    // Start server
+    const server = app.listen(PORT, () => {
+      logger.info(`🚀 DevHub API Server running on port ${PORT}`);
+      logger.info(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+      logger.info(`🌐 API Base URL: http://localhost:${PORT}/api`);
+      logger.info(`❤️  Health Check: http://localhost:${PORT}/health`);
+    });
+
+    return server;
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+const server = startServer();
 
 module.exports = app;
