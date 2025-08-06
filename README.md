@@ -88,7 +88,7 @@ npm run client:dev  # Frontend only
 ### 5. Access Application
 
 - **Frontend**: http://localhost:8080
-- **Backend API**: http://localhost:3001/api
+- **Backend API**: http://localhost:3000/api
 - **Admin Panel**: http://localhost:8080/admin
 
 ### 6. Default Admin Login

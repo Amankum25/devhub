@@ -6,6 +6,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ToastContainer } from 'react-toastify';
 import Navigation from "./components/Navigation";
 
 // Pages
@@ -15,6 +18,7 @@ import NotFound from "./pages/NotFound";
 // Placeholder pages
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
@@ -24,6 +28,7 @@ import BlogNew from "./pages/BlogNew";
 import BlogEdit from "./pages/BlogEdit";
 import CodeSnippets from "./pages/CodeSnippets";
 import AITools from "./pages/AITools";
+import AIHistory from "./pages/AIHistory";
 import CodeExplain from "./pages/CodeExplain";
 import ResumeReview from "./pages/ResumeReview";
 import ProjectSuggest from "./pages/ProjectSuggest";
@@ -48,70 +53,94 @@ import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <div className="min-h-screen bg-background">
-          <Navigation />
-          <Routes>
-            {/* Public Pages */}
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+const App = () => {
+  // Ensure the title is always set correctly
+  useEffect(() => {
+    document.title = "DevHub - AI-Powered Developer Platform";
+  }, []);
 
-            {/* Main User Pages */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/profile/:id" element={<UserProfile />} />
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <div className="min-h-screen bg-background">
+              <Navigation />
+              <Routes>
+              {/* Public Pages */}
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
 
-            {/* Blog & Posts */}
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:id" element={<BlogPost />} />
-            <Route path="/blog/new" element={<BlogNew />} />
-            <Route path="/blog/edit/:id" element={<BlogEdit />} />
+              {/* Main User Pages */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:id" element={<UserProfile />} />
 
-            {/* Code Snippets */}
-            <Route path="/code-snippets" element={<CodeSnippets />} />
+              {/* Blog & Posts */}
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/blog/new" element={<BlogNew />} />
+              <Route path="/blog/edit/:id" element={<BlogEdit />} />
 
-            {/* AI Tools */}
-            <Route path="/ai-tools" element={<AITools />} />
-            <Route path="/ai/code-explain" element={<CodeExplain />} />
-            <Route path="/ai/resume-review" element={<ResumeReview />} />
-            <Route path="/ai/project-suggest" element={<ProjectSuggest />} />
-            <Route path="/ai/bug-fixer" element={<BugFixer />} />
-            <Route path="/ai/algorithm-helper" element={<AlgorithmHelper />} />
-            <Route path="/ai/code-generator" element={<CodeGenerator />} />
+              {/* Code Snippets */}
+              <Route path="/code-snippets" element={<CodeSnippets />} />
 
-            {/* Communication */}
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/messages" element={<Messages />} />
+              {/* AI Tools */}
+              <Route path="/ai-tools" element={<AITools />} />
+              <Route path="/ai" element={<AITools />} />
+              <Route path="/ai/history" element={<AIHistory />} />
+              <Route path="/ai/code-explain" element={<CodeExplain />} />
+              <Route path="/ai/resume-review" element={<ResumeReview />} />
+              <Route path="/ai/project-suggest" element={<ProjectSuggest />} />
+              <Route path="/ai/bug-fixer" element={<BugFixer />} />
+              <Route path="/ai/algorithm-helper" element={<AlgorithmHelper />} />
+              <Route path="/ai/code-generator" element={<CodeGenerator />} />
 
-            {/* Settings */}
-            <Route path="/settings" element={<Settings />} />
+              {/* Communication */}
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/messages" element={<Messages />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="posts" element={<AdminPosts />} />
-              <Route path="comments" element={<AdminComments />} />
-              <Route path="snippets" element={<AdminSnippets />} />
-              <Route path="chat" element={<AdminChat />} />
-              <Route path="ai-logs" element={<AdminAILogs />} />
-              <Route path="oauth" element={<AdminOAuth />} />
-              <Route path="settings" element={<AdminSettings />} />
-            </Route>
+              {/* Settings */}
+              <Route path="/settings" element={<Settings />} />
 
-            {/* Catch-all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="posts" element={<AdminPosts />} />
+                <Route path="comments" element={<AdminComments />} />
+                <Route path="snippets" element={<AdminSnippets />} />
+                <Route path="chat" element={<AdminChat />} />
+                <Route path="ai-logs" element={<AdminAILogs />} />
+                <Route path="oauth" element={<AdminOAuth />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
+
+              {/* Catch-all route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </BrowserRouter>
+        <ToastContainer 
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+      </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+};
 
 createRoot(document.getElementById("root")).render(<App />);

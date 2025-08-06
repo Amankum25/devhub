@@ -190,8 +190,8 @@ const commonValidations = {
     .withMessage("Snippet ID must be a positive integer"),
 
   roomId: param("roomId")
-    .isInt({ min: 1 })
-    .withMessage("Room ID must be a positive integer"),
+    .isMongoId()
+    .withMessage("Room ID must be a valid MongoDB ObjectId"),
 
   // File upload validations
   fileUpload: body("file").custom((value, { req }) => {

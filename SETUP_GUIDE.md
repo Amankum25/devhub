@@ -382,8 +382,8 @@ npm run client:dev
 ### 6.3 Verify Installation
 
 - **Frontend**: http://localhost:8080
-- **Backend API**: http://localhost:3001/api
-- **Health Check**: http://localhost:3001/health
+- **Backend API**: http://localhost:3000/api
+- **Health Check**: http://localhost:3000/health
 
 ## 🔧 Step 7: Development Commands
 

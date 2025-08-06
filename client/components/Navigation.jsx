@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -36,8 +37,7 @@ export default function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Mock user state - replace with actual auth context
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,8 +62,7 @@ export default function Navigation() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
+    logout();
     navigate("/");
   };
 
@@ -87,8 +86,8 @@ export default function Navigation() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/20 dark:border-slate-700/20 shadow-lg"
-            : "bg-transparent"
+            ? "bg-slate-900/90 backdrop-blur-xl border-b border-slate-700/50 shadow-2xl"
+            : "bg-slate-900/50 backdrop-blur-md"
         }`}
       >
         <div className="container mx-auto px-4">
@@ -96,7 +95,7 @@ export default function Navigation() {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group">
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                   <Code className="h-6 w-6 text-white" />
                 </div>
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
@@ -104,10 +103,10 @@ export default function Navigation() {
                 </div>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                   DevHub
                 </h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 -mt-1">
+                <p className="text-xs text-slate-400 -mt-1">
                   AI-Powered
                 </p>
               </div>
@@ -123,8 +122,8 @@ export default function Navigation() {
                     to={item.path}
                     className={`relative flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 group ${
                       isActive(item.path)
-                        ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                        : "text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                        ? "text-purple-400 bg-purple-500/20 backdrop-blur-sm"
+                        : "text-slate-300 hover:text-purple-300 hover:bg-slate-800/50"
                     }`}
                   >
                     {Icon && <Icon className="h-4 w-4" />}

@@ -19,6 +19,7 @@ const postRoutes = require("./routes/posts");
 const commentRoutes = require("./routes/comments");
 const chatRoutes = require("./routes/chat");
 const aiRoutes = require("./routes/ai");
+const geminiRoutes = require("./routes/gemini");
 const snippetRoutes = require("./routes/snippets");
 const uploadRoutes = require("./routes/uploads");
 const adminRoutes = require("./routes/admin");
@@ -29,7 +30,7 @@ const { errorHandler } = require("./middleware/errorHandler");
 const { validateRequest } = require("./middleware/validation");
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = 3000; // Fixed to always use port 3000
 
 // Trust proxy for rate limiting behind reverse proxy
 app.set("trust proxy", 1);
@@ -86,23 +87,47 @@ app.use(
       // Allow requests with no origin (mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
 
-      const allowedOrigins = [
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173",
-        process.env.FRONTEND_URL,
-      ].filter(Boolean);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+      // Allow all localhost and 127.0.0.1 origins for development
+      if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+        return callback(null, true);
       }
+      
+      // Allow specific development ports
+      const allowedOrigins = [
+        'http://localhost:8080',
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://127.0.0.1:8080',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:5173'
+      ];
+      
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+        return callback(null, true);
+      }
+      
+      // In development, be more permissive
+      if (process.env.NODE_ENV === 'development') {
+        return callback(null, true);
+      }
+      
+      callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    allowedHeaders: [
+      "Content-Type", 
+      "Authorization", 
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+      "Access-Control-Request-Method",
+      "Access-Control-Request-Headers"
+    ],
   }),
 );
 
@@ -126,6 +151,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/chat", authenticateToken, chatRoutes);
 app.use("/api/ai", authenticateToken, aiRoutes);
+app.use("/api/gemini", geminiRoutes);
 app.use("/api/snippets", snippetRoutes);
 app.use("/api/uploads", authenticateToken, uploadRoutes);
 app.use("/api/admin", authenticateToken, adminRoutes);
@@ -206,15 +232,17 @@ process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
 // Handle uncaught exceptions
+
 process.on("uncaughtException", (error) => {
   console.error("Uncaught Exception:", error);
-  process.exit(1);
+  // Don't exit the process, just log the error for debugging
 });
 
 // Handle unhandled promise rejections
+
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled Rejection at:", promise, "reason:", reason);
-  process.exit(1);
+  // Don't exit the process, just log the error for debugging
 });
 
 // Initialize database and start server
@@ -224,7 +252,7 @@ async function startServer() {
     await database.connect();
     logger.info("MongoDB connected successfully");
 
-    // Start server
+    // Start server on fixed port
     const server = app.listen(PORT, () => {
       logger.info(`🚀 DevHub API Server running on port ${PORT}`);
       logger.info(`📝 Environment: ${process.env.NODE_ENV || "development"}`);
@@ -233,6 +261,16 @@ async function startServer() {
       logger.info(
         `🍃 MongoDB Database: ${database.isConnected() ? "Connected" : "Disconnected"}`,
       );
+    });
+
+    // Handle server errors
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use. Please run 'node cleanup-ports.js' first.`);
+        process.exit(1);
+      } else {
+        throw err;
+      }
     });
 
     return server;

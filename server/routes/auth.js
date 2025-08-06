@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { body, validationResult } = require("express-validator");
-const database = require("../config/database");
+const User = require("../models/User");
 const {
   generateToken,
   generateRefreshToken,
@@ -62,11 +62,8 @@ const loginValidation = [
 const checkValidation = (req) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const errorMessages = errors.array().map((error) => ({
-      field: error.path,
-      message: error.msg,
-    }));
-    throw createValidationError("Validation failed", errorMessages);
+    const firstError = errors.array()[0];
+    throw createValidationError(firstError.msg, firstError.path);
   }
 };
 
@@ -79,12 +76,9 @@ router.post(
 
     const { email, password, firstName, lastName, username, avatar, bio } =
       req.body;
-    const db = database.getDb();
 
     // Check if user already exists
-    const existingUser = await db.get("SELECT id FROM users WHERE email = ?", [
-      email,
-    ]);
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       throw new AppError(
         "User with this email already exists",
@@ -95,53 +89,48 @@ router.post(
 
     // Check if username is taken (if provided)
     if (username) {
-      const existingUsername = await db.get(
-        "SELECT id FROM users WHERE username = ?",
-        [username],
-      );
+      const existingUsername = await User.findOne({ username });
       if (existingUsername) {
         throw new AppError("Username is already taken", 409, "USERNAME_EXISTS");
       }
     }
 
-    // Hash password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
     // Generate unique username if not provided
     let finalUsername = username;
     if (!finalUsername) {
       finalUsername = `${firstName.toLowerCase()}${lastName.toLowerCase()}${Math.random().toString(36).substr(2, 6)}`;
+      
+      // Make sure generated username is unique
+      let usernameExists = await User.findOne({ username: finalUsername });
+      while (usernameExists) {
+        finalUsername = `${firstName.toLowerCase()}${lastName.toLowerCase()}${Math.random().toString(36).substr(2, 6)}`;
+        usernameExists = await User.findOne({ username: finalUsername });
+      }
     }
 
     // Create user
-    const result = await db.run(
-      `
-    INSERT INTO users (email, password, firstName, lastName, username, avatar, bio, emailVerified)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `,
-      [
-        email,
-        hashedPassword,
-        firstName,
-        lastName,
-        finalUsername,
-        avatar || null,
-        bio || null,
-        0,
-      ],
-    );
+    const newUser = new User({
+      email,
+      password, // Will be hashed by the pre-save middleware
+      firstName,
+      lastName,
+      username: finalUsername,
+      avatar: avatar || null,
+      bio: bio || null,
+      emailVerified: false,
+      authProvider: 'local'
+    });
 
-    const userId = result.lastID;
+    await newUser.save();
 
     // Generate tokens
-    const tokenPayload = { userId, email, isAdmin: false };
+    const tokenPayload = { userId: newUser._id, email, isAdmin: newUser.isAdmin };
     const token = generateToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
     // Create session
     const sessionId = await createSession(
-      userId,
+      newUser._id.toString(),
       token,
       refreshToken,
       req.get("User-Agent"),
@@ -149,22 +138,27 @@ router.post(
     );
 
     // Update last login
-    await updateLastLogin(userId);
+    newUser.lastLoginAt = new Date();
+    await newUser.save();
 
     // Get user data (without password)
-    const user = await db.get(
-      `
-    SELECT id, email, firstName, lastName, username, avatar, bio, isAdmin, createdAt
-    FROM users WHERE id = ?
-  `,
-      [userId],
-    );
+    const userResponse = {
+      id: newUser._id,
+      email: newUser.email,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      username: newUser.username,
+      avatar: newUser.avatar,
+      bio: newUser.bio,
+      isAdmin: newUser.isAdmin,
+      createdAt: newUser.createdAt
+    };
 
     res.status(201).json({
       success: true,
       message: "User registered successfully",
       data: {
-        user,
+        user: userResponse,
         token,
         refreshToken,
         sessionId,
@@ -181,18 +175,27 @@ router.post(
     checkValidation(req);
 
     const { email, password, rememberMe } = req.body;
-    const db = database.getDb();
+
+    // Debug logging
+    console.log('🔍 Login attempt:', {
+      email: email,
+      passwordLength: password ? password.length : 0,
+      hasPassword: !!password,
+      rememberMe: rememberMe
+    });
 
     // Find user
-    const user = await db.get(
-      `
-    SELECT id, email, password, firstName, lastName, username, avatar, bio, isAdmin, isActive
-    FROM users WHERE email = ?
-  `,
-      [email],
-    );
+    const user = await User.findOne({ email }).select('+password');
+
+    console.log('👤 User found:', {
+      found: !!user,
+      email: user ? user.email : 'N/A',
+      isActive: user ? user.isActive : 'N/A',
+      hasPassword: user ? !!user.password : 'N/A'
+    });
 
     if (!user) {
+      console.log('❌ User not found for email:', email);
       throw new AppError(
         "Invalid email or password",
         401,
@@ -210,7 +213,14 @@ router.post(
 
     // Check password
     const isValidPassword = await bcrypt.compare(password, user.password);
+    console.log('🔑 Password check:', {
+      inputPassword: password,
+      isValid: isValidPassword,
+      storedHashPrefix: user.password ? user.password.substring(0, 20) + '...' : 'NO PASSWORD'
+    });
+    
     if (!isValidPassword) {
+      console.log('❌ Password mismatch for user:', email);
       throw new AppError(
         "Invalid email or password",
         401,
@@ -220,7 +230,7 @@ router.post(
 
     // Generate tokens
     const tokenPayload = {
-      userId: user.id,
+      userId: user._id,
       email: user.email,
       isAdmin: user.isAdmin,
     };
@@ -229,7 +239,7 @@ router.post(
 
     // Create session
     const sessionId = await createSession(
-      user.id,
+      user._id.toString(),
       token,
       refreshToken,
       req.get("User-Agent"),
@@ -237,16 +247,27 @@ router.post(
     );
 
     // Update last login
-    await updateLastLogin(user.id);
+    user.lastLoginAt = new Date();
+    await user.save();
 
-    // Remove password from response
-    delete user.password;
+    // Prepare user response (without password)
+    const userResponse = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      avatar: user.avatar,
+      bio: user.bio,
+      isAdmin: user.isAdmin,
+      createdAt: user.createdAt
+    };
 
     res.json({
       success: true,
       message: "Login successful",
       data: {
-        user,
+        user: userResponse,
         token,
         refreshToken,
         sessionId,
@@ -277,59 +298,40 @@ router.post(
       throw new AppError("Invalid refresh token", 401, "INVALID_REFRESH_TOKEN");
     }
 
-    const db = database.getDb();
+    // Get user from MongoDB
+    const user = await User.findById(decoded.userId);
 
-    // Check if session exists
-    const session = await db.get(
-      "SELECT * FROM user_sessions WHERE refreshToken = ? AND isActive = 1",
-      [refreshToken],
-    );
-
-    if (!session) {
-      throw new AppError(
-        "Invalid or expired refresh token",
-        401,
-        "INVALID_REFRESH_TOKEN",
-      );
-    }
-
-    // Get user
-    const user = await db.get(
-      `
-    SELECT id, email, firstName, lastName, username, avatar, bio, isAdmin, isActive
-    FROM users WHERE id = ? AND isActive = 1
-  `,
-      [decoded.userId],
-    );
-
-    if (!user) {
+    if (!user || !user.isActive) {
       throw new AppError("User not found", 404, "USER_NOT_FOUND");
     }
 
     // Generate new tokens
     const tokenPayload = {
-      userId: user.id,
+      userId: user._id,
       email: user.email,
       isAdmin: user.isAdmin,
     };
     const newToken = generateToken(tokenPayload);
     const newRefreshToken = generateRefreshToken(tokenPayload);
 
-    // Update session
-    await db.run(
-      `
-    UPDATE user_sessions 
-    SET token = ?, refreshToken = ?, expiresAt = datetime("now", "+7 days")
-    WHERE id = ?
-  `,
-      [newToken, newRefreshToken, session.id],
-    );
+    // Prepare user response
+    const userResponse = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      avatar: user.avatar,
+      bio: user.bio,
+      isAdmin: user.isAdmin,
+      createdAt: user.createdAt
+    };
 
     res.json({
       success: true,
       message: "Token refreshed successfully",
       data: {
-        user,
+        user: userResponse,
         token: newToken,
         refreshToken: newRefreshToken,
       },
@@ -357,12 +359,13 @@ router.post(
   "/logout-all",
   authenticateToken,
   catchAsync(async (req, res) => {
-    const db = database.getDb();
+    const UserSession = require("../models/UserSession");
 
     // Invalidate all user sessions
-    await db.run("UPDATE user_sessions SET isActive = 0 WHERE userId = ?", [
-      req.user.id,
-    ]);
+    await UserSession.updateMany(
+      { user: req.user.userId },
+      { isActive: false }
+    );
 
     res.json({
       success: true,
@@ -376,29 +379,39 @@ router.get(
   "/me",
   authenticateToken,
   catchAsync(async (req, res) => {
-    const db = database.getDb();
-
-    const user = await db.get(
-      `
-    SELECT 
-      id, email, firstName, lastName, username, avatar, bio, location, website,
-      company, position, github, linkedin, twitter, skills, isAdmin, emailVerified,
-      lastLoginAt, createdAt, updatedAt
-    FROM users WHERE id = ?
-  `,
-      [req.user.id],
-    );
+    const user = await User.findById(req.user.userId);
 
     if (!user) {
       throw new AppError("User not found", 404, "USER_NOT_FOUND");
     }
 
-    // Parse JSON fields
-    user.skills = user.skills ? JSON.parse(user.skills) : [];
+    // Prepare user response
+    const userResponse = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      avatar: user.avatar,
+      bio: user.bio,
+      location: user.location,
+      website: user.website,
+      company: user.company,
+      position: user.position,
+      github: user.github,
+      linkedin: user.linkedin,
+      twitter: user.twitter,
+      skills: user.skills || [],
+      isAdmin: user.isAdmin,
+      emailVerified: user.emailVerified,
+      lastLoginAt: user.lastLoginAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
 
     res.json({
       success: true,
-      data: { user },
+      data: { user: userResponse },
     });
   }),
 );
@@ -437,7 +450,6 @@ router.patch(
   catchAsync(async (req, res) => {
     checkValidation(req);
 
-    const db = database.getDb();
     const {
       firstName,
       lastName,
@@ -452,82 +464,35 @@ router.patch(
       skills,
     } = req.body;
 
-    // Build update query dynamically
-    const updates = [];
-    const values = [];
+    // Build update object
+    const updates = {};
 
-    if (firstName !== undefined) {
-      updates.push("firstName = ?");
-      values.push(firstName);
-    }
-    if (lastName !== undefined) {
-      updates.push("lastName = ?");
-      values.push(lastName);
-    }
-    if (bio !== undefined) {
-      updates.push("bio = ?");
-      values.push(bio);
-    }
-    if (location !== undefined) {
-      updates.push("location = ?");
-      values.push(location);
-    }
-    if (website !== undefined) {
-      updates.push("website = ?");
-      values.push(website);
-    }
-    if (company !== undefined) {
-      updates.push("company = ?");
-      values.push(company);
-    }
-    if (position !== undefined) {
-      updates.push("position = ?");
-      values.push(position);
-    }
-    if (github !== undefined) {
-      updates.push("github = ?");
-      values.push(github);
-    }
-    if (linkedin !== undefined) {
-      updates.push("linkedin = ?");
-      values.push(linkedin);
-    }
-    if (twitter !== undefined) {
-      updates.push("twitter = ?");
-      values.push(twitter);
-    }
-    if (skills !== undefined) {
-      updates.push("skills = ?");
-      values.push(JSON.stringify(skills));
-    }
+    if (firstName !== undefined) updates.firstName = firstName;
+    if (lastName !== undefined) updates.lastName = lastName;
+    if (bio !== undefined) updates.bio = bio;
+    if (location !== undefined) updates.location = location;
+    if (website !== undefined) updates.website = website;
+    if (company !== undefined) updates.company = company;
+    if (position !== undefined) updates.position = position;
+    if (github !== undefined) updates.github = github;
+    if (linkedin !== undefined) updates.linkedin = linkedin;
+    if (twitter !== undefined) updates.twitter = twitter;
+    if (skills !== undefined) updates.skills = skills;
 
-    if (updates.length === 0) {
+    if (Object.keys(updates).length === 0) {
       throw new AppError("No fields to update", 400, "NO_UPDATES");
     }
 
-    updates.push('updatedAt = datetime("now")');
-    values.push(req.user.id);
+    // Update user
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      updates,
+      { new: true, runValidators: true }
+    ).select("-password");
 
-    await db.run(
-      `
-    UPDATE users SET ${updates.join(", ")} WHERE id = ?
-  `,
-      values,
-    );
-
-    // Get updated user
-    const user = await db.get(
-      `
-    SELECT 
-      id, email, firstName, lastName, username, avatar, bio, location, website,
-      company, position, github, linkedin, twitter, skills, isAdmin, emailVerified,
-      lastLoginAt, createdAt, updatedAt
-    FROM users WHERE id = ?
-  `,
-      [req.user.id],
-    );
-
-    user.skills = user.skills ? JSON.parse(user.skills) : [];
+    if (!user) {
+      throw new AppError("User not found", 404, "USER_NOT_FOUND");
+    }
 
     res.json({
       success: true,
@@ -557,12 +522,14 @@ router.patch(
     checkValidation(req);
 
     const { currentPassword, newPassword } = req.body;
-    const db = database.getDb();
+    const UserSession = require("../models/UserSession");
 
     // Get user with password
-    const user = await db.get("SELECT password FROM users WHERE id = ?", [
-      req.user.id,
-    ]);
+    const user = await User.findById(req.user.userId).select("+password");
+
+    if (!user) {
+      throw new AppError("User not found", 404, "USER_NOT_FOUND");
+    }
 
     // Verify current password
     const isValidPassword = await bcrypt.compare(
@@ -582,15 +549,16 @@ router.patch(
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
     // Update password
-    await db.run(
-      'UPDATE users SET password = ?, updatedAt = datetime("now") WHERE id = ?',
-      [hashedPassword, req.user.id],
-    );
+    user.password = hashedPassword;
+    await user.save();
 
     // Invalidate all other sessions (keep current session)
-    await db.run(
-      "UPDATE user_sessions SET isActive = 0 WHERE userId = ? AND id != ?",
-      [req.user.id, req.sessionId],
+    await UserSession.updateMany(
+      { 
+        user: req.user.userId,
+        _id: { $ne: req.sessionId }
+      },
+      { isActive: false }
     );
 
     res.json({
@@ -599,5 +567,146 @@ router.patch(
     });
   }),
 );
+
+// Google Authentication Routes
+const authService = require('../services/authService');
+
+/**
+ * @route   POST /api/auth/google
+ * @desc    Authenticate with Google ID token
+ * @access  Public
+ */
+router.post('/google', catchAsync(async (req, res) => {
+  const { idToken } = req.body;
+
+  if (!idToken) {
+    throw new AppError('Google ID token is required', 400);
+  }
+
+  try {
+    // Verify Google token and get user info
+    const googleProfile = await authService.verifyGoogleToken(idToken);
+    
+    // Check if user exists by email or Google ID
+    let user = await User.findOne({
+      $or: [
+        { email: googleProfile.email },
+        { googleId: googleProfile.googleId }
+      ]
+    });
+
+    if (user) {
+      // Update existing user with Google info
+      user.googleId = googleProfile.googleId;
+      user.picture = googleProfile.picture;
+      user.lastLoginAt = new Date();
+      user.verified = true;
+      await user.save();
+    } else {
+      // Create new user
+      const username = authService.generateUsernameFromEmail(googleProfile.email);
+      const nameParts = googleProfile.name.split(' ');
+      
+      user = new User({
+        email: googleProfile.email,
+        username: username,
+        firstName: nameParts[0] || 'User',
+        lastName: nameParts.slice(1).join(' ') || '',
+        picture: googleProfile.picture,
+        googleId: googleProfile.googleId,
+        verified: true,
+        emailVerified: true,
+        authProvider: 'google',
+        lastLoginAt: new Date(),
+      });
+      
+      await user.save();
+    }
+
+    // Generate tokens
+    const tokenPayload = { 
+      userId: user._id, 
+      email: user.email, 
+      isAdmin: user.isAdmin 
+    };
+    const token = generateToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
+    
+    // Create session
+    const sessionId = await createSession(
+      user._id.toString(),
+      token,
+      refreshToken,
+      req.get("User-Agent"),
+      req.ip
+    );
+
+    res.json({
+      success: true,
+      message: 'Google authentication successful',
+      data: {
+        user: {
+          id: user._id,
+          email: user.email,
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          picture: user.picture,
+          verified: user.verified,
+        },
+        token,
+        refreshToken,
+        sessionId,
+      },
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    throw new AppError(error.message || 'Google authentication failed', 400);
+  }
+}));
+
+/**
+ * @route   GET /api/auth/google/url
+ * @desc    Get Google OAuth URL
+ * @access  Public
+ */
+router.get('/google/url', (req, res) => {
+  try {
+    const authUrl = authService.getGoogleAuthUrl();
+    res.json({
+      success: true,
+      data: { authUrl },
+    });
+  } catch (error) {
+    console.error('Error generating Google auth URL:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to generate Google auth URL',
+    });
+  }
+});
+
+/**
+ * @route   GET /api/auth/google/callback
+ * @desc    Handle Google OAuth callback
+ * @access  Public
+ */
+router.get('/google/callback', catchAsync(async (req, res) => {
+  const { code } = req.query;
+
+  if (!code) {
+    return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:8080'}/login?error=no_code`);
+  }
+
+  try {
+    const result = await authService.handleGoogleCallback(code);
+    
+    // Redirect to frontend with token
+    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:8080'}/auth/callback?token=${result.token}`);
+  } catch (error) {
+    console.error('Google callback error:', error);
+    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:8080'}/login?error=auth_failed`);
+  }
+}));
 
 module.exports = router;

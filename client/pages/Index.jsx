@@ -151,42 +151,42 @@ export default function Index() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 right-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        {/* Background Animation */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute top-10 right-10 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
-        </div>
-
         <div className="relative container mx-auto px-4 py-20 lg:py-32">
           <div
             className={`text-center max-w-5xl mx-auto transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
             {/* Badge */}
-            <div className="inline-flex items-center space-x-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full px-4 py-2 mb-8 border border-white/20 shadow-lg animate-slide-down">
-              <Sparkles className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm font-medium">
+            <div className="inline-flex items-center space-x-2 bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-full px-4 py-2 mb-8 shadow-lg animate-slide-down">
+              <Sparkles className="h-4 w-4 text-yellow-400" />
+              <span className="text-sm font-medium text-slate-200">
                 New: AI-Powered Code Review
               </span>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs bg-slate-700 text-slate-300">
                 Beta
               </Badge>
             </div>
 
             {/* Main Title */}
             <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-              <span className="gradient-text">Build Amazing</span>
+              <span className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Build Amazing</span>
               <br />
-              <span className="text-slate-800 dark:text-white">
+              <span className="text-white">
                 Things Together
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-xl lg:text-2xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed animate-slide-up animation-delay-200">
+            <p className="text-xl lg:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed animate-slide-up animation-delay-200">
               Join the world's most innovative developer community. Share code,
               learn with AI, and build the future of technology.
             </p>
@@ -196,7 +196,7 @@ export default function Index() {
               <Link to="/register">
                 <Button
                   size="lg"
-                  className="btn-gradient text-white px-8 py-4 rounded-full text-lg font-semibold hover-lift"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
                 >
                   <Rocket className="h-5 w-5 mr-2" />
                   Start Building
@@ -207,7 +207,7 @@ export default function Index() {
               <Button
                 variant="outline"
                 size="lg"
-                className="px-8 py-4 rounded-full text-lg font-semibold backdrop-blur-sm bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-300"
+                className="px-8 py-4 rounded-full text-lg font-semibold backdrop-blur-lg bg-slate-800/50 border-slate-600/50 hover:bg-slate-700/50 text-white transition-all duration-300"
               >
                 <Play className="h-5 w-5 mr-2" />
                 Watch Demo
@@ -215,7 +215,7 @@ export default function Index() {
             </div>
 
             {/* Social Proof */}
-            <div className="flex items-center justify-center space-x-8 text-sm text-slate-500 dark:text-slate-400 animate-fade-in animation-delay-600">
+            <div className="flex items-center justify-center space-x-8 text-sm text-slate-400 animate-fade-in animation-delay-600">
               <div className="flex items-center space-x-2">
                 <Star className="h-4 w-4 text-yellow-500 fill-current" />
                 <span>4.9/5 Rating</span>
@@ -242,10 +242,10 @@ export default function Index() {
       <section className="py-20 lg:py-32 relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-slate-800 dark:text-white">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-white">
               Supercharge Your Development
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
               Experience the next generation of developer tools with AI-powered
               assistance and collaborative features.
             </p>
@@ -261,10 +261,10 @@ export default function Index() {
                 return (
                   <Card
                     key={index}
-                    className={`cursor-pointer transition-all duration-500 hover-lift ${
+                    className={`cursor-pointer transition-all duration-500 hover:scale-105 hover:shadow-xl ${
                       isActive
-                        ? "ring-2 ring-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 scale-105"
-                        : "hover:shadow-lg bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+                        ? "ring-2 ring-purple-500 bg-slate-800/70 backdrop-blur-xl border-purple-500/50 scale-105 shadow-purple-500/25 shadow-lg"
+                        : "hover:shadow-lg bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70"
                     }`}
                     onClick={() => setCurrentFeature(index)}
                   >
@@ -276,10 +276,10 @@ export default function Index() {
                           <Icon className="h-6 w-6" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-xl font-semibold mb-2 text-slate-800 dark:text-white">
+                          <h3 className="text-xl font-semibold mb-2 text-white">
                             {feature.title}
                           </h3>
-                          <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                          <p className="text-slate-300 leading-relaxed">
                             {feature.description}
                           </p>
                         </div>
@@ -292,18 +292,18 @@ export default function Index() {
 
             {/* Feature Visualization */}
             <div className="relative">
-              <div className="glass rounded-2xl p-8 h-96 flex items-center justify-center">
+              <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8 h-96 flex items-center justify-center shadow-xl">
                 <div className="text-center">
                   {(() => {
                     const FeatureIcon = features[currentFeature].icon;
                     return (
-                      <FeatureIcon className="h-24 w-24 mx-auto mb-6 text-blue-500 animate-float" />
+                      <FeatureIcon className="h-24 w-24 mx-auto mb-6 text-purple-400 animate-pulse" />
                     );
                   })()}
-                  <h3 className="text-2xl font-bold mb-4 text-slate-800 dark:text-white">
+                  <h3 className="text-2xl font-bold mb-4 text-white">
                     {features[currentFeature].title}
                   </h3>
-                  <p className="text-slate-600 dark:text-slate-300">
+                  <p className="text-slate-300">
                     Interactive demo coming soon
                   </p>
                 </div>
@@ -314,8 +314,8 @@ export default function Index() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/10"></div>
+      <section className="py-20 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative container mx-auto px-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => {
@@ -326,7 +326,7 @@ export default function Index() {
                   className="text-center animate-scale-in"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <Icon className="h-12 w-12 mx-auto mb-4 opacity-80" />
+                  <Icon className="h-12 w-12 mx-auto mb-4 opacity-90" />
                   <div className="text-3xl lg:text-4xl font-bold mb-2">
                     {stat.value}
                   </div>
@@ -344,10 +344,10 @@ export default function Index() {
       <section className="py-20 lg:py-32">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-slate-800 dark:text-white">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-white">
               Loved by Developers
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
               See what the community is saying about their DevHub experience.
             </p>
           </div>
@@ -356,7 +356,7 @@ export default function Index() {
             {testimonials.map((testimonial, index) => (
               <Card
                 key={index}
-                className="hover-lift bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-0 shadow-lg animate-slide-up"
+                className="hover:scale-105 hover:shadow-xl transition-all duration-300 bg-slate-800/50 backdrop-blur-xl border-slate-700/50 shadow-lg animate-slide-up"
                 style={{ animationDelay: `${index * 200}ms` }}
               >
                 <CardContent className="p-6">
@@ -364,18 +364,18 @@ export default function Index() {
                     <img
                       src={testimonial.avatar}
                       alt={testimonial.name}
-                      className="w-12 h-12 rounded-full mr-4 border-2 border-blue-200"
+                      className="w-12 h-12 rounded-full mr-4 border-2 border-purple-400"
                     />
                     <div>
-                      <h4 className="font-semibold text-slate-800 dark:text-white">
+                      <h4 className="font-semibold text-white">
                         {testimonial.name}
                       </h4>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                      <p className="text-sm text-slate-400">
                         {testimonial.role}
                       </p>
                     </div>
                   </div>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                  <p className="text-slate-300 leading-relaxed">
                     "{testimonial.content}"
                   </p>
                   <div className="flex mt-4">
@@ -394,8 +394,12 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-r from-slate-900 to-slate-800 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+      <section className="py-20 lg:py-32 bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20"></div>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
         <div className="relative container mx-auto px-4 text-center">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6">
             Ready to Join the Revolution?
@@ -409,9 +413,9 @@ export default function Index() {
             <Link to="/register">
               <Button
                 size="lg"
-                className="bg-white text-slate-900 hover:bg-slate-100 px-8 py-4 rounded-full text-lg font-semibold hover-lift"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
               >
-                <Heart className="h-5 w-5 mr-2 text-red-500" />
+                <Heart className="h-5 w-5 mr-2 text-red-400" />
                 Join Free Today
               </Button>
             </Link>
@@ -420,7 +424,7 @@ export default function Index() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-white/20 text-white hover:bg-white/10 px-8 py-4 rounded-full text-lg font-semibold"
+                className="border-slate-600/50 text-white hover:bg-slate-800/50 backdrop-blur-lg px-8 py-4 rounded-full text-lg font-semibold"
               >
                 <BookOpen className="h-5 w-5 mr-2" />
                 Read Our Blog
@@ -432,19 +436,19 @@ export default function Index() {
           <div className="flex items-center justify-center space-x-6">
             <a
               href="#"
-              className="text-slate-300 hover:text-white transition-colors"
+              className="text-slate-400 hover:text-white transition-colors"
             >
               <Github className="h-6 w-6" />
             </a>
             <a
               href="#"
-              className="text-slate-300 hover:text-white transition-colors"
+              className="text-slate-400 hover:text-white transition-colors"
             >
               <Twitter className="h-6 w-6" />
             </a>
             <a
               href="#"
-              className="text-slate-300 hover:text-white transition-colors"
+              className="text-slate-400 hover:text-white transition-colors"
             >
               <Linkedin className="h-6 w-6" />
             </a>

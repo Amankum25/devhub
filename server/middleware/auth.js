@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const database = require("../config/database");
+const User = require("../models/User");
+const UserSession = require("../models/UserSession");
 
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
@@ -65,11 +67,11 @@ const authenticateToken = async (req, res, next) => {
     const decoded = verifyToken(token);
 
     // Check if session exists and is active
-    const db = database.getDb();
-    const session = await db.get(
-      'SELECT * FROM user_sessions WHERE token = ? AND isActive = 1 AND expiresAt > datetime("now")',
-      [token],
-    );
+    const session = await UserSession.findOne({
+      token: token,
+      isActive: true,
+      expiresAt: { $gt: new Date() },
+    });
 
     if (!session) {
       return res.status(401).json({
@@ -79,12 +81,11 @@ const authenticateToken = async (req, res, next) => {
     }
 
     // Get user details
-    const user = await db.get(
-      "SELECT id, email, firstName, lastName, username, avatar, isAdmin, isActive FROM users WHERE id = ? AND isActive = 1",
-      [decoded.userId],
+    const user = await User.findById(decoded.userId).select(
+      "email firstName lastName username avatar isAdmin isActive"
     );
 
-    if (!user) {
+    if (!user || !user.isActive) {
       return res.status(401).json({
         error: "Access denied",
         message: "User not found or inactive",
@@ -92,8 +93,17 @@ const authenticateToken = async (req, res, next) => {
     }
 
     // Attach user to request
-    req.user = user;
-    req.sessionId = session.id;
+    req.user = {
+      userId: user._id,
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      avatar: user.avatar,
+      isAdmin: user.isAdmin,
+    };
+    req.sessionId = session._id;
 
     next();
   } catch (error) {
@@ -133,24 +143,35 @@ const optionalAuth = async (req, res, next) => {
 
     const decoded = verifyToken(token);
 
-    const db = database.getDb();
-    const session = await db.get(
-      'SELECT * FROM user_sessions WHERE token = ? AND isActive = 1 AND expiresAt > datetime("now")',
-      [token],
-    );
+    const session = await UserSession.findOne({
+      token: token,
+      isActive: true,
+      expiresAt: { $gt: new Date() },
+    });
 
     if (!session) {
       req.user = null;
       return next();
     }
 
-    const user = await db.get(
-      "SELECT id, email, firstName, lastName, username, avatar, isAdmin, isActive FROM users WHERE id = ? AND isActive = 1",
-      [decoded.userId],
+    const user = await User.findById(decoded.userId).select(
+      "email firstName lastName username avatar isAdmin isActive"
     );
 
-    req.user = user || null;
-    req.sessionId = session ? session.id : null;
+    if (user && user.isActive) {
+      req.user = {
+        userId: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        avatar: user.avatar,
+        isAdmin: user.isAdmin,
+      };
+      req.sessionId = session._id;
+    } else {
+      req.user = null;
+    }
 
     next();
   } catch (error) {
@@ -215,26 +236,27 @@ const createSession = async (
   userAgent,
   ipAddress,
 ) => {
-  const db = database.getDb();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  const sessionId = require('crypto').randomUUID();
 
   try {
-    const result = await db.run(
-      `
-      INSERT INTO user_sessions (userId, token, refreshToken, userAgent, ipAddress, expiresAt)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `,
-      [
-        userId,
-        token,
-        refreshToken,
-        userAgent,
-        ipAddress,
-        expiresAt.toISOString(),
-      ],
-    );
+    const session = new UserSession({
+      user: userId,
+      sessionId: sessionId,
+      token: token,
+      refreshToken: refreshToken,
+      isActive: true,
+      expiresAt: expiresAt,
+      deviceInfo: {
+        userAgent: userAgent,
+      },
+      networkInfo: {
+        ipAddress: ipAddress,
+      },
+    });
 
-    return result.lastID;
+    await session.save();
+    return session._id;
   } catch (error) {
     console.error("Failed to create session:", error);
     throw error;
@@ -243,13 +265,10 @@ const createSession = async (
 
 // Update last login
 const updateLastLogin = async (userId) => {
-  const db = database.getDb();
-
   try {
-    await db.run(
-      'UPDATE users SET lastLoginAt = datetime("now") WHERE id = ?',
-      [userId],
-    );
+    await User.findByIdAndUpdate(userId, {
+      lastLoginAt: new Date(),
+    });
   } catch (error) {
     console.error("Failed to update last login:", error);
   }
@@ -257,12 +276,10 @@ const updateLastLogin = async (userId) => {
 
 // Invalidate session
 const invalidateSession = async (sessionId) => {
-  const db = database.getDb();
-
   try {
-    await db.run("UPDATE user_sessions SET isActive = 0 WHERE id = ?", [
-      sessionId,
-    ]);
+    await UserSession.findByIdAndUpdate(sessionId, {
+      isActive: false,
+    });
   } catch (error) {
     console.error("Failed to invalidate session:", error);
     throw error;
@@ -271,15 +288,16 @@ const invalidateSession = async (sessionId) => {
 
 // Cleanup expired sessions
 const cleanupExpiredSessions = async () => {
-  const db = database.getDb();
-
   try {
-    const result = await db.run(
-      'DELETE FROM user_sessions WHERE expiresAt < datetime("now") OR isActive = 0',
-    );
+    const result = await UserSession.deleteMany({
+      $or: [
+        { expiresAt: { $lt: new Date() } },
+        { isActive: false },
+      ],
+    });
 
-    if (result.changes > 0) {
-      console.log(`🧹 Cleaned up ${result.changes} expired sessions`);
+    if (result.deletedCount > 0) {
+      console.log(`🧹 Cleaned up ${result.deletedCount} expired sessions`);
     }
   } catch (error) {
     console.error("Failed to cleanup expired sessions:", error);

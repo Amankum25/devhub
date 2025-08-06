@@ -26,6 +26,7 @@ import {
   Target,
   Award,
 } from "lucide-react";
+import UserSearch from "../components/UserSearch";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -92,28 +93,28 @@ export default function Dashboard() {
       title: 'Your post "React Best Practices" received 5 new likes',
       time: "2 hours ago",
       icon: Star,
-      color: "text-yellow-500",
+      color: "text-yellow-400",
     },
     {
       type: "comment",
       title: 'New comment on your snippet "useState Hook"',
       time: "4 hours ago",
       icon: MessageSquare,
-      color: "text-blue-500",
+      color: "text-blue-400",
     },
     {
       type: "ai",
       title: "AI helped you explain a complex algorithm",
       time: "1 day ago",
       icon: Brain,
-      color: "text-purple-500",
+      color: "text-purple-400",
     },
     {
       type: "achievement",
       title: "You reached 100 total interactions!",
       time: "2 days ago",
       icon: Award,
-      color: "text-green-500",
+      color: "text-green-400",
     },
   ];
 
@@ -152,14 +153,30 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">
-            Please log in to view your dashboard
-          </h2>
-          <Link to="/login">
-            <Button>Go to Login</Button>
-          </Link>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="w-full max-w-md space-y-6 relative z-10">
+          <Card className="w-full backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl">
+            <CardHeader className="space-y-1 text-center">
+              <div className="mx-auto w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mb-4 shadow-lg">
+                <Activity className="h-7 w-7 text-white" />
+              </div>
+              <CardTitle className="text-3xl font-extrabold text-white">Please Log In</CardTitle>
+              <CardDescription className="text-lg text-slate-300">
+                Log in to view your dashboard and activity
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 text-center">
+              <Link to="/login">
+                <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold shadow-md">Go to Login</Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -170,290 +187,151 @@ export default function Dashboard() {
     (completedAchievements / achievements.length) * 100;
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Welcome Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Welcome back, {user.firstName || user.name}! 👋
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+      
+      <div className="w-full max-w-7xl mx-auto space-y-8 relative z-10 pt-20">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-3">
+            <span className="rounded-full bg-gradient-to-br from-purple-500 to-blue-500 p-3 shadow-lg">
+              <Zap className="h-8 w-8 text-white" />
+            </span>
+            <h1 className="text-5xl font-extrabold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent tracking-tight">
+              DevHub <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Dashboard</span>
             </h1>
-            <p className="text-muted-foreground mt-2">
-              Here's what's happening in your DevHub journey
-            </p>
           </div>
-          <div className="mt-4 md:mt-0">
-            <Badge variant="secondary" className="text-sm">
-              <Activity className="h-3 w-3 mr-1" />
-              Member since{" "}
-              {new Date(
-                user.registeredAt || user.loginTime,
-              ).toLocaleDateString()}
-            </Badge>
-          </div>
+          <p className="mt-4 text-lg text-slate-300">Supercharge your development journey with stats, quick actions, and achievements</p>
         </div>
-
-        {/* Stats Cards */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Posts Published
-              </CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+          {/* Stats Cards */}
+          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl hover:bg-slate-800/70 transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-lg font-bold text-white">Posts Published</CardTitle>
+              <FileText className="h-6 w-6 text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.posts}</div>
-              <p className="text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 inline mr-1" />
-                +2 this week
-              </p>
+              <div className="text-3xl font-extrabold text-white">{stats.posts}</div>
+              <p className="text-xs text-slate-400 mt-1"><TrendingUp className="h-4 w-4 inline mr-1 text-purple-400" />+2 this week</p>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                AI Interactions
-              </CardTitle>
-              <Brain className="h-4 w-4 text-muted-foreground" />
+          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl hover:bg-slate-800/70 transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-lg font-bold text-white">AI Interactions</CardTitle>
+              <Brain className="h-6 w-6 text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.aiCalls}</div>
-              <p className="text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 inline mr-1" />
-                +5 this week
-              </p>
+              <div className="text-3xl font-extrabold text-white">{stats.aiCalls}</div>
+              <p className="text-xs text-slate-400 mt-1"><TrendingUp className="h-4 w-4 inline mr-1 text-purple-400" />+5 this week</p>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Messages Sent
-              </CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl hover:bg-slate-800/70 transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-lg font-bold text-white">Messages Sent</CardTitle>
+              <MessageSquare className="h-6 w-6 text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.messages}</div>
-              <p className="text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 inline mr-1" />
-                +12 this week
-              </p>
+              <div className="text-3xl font-extrabold text-white">{stats.messages}</div>
+              <p className="text-xs text-slate-400 mt-1"><TrendingUp className="h-4 w-4 inline mr-1 text-purple-400" />+12 this week</p>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Likes</CardTitle>
-              <Star className="h-4 w-4 text-muted-foreground" />
+          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl hover:bg-slate-800/70 transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-lg font-bold text-white">Total Likes</CardTitle>
+              <Star className="h-6 w-6 text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.likes}</div>
-              <p className="text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 inline mr-1" />
-                +8 this week
-              </p>
+              <div className="text-3xl font-extrabold text-white">{stats.likes}</div>
+              <p className="text-xs text-slate-400 mt-1"><TrendingUp className="h-4 w-4 inline mr-1 text-purple-400" />+8 this week</p>
             </CardContent>
           </Card>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Quick Actions */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Zap className="h-5 w-5 mr-2" />
-                  Quick Actions
-                </CardTitle>
-                <CardDescription>
-                  Jump into your most common activities
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {quickActions.map((action, index) => {
-                    const Icon = action.icon;
-                    return (
-                      <Link key={index} to={action.href}>
-                        <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                          <CardContent className="p-4">
-                            <div className="flex items-start space-x-3">
-                              <div className={`p-2 rounded-lg ${action.color}`}>
-                                <Icon className="h-4 w-4 text-white" />
-                              </div>
-                              <div className="flex-1">
-                                <h3 className="font-medium text-sm">
-                                  {action.title}
-                                </h3>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {action.description}
-                                </p>
-                              </div>
-                              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recent Activity */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Activity className="h-5 w-5 mr-2" />
-                  Recent Activity
-                </CardTitle>
-                <CardDescription>
-                  Your latest interactions and achievements
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentActivity.map((activity, index) => {
-                    const Icon = activity.icon;
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                      >
-                        <Icon className={`h-4 w-4 mt-0.5 ${activity.color}`} />
-                        <div className="flex-1 space-y-1">
-                          <p className="text-sm text-foreground">
-                            {activity.title}
-                          </p>
-                          <div className="flex items-center text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {activity.time}
-                          </div>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          {quickActions.map((action, index) => {
+            const Icon = action.icon;
+            return (
+              <Link key={index} to={action.href}>
+                <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl hover:bg-slate-800/70 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+                  <CardContent className="p-6 flex items-center gap-4">
+                    <div className={`p-3 rounded-xl ${action.color} shadow-lg`}>
+                      <Icon className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-white">{action.title}</h3>
+                      <p className="text-sm text-slate-400 mt-1">{action.description}</p>
+                    </div>
+                    <ChevronRight className="h-6 w-6 text-slate-500" />
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+        {/* Recent Activity */}
+        <div className="mt-10">
+          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl">
+            <CardHeader>
+              <CardTitle className="flex items-center text-2xl font-bold text-white gap-2">
+                <Activity className="h-7 w-7 text-purple-400" />Recent Activity
+              </CardTitle>
+              <CardDescription className="text-slate-400">Your latest interactions and achievements</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentActivity.map((activity, index) => {
+                  const Icon = activity.icon;
+                  return (
+                    <div key={index} className="flex items-start space-x-4 p-4 rounded-xl hover:bg-slate-700/50 transition-colors">
+                      <Icon className={`h-6 w-6 mt-0.5 ${activity.color}`} />
+                      <div className="flex-1 space-y-1">
+                        <p className="text-lg text-white font-semibold">{activity.title}</p>
+                        <div className="flex items-center text-xs text-slate-400">
+                          <Clock className="h-4 w-4 mr-1 text-purple-400" />
+                          {activity.time}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Profile Progress */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Target className="h-5 w-5 mr-2" />
-                  Profile Progress
-                </CardTitle>
-                <CardDescription>
-                  Complete your profile to unlock features
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Profile Completion</span>
-                      <span>85%</span>
                     </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full"
-                        style={{ width: "85%" }}
-                      ></div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        {/* Achievements */}
+        <div className="mt-10">
+          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl">
+            <CardHeader>
+              <CardTitle className="flex items-center text-2xl font-bold text-white gap-2">
+                <Award className="h-7 w-7 text-purple-400" />Achievements
+              </CardTitle>
+              <CardDescription className="text-slate-400">{completedAchievements} of {achievements.length} completed</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="w-full bg-slate-700/50 rounded-full h-3 mb-3">
+                  <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500" style={{ width: `${progressPercentage}%` }}></div>
+                </div>
+                {achievements.slice(0, 4).map((achievement, index) => (
+                  <div key={index} className="flex items-center space-x-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${achievement.completed ? "bg-green-500" : "bg-slate-700/50"}`}>
+                      {achievement.completed && <Award className="h-4 w-4 text-white" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className={`text-lg font-bold ${achievement.completed ? "text-white" : "text-slate-500"}`}>{achievement.name}</p>
+                      <p className="text-xs text-slate-400">{achievement.description}</p>
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Profile photo</span>
-                      <Badge variant="secondary" className="text-xs">
-                        Done
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Bio description</span>
-                      <Badge variant="outline" className="text-xs">
-                        Pending
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Social links</span>
-                      <Badge variant="secondary" className="text-xs">
-                        Done
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <Link to="/profile">
-                    <Button variant="outline" size="sm" className="w-full">
-                      Complete Profile
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Achievements */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Award className="h-5 w-5 mr-2" />
-                  Achievements
-                </CardTitle>
-                <CardDescription>
-                  {completedAchievements} of {achievements.length} completed
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div>
-                    <div className="w-full bg-muted rounded-full h-2 mb-3">
-                      <div
-                        className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${progressPercentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  {achievements.slice(0, 4).map((achievement, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <div
-                        className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                          achievement.completed ? "bg-green-500" : "bg-muted"
-                        }`}
-                      >
-                        {achievement.completed && (
-                          <Award className="h-3 w-3 text-white" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p
-                          className={`text-sm font-medium ${
-                            achievement.completed
-                              ? "text-foreground"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          {achievement.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {achievement.description}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-
-                  <Button variant="ghost" size="sm" className="w-full mt-3">
-                    View All Achievements
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                ))}
+                <Button variant="ghost" size="sm" className="w-full mt-3 text-slate-400 hover:text-white hover:bg-slate-700/50">View All Achievements</Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

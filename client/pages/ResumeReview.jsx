@@ -111,21 +111,29 @@ SKILLS:
 JavaScript, React, Node.js, Python, SQL, Git`;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-3 bg-green-500/10 rounded-xl">
-            <FileText className="h-8 w-8 text-green-500" />
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
-            Resume Review
-          </h1>
-        </div>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Get intelligent feedback and suggestions to improve your technical resume
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
+
+      <div className="relative z-10 container mx-auto px-4 py-8 pt-24 max-w-6xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-green-500/20 backdrop-blur-xl rounded-xl border border-green-500/30 shadow-lg">
+              <FileText className="h-8 w-8 text-green-400" />
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent">
+              Resume Review
+            </h1>
+          </div>
+          <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+            Get intelligent feedback and suggestions to improve your technical resume
+          </p>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Section */}
@@ -307,13 +315,14 @@ JavaScript, React, Node.js, Python, SQL, Git`;
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">
+              <p className="text-slate-300">
                 Identify missing skills and get suggestions for improvement areas
               </p>
             </CardContent>
           </Card>
         </div>
       </div>
+    </div>
     </div>
   );
 }

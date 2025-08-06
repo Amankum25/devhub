@@ -16,7 +16,9 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function() {
+        return this.authProvider === 'local';
+      },
       minlength: 6,
     },
     firstName: {
@@ -110,6 +112,24 @@ const userSchema = new mongoose.Schema(
     passwordResetExpires: {
       type: Date,
     },
+    // Google OAuth fields
+    googleId: {
+      type: String,
+      sparse: true,
+      index: true,
+    },
+    picture: {
+      type: String,
+    },
+    authProvider: {
+      type: String,
+      enum: ['local', 'google', 'github'],
+      default: 'local',
+    },
+    verified: {
+      type: Boolean,
+      default: false,
+    },
     lastLoginAt: {
       type: Date,
     },
@@ -155,6 +175,10 @@ const userSchema = new mongoose.Schema(
         enum: ["public", "private", "friends"],
         default: "public",
       },
+    },
+    // API Keys
+    deepseekApiKey: {
+      type: String,
     },
     // Statistics
     stats: {

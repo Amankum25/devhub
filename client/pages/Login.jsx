@@ -11,12 +11,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/hooks/use-toast";
+// import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
+import { toast } from 'react-toastify';
 import {
   Eye,
   EyeOff,
   LogIn,
-  Chrome,
   Github,
   Mail,
   Lock,
@@ -31,7 +33,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { toast } = useToast();
+  // Removed useToast, using react-toastify's toast
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -73,44 +76,73 @@ export default function Login() {
     setError("");
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-      // For demo purposes, accept any valid email/password
-      if (formData.email && formData.password.length >= 6) {
-        toast({
-          title: "Login Successful!",
-          description: "Welcome back to DevHub.",
-        });
+      if (!response.ok) {
+        // Handle HTTP errors
+        if (response.status === 401) {
+          throw new Error("Invalid email or password");
+        } else if (response.status >= 500) {
+          throw new Error("Server error. Please try again later.");
+        } else {
+          throw new Error("Something went wrong. Please try again.");
+        }
+      }
 
-        // Store user session (in real app, this would be JWT token)
-        localStorage.setItem(
-          "devhub_user",
-          JSON.stringify({
-            email: formData.email,
-            name: formData.email.split("@")[0],
-            loggedIn: true,
-            loginTime: new Date().toISOString(),
-          }),
-        );
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("🎉 Login Successful! Welcome back to DevHub!");
+
+        // Use auth context to store authentication data
+        login(data.data.user, data.data.token, data.data.refreshToken);
 
         // Redirect to dashboard
         navigate("/dashboard");
       } else {
-        setError("Invalid email or password");
+        const errorMessage = data.error?.message || data.message || "Login failed. Please try again.";
+        setError(errorMessage);
+        toast.error(`Login failed: ${errorMessage}`);
       }
     } catch (err) {
-      setError("Login failed. Please try again.");
+      console.error("Login error:", err);
+      let errorMessage = "Network error. Please check your connection and try again.";
+      
+      if (err.message.includes("Invalid email or password")) {
+        errorMessage = "Invalid email or password. Please check your credentials.";
+      } else if (err.message.includes("Server error")) {
+        errorMessage = "Server error. Please try again later.";
+      } else if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    toast({
-      title: "Google OAuth",
-      description: "Google authentication would be implemented here.",
-    });
+  const handleGoogleSuccess = (authData) => {
+    // Google authentication successful
+    // User data and token are already stored by GoogleLoginButton
+    navigate("/dashboard");
+  };
+
+  const handleGoogleError = (error) => {
+    console.error("Google authentication error:", error);
+    setError("Google authentication failed. Please try again.");
   };
 
   const handleGithubLogin = () => {
@@ -121,51 +153,59 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Back to Home */}
-        <Link
-          to="/"
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Home
-        </Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+      
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-6">
+          {/* Back to Home */}
+          <Link
+            to="/"
+            className="inline-flex items-center text-sm text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to Home
+          </Link>
 
-        {/* Login Card */}
-        <Card className="w-full">
-          <CardHeader className="space-y-1 text-center">
-            <div className="mx-auto w-12 h-12 rounded-lg bg-primary flex items-center justify-center mb-4">
-              <LogIn className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-            <CardDescription>
-              Sign in to your DevHub account to continue
-            </CardDescription>
-          </CardHeader>
+          {/* Login Card */}
+          <Card className="w-full bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+            <CardHeader className="space-y-1 text-center">
+              <div className="mx-auto w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center mb-4 shadow-lg">
+                <LogIn className="h-6 w-6 text-white" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-white">Welcome Back</CardTitle>
+              <CardDescription className="text-slate-300">
+                Sign in to your DevHub account to continue
+              </CardDescription>
+            </CardHeader>
 
-          <CardContent className="space-y-4">
-            {/* Error Alert */}
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+            <CardContent className="space-y-4">
+              {/* Error Alert */}
+              {error && (
+                <Alert variant="destructive" className="bg-red-900/50 border-red-500/50">
+                  <AlertDescription className="text-red-200">{error}</AlertDescription>
+                </Alert>
+              )}
 
-            {/* Login Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="pl-10"
+              {/* Login Form */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-slate-300">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="pl-10 bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400"
                     disabled={isLoading}
                   />
                 </div>
@@ -248,14 +288,11 @@ export default function Login() {
 
             {/* OAuth Buttons */}
             <div className="grid grid-cols-2 gap-4">
-              <Button
-                variant="outline"
-                onClick={handleGoogleLogin}
+              <GoogleLoginButton
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
                 disabled={isLoading}
-              >
-                <Chrome className="h-4 w-4 mr-2" />
-                Google
-              </Button>
+              />
               <Button
                 variant="outline"
                 onClick={handleGithubLogin}
@@ -291,6 +328,7 @@ export default function Login() {
           </CardContent>
         </Card>
       </div>
+    </div>
     </div>
   );
 }

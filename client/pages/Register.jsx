@@ -12,11 +12,12 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
+import { toast } from 'react-toastify';
 import {
   Eye,
   EyeOff,
   UserPlus,
-  Chrome,
   Github,
   Mail,
   Lock,
@@ -80,22 +81,34 @@ export default function Register() {
       !formData.confirmPassword
     ) {
       setError("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError("Please enter a valid email address");
+      toast.error("Please enter a valid email address");
       return false;
     }
 
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters long");
+      toast.error("Password must be at least 6 characters long");
+      return false;
+    }
+
+    // Check password strength requirements
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+    if (!passwordRegex.test(formData.password)) {
+      setError("Password must contain at least one uppercase letter, one lowercase letter, and one number");
+      toast.error("Password must contain at least one uppercase letter, one lowercase letter, and one number");
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
+      toast.error("Passwords do not match! Please check and try again.");
       return false;
     }
 
@@ -128,45 +141,78 @@ export default function Register() {
     setError("");
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      toast({
-        title: "Account Created Successfully!",
-        description:
-          "Welcome to DevHub! Please check your email for verification.",
-      });
-
-      // Store user session
-      localStorage.setItem(
-        "devhub_user",
-        JSON.stringify({
-          email: formData.email,
-          name: `${formData.firstName} ${formData.lastName}`,
+      const response = await fetch("http://localhost:3000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           firstName: formData.firstName,
           lastName: formData.lastName,
-          githubProfile: formData.githubProfile,
-          linkedinProfile: formData.linkedinProfile,
-          avatar: avatar,
-          loggedIn: true,
-          registeredAt: new Date().toISOString(),
+          email: formData.email,
+          password: formData.password,
+          username: formData.username || undefined,
+          bio: formData.bio || undefined,
+          location: formData.location || undefined,
+          website: formData.website || undefined,
+          company: formData.company || undefined,
+          position: formData.position || undefined,
+          github: formData.githubProfile || undefined,
+          linkedin: formData.linkedinProfile || undefined,
+          twitter: formData.twitterProfile || undefined,
         }),
-      );
+      });
 
-      // Redirect to dashboard
-      navigate("/dashboard");
+      if (!response.ok) {
+        if (response.status === 409) {
+          throw new Error("Email or username already exists");
+        } else if (response.status >= 500) {
+          throw new Error("Server error. Please try again later.");
+        } else {
+          throw new Error("Something went wrong. Please try again.");
+        }
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("🎉 Account Created Successfully! Welcome to DevHub!");
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      } else {
+        const errorMessage = data.error?.message || data.message || "Registration failed. Please try again.";
+        setError(errorMessage);
+        toast.error(`Registration failed: ${errorMessage}`);
+      }
     } catch (err) {
-      setError("Registration failed. Please try again.");
+      console.error("Registration error:", err);
+      let errorMessage = "Network error. Please check your connection and try again.";
+      if (err.message.includes("Email or username already exists")) {
+        errorMessage = "Email or username already exists. Please use a different one.";
+      } else if (err.message.includes("Server error")) {
+        errorMessage = "Server error. Please try again later.";
+      } else if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleSignup = () => {
-    toast({
-      title: "Google OAuth",
-      description: "Google registration would be implemented here.",
-    });
+  const handleGoogleSuccess = (authData) => {
+    // Google authentication successful
+    // User data and token are already stored by GoogleLoginButton
+    navigate("/dashboard");
+  };
+
+  const handleGoogleError = (error) => {
+    console.error("Google authentication error:", error);
+    setError("Google authentication failed. Please try again.");
   };
 
   const handleGithubSignup = () => {
@@ -177,245 +223,111 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
-      <div className="w-full max-w-lg space-y-6">
-        {/* Back to Home */}
-        <Link
-          to="/"
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Home
-        </Link>
-
-        {/* Register Card */}
-        <Card className="w-full">
-          <CardHeader className="space-y-1 text-center">
-            <div className="mx-auto w-12 h-12 rounded-lg bg-primary flex items-center justify-center mb-4">
-              <UserPlus className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <CardTitle className="text-2xl font-bold">Join DevHub</CardTitle>
-            <CardDescription>
-              Create your account to start building, learning, and sharing
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {/* Error Alert */}
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {/* Register Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Avatar Upload */}
-              <div className="flex flex-col items-center space-y-2">
-                <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                    {avatar ? (
-                      <img
-                        src={avatar}
-                        alt="Avatar"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="h-8 w-8 text-muted-foreground" />
-                    )}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+      
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-6">
+          <Card className="w-full bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+            <CardHeader className="space-y-1 text-center">
+              <div className="mx-auto w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center mb-4 shadow-lg">
+                <UserPlus className="h-6 w-6 text-white" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-white">Join DevHub</CardTitle>
+              <CardDescription className="text-slate-300">
+                Create your account to start building, learning, and sharing
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {error && (
+                <Alert variant="destructive" className="bg-red-900/50 border-red-500/50">
+                  <AlertDescription className="text-red-200">{error}</AlertDescription>
+                </Alert>
+              )}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="relative">
+                    <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden border-2 border-slate-600">
+                      {avatar ? (
+                        <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="h-8 w-8 text-slate-400" />
+                      )}
+                    </div>
+                    <label htmlFor="avatar" className="absolute bottom-0 right-0 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full p-1 cursor-pointer hover:from-purple-700 hover:to-blue-700 transition-colors">
+                      <Upload className="h-3 w-3" />
+                    </label>
+                    <input id="avatar" type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" disabled={isLoading} />
                   </div>
-                  <label
-                    htmlFor="avatar"
-                    className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-1 cursor-pointer hover:bg-primary/90 transition-colors"
-                  >
-                    <Upload className="h-3 w-3" />
-                  </label>
-                  <input
-                    id="avatar"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarUpload}
-                    className="hidden"
-                    disabled={isLoading}
-                  />
+                  <p className="text-xs text-slate-400">Upload your profile picture (optional)</p>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Upload your profile picture (optional)
-                </p>
-              </div>
-
-              {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    type="text"
-                    placeholder="John"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-slate-300">First Name</Label>
+                    <Input id="firstName" name="firstName" type="text" placeholder="John" value={formData.firstName} onChange={handleChange} disabled={isLoading} required className="bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-slate-300">Last Name</Label>
+                    <Input id="lastName" name="lastName" type="text" placeholder="Doe" value={formData.lastName} onChange={handleChange} disabled={isLoading} required className="bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400" />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    placeholder="Doe"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="john.doe@example.com"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="pl-10"
-                    disabled={isLoading}
-                    required
-                  />
+                  <Input id="email" name="email" type="email" placeholder="john.doe@example.com" value={formData.email} onChange={handleChange} className="pl-10" disabled={isLoading} required />
                 </div>
               </div>
-
-              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Create a strong password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="pl-10 pr-10"
-                    disabled={isLoading}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    disabled={isLoading}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                  <Input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Create a strong password" value={formData.password} onChange={handleChange} className="pl-10 pr-10" disabled={isLoading} required />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground" disabled={isLoading}>
+                    {showPassword ? (<EyeOff className="h-4 w-4" />) : (<Eye className="h-4 w-4" />)}
                   </button>
                 </div>
               </div>
-
-              {/* Confirm Password */}
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm your password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="pl-10 pr-10"
-                    disabled={isLoading}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    disabled={isLoading}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                  <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" value={formData.confirmPassword} onChange={handleChange} className="pl-10 pr-10" disabled={isLoading} required />
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground" disabled={isLoading}>
+                    {showConfirmPassword ? (<EyeOff className="h-4 w-4" />) : (<Eye className="h-4 w-4" />)}
                   </button>
                 </div>
               </div>
-
-              {/* Social Profiles (Optional) */}
               <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">
-                  Social Profiles (Optional)
-                </h4>
-
+                <h4 className="text-sm font-medium text-muted-foreground">Social Profiles (Optional)</h4>
                 <div className="space-y-2">
                   <Label htmlFor="githubProfile">GitHub Profile</Label>
                   <div className="relative">
                     <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="githubProfile"
-                      name="githubProfile"
-                      type="url"
-                      placeholder="https://github.com/username"
-                      value={formData.githubProfile}
-                      onChange={handleChange}
-                      className="pl-10"
-                      disabled={isLoading}
-                    />
+                    <Input id="githubProfile" name="githubProfile" type="url" placeholder="https://github.com/username" value={formData.githubProfile} onChange={handleChange} className="pl-10" disabled={isLoading} />
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="linkedinProfile">LinkedIn Profile</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="linkedinProfile"
-                      name="linkedinProfile"
-                      type="url"
-                      placeholder="https://linkedin.com/in/username"
-                      value={formData.linkedinProfile}
-                      onChange={handleChange}
-                      className="pl-10"
-                      disabled={isLoading}
-                    />
+                    <Input id="linkedinProfile" name="linkedinProfile" type="url" placeholder="https://linkedin.com/in/username" value={formData.linkedinProfile} onChange={handleChange} className="pl-10" disabled={isLoading} />
                   </div>
                 </div>
               </div>
-
-              {/* Terms */}
               <div className="flex items-center space-x-2">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  className="rounded border-border"
-                  required
-                />
+                <input id="terms" type="checkbox" className="rounded border-border" required />
                 <Label htmlFor="terms" className="text-sm">
                   I agree to the{" "}
-                  <Link to="/terms" className="text-primary hover:underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link to="/privacy" className="text-primary hover:underline">
-                    Privacy Policy
-                  </Link>
+                  <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>{" "}and{" "}
+                  <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
                 </Label>
               </div>
-
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
@@ -430,54 +342,29 @@ export default function Register() {
                 )}
               </Button>
             </form>
-
-            {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
+                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
               </div>
             </div>
-
-            {/* OAuth Buttons */}
             <div className="grid grid-cols-2 gap-4">
-              <Button
-                variant="outline"
-                onClick={handleGoogleSignup}
-                disabled={isLoading}
-              >
-                <Chrome className="h-4 w-4 mr-2" />
-                Google
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleGithubSignup}
-                disabled={isLoading}
-              >
-                <Github className="h-4 w-4 mr-2" />
-                GitHub
+              <GoogleLoginButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} disabled={isLoading} />
+              <Button variant="outline" onClick={handleGithubSignup} disabled={isLoading}>
+                <Github className="h-4 w-4 mr-2" />GitHub
               </Button>
             </div>
-
-            {/* Login Link */}
             <div className="text-center">
-              <span className="text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link
-                  to="/login"
-                  className="text-primary hover:underline font-medium"
-                >
-                  Sign in
-                </Link>
+              <span className="text-sm text-muted-foreground">Already have an account?{" "}
+                <Link to="/login" className="text-primary hover:underline font-medium">Sign in</Link>
               </span>
             </div>
           </CardContent>
         </Card>
       </div>
+    </div>
     </div>
   );
 }

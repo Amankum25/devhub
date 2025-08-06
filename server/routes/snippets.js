@@ -1,5 +1,5 @@
 const express = require("express");
-const database = require("../config/database");
+const Snippet = require("../models/Snippet");
 const { AppError, catchAsync } = require("../middleware/errorHandler");
 const { optionalAuth, authenticateToken } = require("../middleware/auth");
 const { validationRules } = require("../middleware/validation");
@@ -17,91 +17,75 @@ router.get(
     const language = req.query.language || "";
     const tag = req.query.tag || "";
     const sort = req.query.sort || "recent";
-    const offset = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
-    const db = database.getDb();
-
-    // Build conditions
-    let conditions = ["s.isPublic = 1"];
-    let params = [];
+    // Build query
+    const query = { visibility: "public" };
 
     if (search) {
-      conditions.push(
-        "(s.title LIKE ? OR s.description LIKE ? OR s.code LIKE ?)",
-      );
-      const searchTerm = `%${search}%`;
-      params.push(searchTerm, searchTerm, searchTerm);
+      query.$text = { $search: search };
     }
 
     if (language) {
-      conditions.push("s.language = ?");
-      params.push(language);
+      query.language = language;
     }
 
     if (tag) {
-      conditions.push("s.tags LIKE ?");
-      params.push(`%"${tag}"%`);
+      query.tags = { $in: [tag] };
     }
 
-    const whereClause = `WHERE ${conditions.join(" AND ")}`;
-
-    // Build sort clause
-    let sortClause = "";
+    // Build sort
+    let sortOptions = {};
     switch (sort) {
       case "popular":
-        sortClause = "ORDER BY s.likes DESC, s.views DESC";
+        sortOptions = { "stats.likes": -1, "stats.views": -1 };
         break;
       case "views":
-        sortClause = "ORDER BY s.views DESC";
+        sortOptions = { "stats.views": -1 };
         break;
       case "forks":
-        sortClause = "ORDER BY s.forks DESC";
+        sortOptions = { "stats.forks": -1 };
         break;
       case "recent":
       default:
-        sortClause = "ORDER BY s.createdAt DESC";
+        sortOptions = { createdAt: -1 };
         break;
     }
 
-    // Get snippets
-    const snippets = await db.all(
-      `
-    SELECT 
-      s.id, s.title, s.description, s.code, s.language, s.tags,
-      s.views, s.likes, s.forks, s.createdAt,
-      u.firstName, u.lastName, u.username, u.avatar
-    FROM snippets s
-    JOIN users u ON s.userId = u.id
-    ${whereClause}
-    ${sortClause}
-    LIMIT ? OFFSET ?
-  `,
-      [...params, limit, offset],
-    );
+    // Get snippets with pagination
+    const snippets = await Snippet.find(query)
+      .sort(sortOptions)
+      .limit(limit)
+      .skip(skip)
+      .populate("author", "firstName lastName username avatar")
+      .lean();
 
-    // Parse JSON fields
-    snippets.forEach((snippet) => {
-      snippet.tags = snippet.tags ? JSON.parse(snippet.tags) : [];
-    });
-
-    // Get total count
-    const countResult = await db.get(
-      `
-    SELECT COUNT(*) as total 
-    FROM snippets s
-    JOIN users u ON s.userId = u.id
-    ${whereClause}
-  `,
-      params,
-    );
-
-    const total = countResult.total;
+    // Get total count for pagination
+    const total = await Snippet.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
+
+    // Format response to match expected structure
+    const formattedSnippets = snippets.map(snippet => ({
+      id: snippet._id,
+      title: snippet.title,
+      description: snippet.description,
+      code: snippet.code,
+      language: snippet.language,
+      tags: snippet.tags,
+      views: snippet.stats.views,
+      likes: snippet.stats.likes,
+      forks: snippet.stats.forks,
+      createdAt: snippet.createdAt,
+      firstName: snippet.author?.firstName,
+      lastName: snippet.author?.lastName,
+      username: snippet.author?.username,
+      avatar: snippet.author?.avatar,
+    }));
 
     res.json({
       success: true,
       data: {
-        snippets,
+        snippets: formattedSnippets,
         pagination: {
           page,
           limit,
@@ -122,36 +106,51 @@ router.get(
   validationRules.withSnippetId,
   catchAsync(async (req, res) => {
     const { snippetId } = req.params;
-    const db = database.getDb();
 
-    const snippet = await db.get(
-      `
-    SELECT 
-      s.*,
-      u.firstName, u.lastName, u.username, u.avatar, u.bio
-    FROM snippets s
-    JOIN users u ON s.userId = u.id
-    WHERE s.id = ? AND (s.isPublic = 1 OR s.userId = ?)
-  `,
-      [snippetId, req.user?.id || 0],
-    );
+    // Build query - public snippets or owned by user
+    const query = {
+      _id: snippetId,
+      $or: [
+        { visibility: "public" },
+        { author: req.user?.id }
+      ]
+    };
+
+    const snippet = await Snippet.findOne(query)
+      .populate("author", "firstName lastName username avatar bio")
+      .lean();
 
     if (!snippet) {
       throw new AppError("Snippet not found", 404, "SNIPPET_NOT_FOUND");
     }
 
-    // Parse JSON fields
-    snippet.tags = snippet.tags ? JSON.parse(snippet.tags) : [];
-
     // Increment view count
-    await db.run("UPDATE snippets SET views = views + 1 WHERE id = ?", [
-      snippetId,
-    ]);
-    snippet.views += 1;
+    await Snippet.findByIdAndUpdate(snippetId, {
+      $inc: { "stats.views": 1 }
+    });
+
+    // Format response
+    const formattedSnippet = {
+      id: snippet._id,
+      title: snippet.title,
+      description: snippet.description,
+      code: snippet.code,
+      language: snippet.language,
+      tags: snippet.tags,
+      views: snippet.stats.views + 1, // Include the increment
+      likes: snippet.stats.likes,
+      forks: snippet.stats.forks,
+      createdAt: snippet.createdAt,
+      firstName: snippet.author?.firstName,
+      lastName: snippet.author?.lastName,
+      username: snippet.author?.username,
+      avatar: snippet.author?.avatar,
+      bio: snippet.author?.bio,
+    };
 
     res.json({
       success: true,
-      data: { snippet },
+      data: { snippet: formattedSnippet },
     });
   }),
 );
@@ -163,44 +162,46 @@ router.post(
   validationRules.createSnippet,
   catchAsync(async (req, res) => {
     const { title, description, code, language, tags, isPublic } = req.body;
-    const db = database.getDb();
 
     // Create snippet
-    const result = await db.run(
-      `
-    INSERT INTO snippets (userId, title, description, code, language, tags, isPublic)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `,
-      [
-        req.user.id,
-        title,
-        description || null,
-        code,
-        language,
-        JSON.stringify(tags || []),
-        isPublic !== undefined ? isPublic : true,
-      ],
-    );
+    const snippetData = {
+      title,
+      description,
+      code,
+      language: language.toLowerCase(),
+      author: req.user.id,
+      tags: tags || [],
+      visibility: isPublic !== false ? "public" : "private",
+    };
 
-    // Get created snippet
-    const snippet = await db.get(
-      `
-    SELECT 
-      s.*,
-      u.firstName, u.lastName, u.username, u.avatar
-    FROM snippets s
-    JOIN users u ON s.userId = u.id
-    WHERE s.id = ?
-  `,
-      [result.lastID],
-    );
+    const snippet = new Snippet(snippetData);
+    await snippet.save();
 
-    snippet.tags = snippet.tags ? JSON.parse(snippet.tags) : [];
+    // Populate author details for response
+    await snippet.populate("author", "firstName lastName username avatar");
+
+    // Format response
+    const formattedSnippet = {
+      id: snippet._id,
+      title: snippet.title,
+      description: snippet.description,
+      code: snippet.code,
+      language: snippet.language,
+      tags: snippet.tags,
+      views: snippet.stats.views,
+      likes: snippet.stats.likes,
+      forks: snippet.stats.forks,
+      createdAt: snippet.createdAt,
+      firstName: snippet.author?.firstName,
+      lastName: snippet.author?.lastName,
+      username: snippet.author?.username,
+      avatar: snippet.author?.avatar,
+    };
 
     res.status(201).json({
       success: true,
       message: "Snippet created successfully",
-      data: { snippet },
+      data: { snippet: formattedSnippet },
     });
   }),
 );
@@ -213,63 +214,55 @@ router.put(
   catchAsync(async (req, res) => {
     const { snippetId } = req.params;
     const { title, description, code, language, tags, isPublic } = req.body;
-    const db = database.getDb();
 
     // Check if snippet exists and user owns it
-    const existingSnippet = await db.get(
-      "SELECT * FROM snippets WHERE id = ?",
-      [snippetId],
-    );
+    const existingSnippet = await Snippet.findById(snippetId);
 
     if (!existingSnippet) {
       throw new AppError("Snippet not found", 404, "SNIPPET_NOT_FOUND");
     }
 
-    if (existingSnippet.userId !== req.user.id) {
+    if (existingSnippet.author.toString() !== req.user.id) {
       throw new AppError("Access denied", 403, "ACCESS_DENIED");
     }
 
     // Update snippet
-    await db.run(
-      `
-    UPDATE snippets SET 
-      title = ?, description = ?, code = ?, language = ?, tags = ?, 
-      isPublic = ?, updatedAt = datetime('now')
-    WHERE id = ?
-  `,
-      [
-        title || existingSnippet.title,
-        description !== undefined ? description : existingSnippet.description,
-        code || existingSnippet.code,
-        language || existingSnippet.language,
-        JSON.stringify(
-          tags ||
-            (existingSnippet.tags ? JSON.parse(existingSnippet.tags) : []),
-        ),
-        isPublic !== undefined ? isPublic : existingSnippet.isPublic,
-        snippetId,
-      ],
-    );
+    const updateData = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (code !== undefined) updateData.code = code;
+    if (language !== undefined) updateData.language = language.toLowerCase();
+    if (tags !== undefined) updateData.tags = tags;
+    if (isPublic !== undefined) updateData.visibility = isPublic ? "public" : "private";
 
-    // Get updated snippet
-    const snippet = await db.get(
-      `
-    SELECT 
-      s.*,
-      u.firstName, u.lastName, u.username, u.avatar
-    FROM snippets s
-    JOIN users u ON s.userId = u.id
-    WHERE s.id = ?
-  `,
-      [snippetId],
-    );
+    const snippet = await Snippet.findByIdAndUpdate(
+      snippetId,
+      updateData,
+      { new: true }
+    ).populate("author", "firstName lastName username avatar");
 
-    snippet.tags = snippet.tags ? JSON.parse(snippet.tags) : [];
+    // Format response
+    const formattedSnippet = {
+      id: snippet._id,
+      title: snippet.title,
+      description: snippet.description,
+      code: snippet.code,
+      language: snippet.language,
+      tags: snippet.tags,
+      views: snippet.stats.views,
+      likes: snippet.stats.likes,
+      forks: snippet.stats.forks,
+      createdAt: snippet.createdAt,
+      firstName: snippet.author?.firstName,
+      lastName: snippet.author?.lastName,
+      username: snippet.author?.username,
+      avatar: snippet.author?.avatar,
+    };
 
     res.json({
       success: true,
       message: "Snippet updated successfully",
-      data: { snippet },
+      data: { snippet: formattedSnippet },
     });
   }),
 );
@@ -281,23 +274,20 @@ router.delete(
   validationRules.withSnippetId,
   catchAsync(async (req, res) => {
     const { snippetId } = req.params;
-    const db = database.getDb();
 
     // Check if snippet exists and user owns it
-    const snippet = await db.get("SELECT userId FROM snippets WHERE id = ?", [
-      snippetId,
-    ]);
+    const snippet = await Snippet.findById(snippetId);
 
     if (!snippet) {
       throw new AppError("Snippet not found", 404, "SNIPPET_NOT_FOUND");
     }
 
-    if (snippet.userId !== req.user.id && !req.user.isAdmin) {
+    if (snippet.author.toString() !== req.user.id && !req.user.isAdmin) {
       throw new AppError("Access denied", 403, "ACCESS_DENIED");
     }
 
     // Delete snippet
-    await db.run("DELETE FROM snippets WHERE id = ?", [snippetId]);
+    await Snippet.findByIdAndDelete(snippetId);
 
     res.json({
       success: true,
@@ -310,18 +300,13 @@ router.delete(
 router.get(
   "/languages/popular",
   catchAsync(async (req, res) => {
-    const db = database.getDb();
-
-    const languages = await db.all(`
-    SELECT 
-      language,
-      COUNT(*) as count
-    FROM snippets
-    WHERE isPublic = 1
-    GROUP BY language
-    ORDER BY count DESC
-    LIMIT 20
-  `);
+    const languages = await Snippet.aggregate([
+      { $match: { visibility: "public" } },
+      { $group: { _id: "$language", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 20 },
+      { $project: { language: "$_id", count: 1, _id: 0 } }
+    ]);
 
     res.json({
       success: true,
@@ -338,58 +323,51 @@ router.get(
     const { userId } = req.params;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
-    const offset = (page - 1) * limit;
-
-    const db = database.getDb();
+    const skip = (page - 1) * limit;
 
     // Check if user exists
-    const user = await db.get(
-      "SELECT id FROM users WHERE id = ? AND isActive = 1",
-      [userId],
-    );
+    const User = require("../models/User");
+    const user = await User.findById(userId).select("_id");
     if (!user) {
       throw new AppError("User not found", 404, "USER_NOT_FOUND");
     }
 
     // Get public snippets (or user's own snippets if viewing own profile)
-    const isOwnProfile = req.user && req.user.id === parseInt(userId);
-    const visibilityCondition = isOwnProfile ? "" : "AND s.isPublic = 1";
+    const isOwnProfile = req.user && req.user.id === userId;
+    const query = { author: userId };
+    
+    if (!isOwnProfile) {
+      query.visibility = "public";
+    }
 
-    const snippets = await db.all(
-      `
-    SELECT 
-      s.id, s.title, s.description, s.language, s.tags,
-      s.views, s.likes, s.forks, s.isPublic, s.createdAt
-    FROM snippets s
-    WHERE s.userId = ? ${visibilityCondition}
-    ORDER BY s.createdAt DESC
-    LIMIT ? OFFSET ?
-  `,
-      [userId, limit, offset],
-    );
-
-    // Parse JSON fields
-    snippets.forEach((snippet) => {
-      snippet.tags = snippet.tags ? JSON.parse(snippet.tags) : [];
-    });
+    const snippets = await Snippet.find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip)
+      .lean();
 
     // Get total count
-    const countResult = await db.get(
-      `
-    SELECT COUNT(*) as total 
-    FROM snippets s
-    WHERE s.userId = ? ${visibilityCondition}
-  `,
-      [userId],
-    );
-
-    const total = countResult.total;
+    const total = await Snippet.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
+
+    // Format snippets
+    const formattedSnippets = snippets.map(snippet => ({
+      id: snippet._id,
+      title: snippet.title,
+      description: snippet.description,
+      language: snippet.language,
+      tags: snippet.tags,
+      views: snippet.stats.views,
+      likes: snippet.stats.likes,
+      forks: snippet.stats.forks,
+      isPublic: snippet.visibility === "public",
+      createdAt: snippet.createdAt,
+    }));
 
     res.json({
       success: true,
       data: {
-        snippets,
+        snippets: formattedSnippets,
         pagination: {
           page,
           limit,

@@ -3,12 +3,118 @@ const database = require("../config/database");
 const aiService = require("../services/aiService");
 const { AppError, catchAsync } = require("../middleware/errorHandler");
 const { validationRules } = require("../middleware/validation");
+const { authenticateToken } = require("../middleware/auth");
+const AIInteraction = require("../models/AIInteraction");
+const CustomAITool = require("../models/CustomAITool");
 
 const router = express.Router();
+
+// Custom Tools Routes
+router.get("/custom-tools", authenticateToken, catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  
+  const tools = await CustomAITool.findByUser(userId);
+  
+  res.json({ 
+    success: true, 
+    tools: tools.map(tool => ({
+      id: tool._id,
+      name: tool.name,
+      description: tool.description,
+      type: tool.type,
+      config: tool.config,
+      status: tool.status,
+      createdAt: tool.createdAt,
+      lastChecked: tool.lastChecked,
+      usageCount: tool.usageCount
+    }))
+  });
+}));
+
+router.post("/custom-tools", authenticateToken, catchAsync(async (req, res) => {
+  const { name, description, type, config } = req.body;
+  const userId = req.user.id;
+  
+  if (!name || !description || !type) {
+    throw new AppError("Name, description, and type are required", 400);
+  }
+  
+  // Validate JSON config if provided
+  let parsedConfig = {};
+  if (config) {
+    try {
+      parsedConfig = typeof config === 'string' ? JSON.parse(config) : config;
+    } catch (error) {
+      throw new AppError("Invalid JSON configuration", 400);
+    }
+  }
+  
+  const customTool = new CustomAITool({
+    userId,
+    name: name.trim(),
+    description: description.trim(),
+    type,
+    config: parsedConfig,
+    status: 'active'
+  });
+  
+  await customTool.save();
+  
+  res.json({ 
+    success: true, 
+    message: 'Custom tool created successfully',
+    toolId: customTool._id,
+    tool: {
+      id: customTool._id,
+      name: customTool.name,
+      description: customTool.description,
+      type: customTool.type,
+      config: customTool.config,
+      status: customTool.status,
+      createdAt: customTool.createdAt
+    }
+  });
+}));
+
+router.get("/custom-tools/:id/status", authenticateToken, catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+  
+  const tool = await CustomAITool.findOne({ _id: id, userId });
+  
+  if (!tool) {
+    throw new AppError("Tool not found", 404);
+  }
+  
+  // Update last checked timestamp
+  tool.lastChecked = new Date();
+  await tool.save();
+  
+  res.json({ 
+    success: true, 
+    status: tool.status,
+    name: tool.name,
+    lastChecked: tool.lastChecked
+  });
+}));
+
+router.delete("/custom-tools/:id", authenticateToken, catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+  
+  const result = await CustomAITool.findOneAndDelete({ _id: id, userId });
+  
+  if (!result) {
+    throw new AppError("Tool not found or access denied", 404);
+  }
+  
+  res.json({ success: true, message: 'Tool deleted successfully' });
+}));
 
 // AI interaction endpoint
 router.post(
   "/interact",
+  authenticateToken,
   validationRules.aiInteraction,
   catchAsync(async (req, res) => {
     const { tool, input } = req.body;
@@ -72,30 +178,33 @@ router.post(
 
     const processingTime = Date.now() - processingStart;
 
-    // Save interaction to database (Note: This is using SQLite syntax, but you're using MongoDB)
-    // TODO: Update this to use MongoDB instead of SQLite
-    /*
-    const result = await db.run(
-      `
-    INSERT INTO ai_interactions (userId, tool, input, output, status, tokensUsed, processingTime)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `,
-      [
-        req.user.id,
-        tool,
-        input,
-        output,
-        "completed",
-        tokensUsed,
-        processingTime,
-      ],
-    );
-    */
+    // Save interaction to MongoDB
+    const interaction = new AIInteraction({
+      user: req.user.userId,
+      request: {
+        type: tool,
+        input: input,
+      },
+      response: {
+        output: output,
+        confidence: 85, // Default confidence
+      },
+      metadata: {
+        model: model,
+        tokenUsage: {
+          total: tokensUsed,
+        },
+        processingTime: processingTime,
+      },
+      status: "completed",
+    });
+
+    await interaction.save();
 
     res.json({
       success: true,
       data: {
-        // id: result.lastID,
+        id: interaction._id,
         tool,
         input,
         output,
@@ -137,44 +246,26 @@ router.get(
 // Get user's AI interaction history
 router.get(
   "/history",
+  authenticateToken,
   catchAsync(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const tool = req.query.tool || "";
-    const offset = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
-    const db = database.getDb();
-
-    let conditions = ["userId = ?"];
-    let params = [req.user.id];
-
+    // Build query
+    const query = { user: req.user.userId };
     if (tool) {
-      conditions.push("tool = ?");
-      params.push(tool);
+      query["request.type"] = tool;
     }
 
-    const whereClause = `WHERE ${conditions.join(" AND ")}`;
+    const interactions = await AIInteraction.find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip)
+      .select("request response metadata status createdAt");
 
-    const interactions = await db.all(
-      `
-    SELECT id, tool, input, output, status, tokensUsed, processingTime, createdAt
-    FROM ai_interactions
-    ${whereClause}
-    ORDER BY createdAt DESC
-    LIMIT ? OFFSET ?
-  `,
-      [...params, limit, offset],
-    );
-
-    const countResult = await db.get(
-      `
-    SELECT COUNT(*) as total FROM ai_interactions ${whereClause}
-  `,
-      params,
-    );
-
-    const total = countResult.total;
-    const totalPages = Math.ceil(total / limit);
+    const total = await AIInteraction.countDocuments(query);
 
     res.json({
       success: true,
@@ -184,9 +275,7 @@ router.get(
           page,
           limit,
           total,
-          totalPages,
-          hasNext: page < totalPages,
-          hasPrev: page > 1,
+          pages: Math.ceil(total / limit),
         },
       },
     });
@@ -196,40 +285,68 @@ router.get(
 // Get AI usage statistics
 router.get(
   "/stats",
+  authenticateToken,
   catchAsync(async (req, res) => {
-    const db = database.getDb();
+    const userStats = await AIInteraction.aggregate([
+      {
+        $match: { user: req.user.userId }
+      },
+      {
+        $group: {
+          _id: null,
+          totalInteractions: { $sum: 1 },
+          totalTokens: { $sum: "$metadata.tokenUsage.total" },
+          last24h: {
+            $sum: {
+              $cond: [
+                { $gte: ["$createdAt", new Date(Date.now() - 24 * 60 * 60 * 1000)] },
+                1,
+                0
+              ]
+            }
+          },
+          last7days: {
+            $sum: {
+              $cond: [
+                { $gte: ["$createdAt", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      }
+    ]);
 
-    const userStats = await db.get(
-      `
-    SELECT 
-      COUNT(*) as totalInteractions,
-      SUM(tokensUsed) as totalTokens,
-      COUNT(CASE WHEN createdAt > datetime('now', '-24 hours') THEN 1 END) as last24h,
-      COUNT(CASE WHEN createdAt > datetime('now', '-7 days') THEN 1 END) as last7days
-    FROM ai_interactions
-    WHERE userId = ?
-  `,
-      [req.user.id],
-    );
+    const toolUsage = await AIInteraction.aggregate([
+      {
+        $match: { user: req.user.userId }
+      },
+      {
+        $group: {
+          _id: "$request.type",
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      },
+      {
+        $limit: 10
+      }
+    ]);
 
-    const toolUsage = await db.all(
-      `
-    SELECT 
-      tool,
-      COUNT(*) as count,
-      AVG(processingTime) as avgProcessingTime
-    FROM ai_interactions
-    WHERE userId = ?
-    GROUP BY tool
-    ORDER BY count DESC
-  `,
-      [req.user.id],
-    );
+    const stats = userStats[0] || {
+      totalInteractions: 0,
+      totalTokens: 0,
+      last24h: 0,
+      last7days: 0
+    };
 
     res.json({
       success: true,
       data: {
-        userStats,
+        stats,
         toolUsage,
       },
     });

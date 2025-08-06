@@ -1,7 +1,12 @@
 const express = require("express");
-const database = require("../config/database");
 const { AppError, catchAsync } = require("../middleware/errorHandler");
 const { requireAdmin } = require("../middleware/auth");
+const User = require("../models/User");
+const Post = require("../models/Post");
+const Comment = require("../models/Comment");
+const Snippet = require("../models/Snippet");
+const ChatMessage = require("../models/ChatMessage");
+const AIInteraction = require("../models/AIInteraction");
 
 const router = express.Router();
 
@@ -12,62 +17,106 @@ router.use(requireAdmin);
 router.get(
   "/dashboard",
   catchAsync(async (req, res) => {
-    const db = database.getDb();
+    // Get basic counts using MongoDB
+    const [
+      totalUsers,
+      totalPosts,
+      totalComments,
+      totalSnippets,
+      totalMessages,
+      totalAIInteractions
+    ] = await Promise.all([
+      User.countDocuments({ isActive: true }),
+      Post.countDocuments({ status: 'published' }),
+      Comment.countDocuments({ status: 'approved' }),
+      Snippet.countDocuments({ visibility: 'public' }),
+      ChatMessage.countDocuments({ "metadata.deleted": { $ne: true } }),
+      AIInteraction.countDocuments()
+    ]);
 
-    // Get basic counts
-    const stats = await db.get(`
-    SELECT 
-      (SELECT COUNT(*) FROM users WHERE isActive = 1) as totalUsers,
-      (SELECT COUNT(*) FROM posts WHERE status = 'published') as totalPosts,
-      (SELECT COUNT(*) FROM comments WHERE status = 'approved') as totalComments,
-      (SELECT COUNT(*) FROM snippets WHERE isPublic = 1) as totalSnippets,
-      (SELECT COUNT(*) FROM chat_messages WHERE deletedAt IS NULL) as totalMessages,
-      (SELECT COUNT(*) FROM ai_interactions) as totalAIInteractions
-  `);
+    const stats = {
+      totalUsers,
+      totalPosts,
+      totalComments,
+      totalSnippets,
+      totalMessages,
+      totalAIInteractions
+    };
 
     // Get recent activity
-    const recentUsers = await db.all(`
-    SELECT id, firstName, lastName, email, createdAt
-    FROM users 
-    WHERE isActive = 1
-    ORDER BY createdAt DESC 
-    LIMIT 5
-  `);
+    const recentUsers = await User.find({ isActive: true })
+      .select('firstName lastName email createdAt')
+      .sort({ createdAt: -1 })
+      .limit(5);
 
-    const recentPosts = await db.all(`
-    SELECT 
-      p.id, p.title, p.createdAt,
-      u.firstName, u.lastName, u.username
-    FROM posts p
-    JOIN users u ON p.userId = u.id
-    WHERE p.status = 'published'
-    ORDER BY p.createdAt DESC 
-    LIMIT 5
-  `);
+    const recentPosts = await Post.find({ status: 'published' })
+      .populate('author', 'firstName lastName username')
+      .select('title createdAt author')
+      .sort({ createdAt: -1 })
+      .limit(5);
 
     // Get growth metrics (last 30 days)
-    const growth = await db.get(`
-    SELECT 
-      (SELECT COUNT(*) FROM users WHERE createdAt > datetime('now', '-30 days')) as newUsers30d,
-      (SELECT COUNT(*) FROM posts WHERE createdAt > datetime('now', '-30 days')) as newPosts30d,
-      (SELECT COUNT(*) FROM comments WHERE createdAt > datetime('now', '-30 days')) as newComments30d
-  `);
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const [newUsers, newPosts] = await Promise.all([
+      User.countDocuments({ 
+        createdAt: { $gte: thirtyDaysAgo },
+        isActive: true
+      }),
+      Post.countDocuments({ 
+        createdAt: { $gte: thirtyDaysAgo },
+        status: 'published'
+      })
+    ]);
 
-    // Get top contributors
-    const topContributors = await db.all(`
-    SELECT 
-      u.id, u.firstName, u.lastName, u.username, u.avatar,
-      COUNT(p.id) as postCount,
-      COALESCE(SUM(p.views), 0) as totalViews,
-      COALESCE(SUM(p.likes), 0) as totalLikes
-    FROM users u
-    LEFT JOIN posts p ON u.id = p.userId AND p.status = 'published'
-    WHERE u.isActive = 1
-    GROUP BY u.id
-    HAVING postCount > 0
-    ORDER BY postCount DESC, totalLikes DESC
-    LIMIT 5
-  `);
+    const growth = {
+      newUsers,
+      newPosts
+    };
+
+    // Get top contributors using MongoDB aggregation
+    const topContributors = await User.aggregate([
+      {
+        $match: { isActive: true }
+      },
+      {
+        $lookup: {
+          from: "posts",
+          localField: "_id",
+          foreignField: "author",
+          as: "posts",
+          pipeline: [
+            { $match: { status: "published" } }
+          ]
+        }
+      },
+      {
+        $addFields: {
+          postCount: { $size: "$posts" },
+          totalViews: { $sum: "$posts.views" },
+          totalLikes: { $sum: "$posts.likes" }
+        }
+      },
+      {
+        $match: { postCount: { $gt: 0 } }
+      },
+      {
+        $sort: { postCount: -1, totalLikes: -1 }
+      },
+      {
+        $limit: 5
+      },
+      {
+        $project: {
+          firstName: 1,
+          lastName: 1,
+          username: 1,
+          avatar: 1,
+          postCount: 1,
+          totalViews: 1,
+          totalLikes: 1
+        }
+      }
+    ]);
 
     res.json({
       success: true,
@@ -91,83 +140,47 @@ router.get(
     const search = req.query.search || "";
     const status = req.query.status || "all";
     const sort = req.query.sort || "created";
-    const offset = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
-    const db = database.getDb();
-
-    // Build conditions
-    let conditions = [];
-    let params = [];
+    // Build MongoDB query
+    const query = {};
 
     if (status !== "all") {
-      conditions.push("u.isActive = ?");
-      params.push(status === "active" ? 1 : 0);
+      query.isActive = status === "active";
     }
 
     if (search) {
-      conditions.push(
-        "(u.firstName LIKE ? OR u.lastName LIKE ? OR u.email LIKE ? OR u.username LIKE ?)",
-      );
-      const searchTerm = `%${search}%`;
-      params.push(searchTerm, searchTerm, searchTerm, searchTerm);
+      query.$or = [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { username: { $regex: search, $options: "i" } },
+      ];
     }
-
-    const whereClause =
-      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
     // Build sort
-    let sortClause = "";
+    let sortField = {};
     switch (sort) {
       case "name":
-        sortClause = "ORDER BY u.firstName, u.lastName";
+        sortField = { firstName: 1, lastName: 1 };
         break;
       case "email":
-        sortClause = "ORDER BY u.email";
+        sortField = { email: 1 };
         break;
-      case "login":
-        sortClause = "ORDER BY u.lastLoginAt DESC NULLS LAST";
+      case "lastLogin":
+        sortField = { lastLoginAt: -1 };
         break;
-      case "created":
       default:
-        sortClause = "ORDER BY u.createdAt DESC";
-        break;
+        sortField = { createdAt: -1 };
     }
 
-    // Get users with stats
-    const users = await db.all(
-      `
-    SELECT 
-      u.id, u.email, u.firstName, u.lastName, u.username, u.avatar,
-      u.isAdmin, u.isActive, u.emailVerified, u.lastLoginAt, u.createdAt,
-      COALESCE(pc.postCount, 0) as postCount,
-      COALESCE(cc.commentCount, 0) as commentCount,
-      COALESCE(sc.snippetCount, 0) as snippetCount
-    FROM users u
-    LEFT JOIN (
-      SELECT userId, COUNT(*) as postCount FROM posts GROUP BY userId
-    ) pc ON u.id = pc.userId
-    LEFT JOIN (
-      SELECT userId, COUNT(*) as commentCount FROM comments GROUP BY userId
-    ) cc ON u.id = cc.userId
-    LEFT JOIN (
-      SELECT userId, COUNT(*) as snippetCount FROM snippets GROUP BY userId
-    ) sc ON u.id = sc.userId
-    ${whereClause}
-    ${sortClause}
-    LIMIT ? OFFSET ?
-  `,
-      [...params, limit, offset],
-    );
+    const users = await User.find(query)
+      .select("firstName lastName email username avatar isAdmin isActive emailVerified lastLoginAt createdAt")
+      .sort(sortField)
+      .limit(limit)
+      .skip(skip);
 
-    // Get total count
-    const countResult = await db.get(
-      `
-    SELECT COUNT(*) as total FROM users u ${whereClause}
-  `,
-      params,
-    );
-
-    const total = countResult.total;
+    const total = await User.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
 
     res.json({
@@ -195,66 +208,51 @@ router.get(
     const limit = parseInt(req.query.limit) || 20;
     const status = req.query.status || "all";
     const search = req.query.search || "";
-    const offset = (page - 1) * limit;
 
-    const db = database.getDb();
-
-    // Build conditions
-    let conditions = [];
-    let params = [];
+    // Build MongoDB query
+    const query = {};
 
     if (status !== "all") {
-      conditions.push("p.status = ?");
-      params.push(status);
+      query.status = status;
     }
 
     if (search) {
-      conditions.push(
-        "(p.title LIKE ? OR p.content LIKE ? OR u.firstName LIKE ? OR u.lastName LIKE ?)",
-      );
-      const searchTerm = `%${search}%`;
-      params.push(searchTerm, searchTerm, searchTerm, searchTerm);
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { content: { $regex: search, $options: "i" } },
+      ];
     }
 
-    const whereClause =
-      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+    // Get posts with pagination
+    const skip = (page - 1) * limit;
+    const posts = await Post.find(query)
+      .populate("author", "firstName lastName username avatar")
+      .select("title excerpt status views likes createdAt publishedAt")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
-    // Get posts
-    const posts = await db.all(
-      `
-    SELECT 
-      p.id, p.title, p.excerpt, p.status, p.views, p.likes, p.createdAt, p.publishedAt,
-      u.firstName, u.lastName, u.username, u.avatar,
-      COUNT(c.id) as commentCount
-    FROM posts p
-    JOIN users u ON p.userId = u.id
-    LEFT JOIN comments c ON p.id = c.postId
-    ${whereClause}
-    GROUP BY p.id
-    ORDER BY p.createdAt DESC
-    LIMIT ? OFFSET ?
-  `,
-      [...params, limit, offset],
-    );
+    // Get comment counts for posts
+    const postIds = posts.map(post => post._id);
+    const commentCounts = await Comment.aggregate([
+      { $match: { post: { $in: postIds } } },
+      { $group: { _id: "$post", count: { $sum: 1 } } }
+    ]);
 
-    // Get total count
-    const countResult = await db.get(
-      `
-    SELECT COUNT(*) as total 
-    FROM posts p
-    JOIN users u ON p.userId = u.id
-    ${whereClause}
-  `,
-      params,
-    );
+    // Add comment counts to posts
+    const postsWithComments = posts.map(post => ({
+      ...post,
+      commentCount: commentCounts.find(c => c._id.toString() === post._id.toString())?.count || 0,
+    }));
 
-    const total = countResult.total;
+    const total = await Post.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
 
     res.json({
       success: true,
       data: {
-        posts,
+        posts: postsWithComments,
         pagination: {
           page,
           limit,
@@ -275,48 +273,25 @@ router.get(
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
     const type = req.query.type || "all";
-    const offset = (page - 1) * limit;
 
-    const db = database.getDb();
-
-    // Get recent AI interactions as logs
-    let conditions = [];
-    let params = [];
+    // Build MongoDB query
+    const query = {};
 
     if (type !== "all") {
-      conditions.push("ai.tool = ?");
-      params.push(type);
+      query.tool = type;
     }
 
-    const whereClause =
-      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+    // Get AI interactions as logs
+    const skip = (page - 1) * limit;
+    const logs = await AIInteraction.find(query)
+      .populate("user", "firstName lastName username")
+      .select("tool status tokensUsed processingTime createdAt")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
-    const logs = await db.all(
-      `
-    SELECT 
-      ai.id, ai.tool, ai.status, ai.tokensUsed, ai.processingTime, ai.createdAt,
-      u.firstName, u.lastName, u.username
-    FROM ai_interactions ai
-    JOIN users u ON ai.userId = u.id
-    ${whereClause}
-    ORDER BY ai.createdAt DESC
-    LIMIT ? OFFSET ?
-  `,
-      [...params, limit, offset],
-    );
-
-    // Get total count
-    const countResult = await db.get(
-      `
-    SELECT COUNT(*) as total 
-    FROM ai_interactions ai
-    JOIN users u ON ai.userId = u.id
-    ${whereClause}
-  `,
-      params,
-    );
-
-    const total = countResult.total;
+    const total = await AIInteraction.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
 
     res.json({
@@ -343,7 +318,7 @@ router.patch(
     const { userId } = req.params;
     const { isActive, isAdmin } = req.body;
 
-    if (parseInt(userId) === req.user.id) {
+    if (userId === req.user.id.toString()) {
       throw new AppError(
         "Cannot modify your own account status",
         400,
@@ -351,47 +326,39 @@ router.patch(
       );
     }
 
-    const db = database.getDb();
-
     // Check if user exists
-    const user = await db.get("SELECT id FROM users WHERE id = ?", [userId]);
+    const user = await User.findById(userId);
     if (!user) {
       throw new AppError("User not found", 404, "USER_NOT_FOUND");
     }
 
-    // Build update query
-    const updates = [];
-    const values = [];
+    // Build update object
+    const updates = {};
 
     if (isActive !== undefined) {
-      updates.push("isActive = ?");
-      values.push(isActive);
+      updates.isActive = isActive;
     }
 
     if (isAdmin !== undefined) {
-      updates.push("isAdmin = ?");
-      values.push(isAdmin);
+      updates.isAdmin = isAdmin;
     }
 
-    if (updates.length === 0) {
+    if (Object.keys(updates).length === 0) {
       throw new AppError("No updates provided", 400, "NO_UPDATES");
     }
 
-    updates.push('updatedAt = datetime("now")');
-    values.push(userId);
+    updates.updatedAt = new Date();
 
-    await db.run(
-      `
-    UPDATE users SET ${updates.join(", ")} WHERE id = ?
-  `,
-      values,
-    );
+    // Update user
+    await User.findByIdAndUpdate(userId, updates);
 
     // If deactivating user, invalidate their sessions
     if (isActive === false) {
-      await db.run("UPDATE user_sessions SET isActive = 0 WHERE userId = ?", [
-        userId,
-      ]);
+      const UserSession = require("../models/UserSession");
+      await UserSession.updateMany(
+        { user: userId },
+        { isActive: false }
+      );
     }
 
     res.json({
@@ -412,18 +379,17 @@ router.patch(
       throw new AppError("Invalid status", 400, "INVALID_STATUS");
     }
 
-    const db = database.getDb();
-
     // Check if post exists
-    const post = await db.get("SELECT id FROM posts WHERE id = ?", [postId]);
+    const post = await Post.findById(postId);
     if (!post) {
       throw new AppError("Post not found", 404, "POST_NOT_FOUND");
     }
 
-    await db.run(
-      'UPDATE posts SET status = ?, updatedAt = datetime("now") WHERE id = ?',
-      [status, postId],
-    );
+    // Update post
+    await Post.findByIdAndUpdate(postId, {
+      status,
+      updatedAt: new Date(),
+    });
 
     res.json({
       success: true,
@@ -436,19 +402,16 @@ router.patch(
 router.get(
   "/system",
   catchAsync(async (req, res) => {
-    const db = database.getDb();
-
-    // Get database info
-    const dbStats = await db.get(`
-    SELECT 
-      (SELECT COUNT(*) FROM users) as totalUsers,
-      (SELECT COUNT(*) FROM posts) as totalPosts,
-      (SELECT COUNT(*) FROM comments) as totalComments,
-      (SELECT COUNT(*) FROM snippets) as totalSnippets,
-      (SELECT COUNT(*) FROM chat_messages) as totalMessages,
-      (SELECT COUNT(*) FROM ai_interactions) as totalAIInteractions,
-      (SELECT COUNT(*) FROM user_sessions WHERE isActive = 1) as activeSessions
-  `);
+    // Get database stats using MongoDB
+    const dbStats = {
+      totalUsers: await User.countDocuments(),
+      totalPosts: await Post.countDocuments(),
+      totalComments: await Comment.countDocuments(),
+      totalSnippets: await Snippet.countDocuments(),
+      totalMessages: await ChatMessage.countDocuments(),
+      totalAIInteractions: await AIInteraction.countDocuments(),
+      activeSessions: await require("../models/UserSession").countDocuments({ isActive: true }),
+    };
 
     // System info
     const systemInfo = {

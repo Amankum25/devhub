@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
@@ -15,17 +17,20 @@ import {
   Code2,
   Sparkles
 } from "lucide-react";
+import { api } from '../lib/api';
 
 export default function ProjectSuggest() {
-  const [description, setDescription] = useState("");
+  const [skills, setSkills] = useState("");
+  const [experience, setExperience] = useState("");
+  const [interests, setInterests] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
   const handleGenerate = async () => {
-    if (!description.trim()) {
-      setError("Please describe your interests or the type of project you want to build");
+    if (!skills.trim()) {
+      setError("Please describe your skills and experience");
       return;
     }
 
@@ -34,27 +39,37 @@ export default function ProjectSuggest() {
     setResult(null);
 
     try {
-      const response = await fetch("/api/ai/interact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          tool: "project_suggest",
-          input: description,
-        }),
+      console.log('Sending project suggestion request...', {
+        skills: skills.substring(0, 50) + '...',
+        experience,
+        interests: interests.substring(0, 50) + '...'
       });
 
-      const data = await response.json();
+      const response = await api.post('/gemini/suggest-projects', {
+        skills,
+        experience: experience || 'Not specified',
+        interests
+      }, false); // Don't include authentication
 
-      if (data.success) {
-        setResult(data.data);
-      } else {
-        setError(data.message || "Failed to generate project suggestions");
+      console.log('Project suggestion response received:', response);
+
+      if (response.error) {
+        throw new Error(response.error);
       }
+
+      if (response.success && response.data) {
+        setResult({
+          success: true,
+          output: response.data,
+          suggestions: response.data
+        });
+        console.log('Project suggestions set successfully');
+      } else {
+        throw new Error('Could not generate project suggestions');
+      }
+
     } catch (err) {
-      setError("Network error. Please try again.");
+      setError(err.message || "Network error. Please try again.");
       console.error("Project suggestion error:", err);
     } finally {
       setIsGenerating(false);
@@ -70,34 +85,64 @@ export default function ProjectSuggest() {
   };
 
   const handleClear = () => {
-    setDescription("");
+    setSkills("");
+    setExperience("");
+    setInterests("");
     setResult(null);
     setError("");
   };
 
   const examplePrompts = [
-    "I want to build a web app using React and Node.js for beginners",
-    "Suggest a mobile app project using React Native with social features",
-    "I'm interested in machine learning and Python data analysis",
-    "Help me find a portfolio project that showcases full-stack skills",
-    "I want to create something useful for developers and programmers",
-    "Suggest a project that combines frontend, backend, and database"
+    {
+      title: "Frontend Developer - Beginner",
+      skills: "HTML, CSS, JavaScript, basic React",
+      experience: "6 months self-taught",
+      interests: "Web development, responsive design, user interfaces"
+    },
+    {
+      title: "Full-Stack Developer - Intermediate",
+      skills: "React, Node.js, Express, MongoDB, PostgreSQL",
+      experience: "2 years professional experience",
+      interests: "Modern web apps, API development, database design"
+    },
+    {
+      title: "Python Developer - ML Focus",
+      skills: "Python, pandas, scikit-learn, Django, REST APIs",
+      experience: "1 year experience, CS graduate",
+      interests: "Machine learning, data analysis, AI applications"
+    },
+    {
+      title: "Mobile Developer - Cross-Platform",
+      skills: "React Native, JavaScript, Firebase, Redux",
+      experience: "Intermediate level, 1.5 years",
+      interests: "Mobile apps, cross-platform development, UI/UX"
+    }
   ];
 
   const handleExampleClick = (example) => {
-    setDescription(example);
+    setSkills(example.skills);
+    setExperience(example.experience);
+    setInterests(example.interests);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-3 bg-orange-500/10 rounded-xl">
-            <Lightbulb className="h-8 w-8 text-orange-500" />
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
-            Project Suggestions
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 py-8 pt-24 max-w-6xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-orange-500/20 backdrop-blur-xl rounded-xl border border-orange-500/30 shadow-lg">
+              <Lightbulb className="h-8 w-8 text-orange-400" />
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 via-yellow-400 to-lime-400 bg-clip-text text-transparent">
+              Project Suggestions
           </h1>
         </div>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -114,25 +159,57 @@ export default function ProjectSuggest() {
               Project Requirements
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Describe your interests and preferences:
-              </label>
-              <Textarea
-                placeholder="Example: I want to build a web application using React and Node.js that helps people manage their daily tasks..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="min-h-[150px]"
-              />
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="skills" className="text-sm font-medium">
+                    Your Skills *
+                  </Label>
+                  <Textarea
+                    id="skills"
+                    placeholder="Example: JavaScript, React, Node.js, Python, databases, AWS..."
+                    value={skills}
+                    onChange={(e) => setSkills(e.target.value)}
+                    className="min-h-[100px] mt-2"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="experience" className="text-sm font-medium">
+                    Experience Level
+                  </Label>
+                  <Input
+                    id="experience"
+                    placeholder="Example: Beginner, 2 years experience, Senior developer..."
+                    value={experience}
+                    onChange={(e) => setExperience(e.target.value)}
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="interests" className="text-sm font-medium">
+                  Interests & Goals
+                </Label>
+                <Textarea
+                  id="interests"
+                  placeholder="Example: Web development, mobile apps, machine learning, blockchain, portfolio building..."
+                  value={interests}
+                  onChange={(e) => setInterests(e.target.value)}
+                  className="min-h-[150px] mt-2"
+                />
+              </div>
             </div>
 
             {/* Example Prompts */}
             <div>
-              <label className="text-sm font-medium mb-2 block">
-                Or try these examples:
-              </label>
-              <div className="grid grid-cols-1 gap-2">
+              <Label className="text-sm font-medium mb-3 block">
+                Quick Start Examples:
+              </Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {examplePrompts.map((example, index) => (
                   <Button
                     key={index}
@@ -141,7 +218,7 @@ export default function ProjectSuggest() {
                     onClick={() => handleExampleClick(example)}
                     className="text-left justify-start h-auto p-3 text-sm"
                   >
-                    {example}
+                    {example.title}
                   </Button>
                 ))}
               </div>
@@ -282,13 +359,14 @@ export default function ProjectSuggest() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">
+              <p className="text-slate-300">
                 Get step-by-step guidance and key features to include in your project
               </p>
             </CardContent>
           </Card>
         </div>
       </div>
+    </div>
     </div>
   );
 }

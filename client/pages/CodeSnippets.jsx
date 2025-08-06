@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import {
@@ -26,6 +27,7 @@ import { Textarea } from "../components/ui/textarea";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -56,222 +58,57 @@ import {
 } from "lucide-react";
 
 export default function CodeSnippets() {
+  const { user, token, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState("browse");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("all");
   const [selectedTag, setSelectedTag] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [snippets, setSnippets] = useState([
-    {
-      id: 1,
-      title: "React Custom Hook for API Calls",
-      description:
-        "A reusable custom hook for making API requests with loading states, error handling, and caching",
-      code: `import { useState, useEffect } from 'react';
-
-const useApi = (url, options = {}) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  const [snippets, setSnippets] = useState([]);
+  // Fetch snippets on component mount
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(url, options);
-        if (!response.ok) throw new Error('Failed to fetch');
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchSnippets();
+  }, [sortBy, selectedLanguage, selectedTag, searchTerm]);
 
-    fetchData();
-  }, [url]);
-
-  return { data, loading, error };
-};
-
-export default useApi;`,
-      language: "javascript",
-      tags: ["react", "hooks", "api", "custom-hook"],
-      author: "John Doe",
-      avatar: "/placeholder.svg",
-      likes: 45,
-      views: 234,
-      forks: 12,
-      createdAt: "2023-12-01",
-      isPublic: true,
-      isFavorited: false,
-    },
-    {
-      id: 2,
-      title: "Python Data Validation Decorator",
-      description:
-        "A decorator for validating function parameters with type checking and custom validation rules",
-      code: `from functools import wraps
-from typing import Any, Callable, Dict
-
-def validate_params(**validations):
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            # Get function signature
-            import inspect
-            sig = inspect.signature(func)
-            bound_args = sig.bind(*args, **kwargs)
-            bound_args.apply_defaults()
-            
-            # Validate each parameter
-            for param_name, validator in validations.items():
-                if param_name in bound_args.arguments:
-                    value = bound_args.arguments[param_name]
-                    if not validator(value):
-                        raise ValueError(f"Invalid value for {param_name}: {value}")
-            
-            return func(*args, **kwargs)
-        return wrapper
-    return decorator
-
-# Usage example
-@validate_params(
-    name=lambda x: isinstance(x, str) and len(x) > 0,
-    age=lambda x: isinstance(x, int) and 0 <= x <= 150
-)
-def create_user(name: str, age: int):
-    return f"User {name}, age {age}"`,
-      language: "python",
-      tags: ["python", "decorator", "validation", "typing"],
-      author: "Alice Smith",
-      avatar: "/placeholder.svg",
-      likes: 32,
-      views: 156,
-      forks: 8,
-      createdAt: "2023-11-28",
-      isPublic: true,
-      isFavorited: true,
-    },
-    {
-      id: 3,
-      title: "CSS Flexbox Grid System",
-      description:
-        "A flexible grid system using CSS flexbox with responsive breakpoints and utility classes",
-      code: `.grid {
-  display: flex;
-  flex-wrap: wrap;
-  margin: -0.5rem;
-}
-
-.grid-col {
-  padding: 0.5rem;
-  flex: 1;
-}
-
-/* Column widths */
-.grid-col-1 { flex: 0 0 8.333333%; }
-.grid-col-2 { flex: 0 0 16.666667%; }
-.grid-col-3 { flex: 0 0 25%; }
-.grid-col-4 { flex: 0 0 33.333333%; }
-.grid-col-6 { flex: 0 0 50%; }
-.grid-col-12 { flex: 0 0 100%; }
-
-/* Responsive breakpoints */
-@media (max-width: 768px) {
-  .grid-col-sm-12 { flex: 0 0 100%; }
-  .grid-col-sm-6 { flex: 0 0 50%; }
-}
-
-@media (max-width: 480px) {
-  .grid-col-xs-12 { flex: 0 0 100%; }
-}
-
-/* Utility classes */
-.justify-center { justify-content: center; }
-.justify-between { justify-content: space-between; }
-.align-center { align-items: center; }
-.no-gutters { margin: 0; }
-.no-gutters .grid-col { padding: 0; }`,
-      language: "css",
-      tags: ["css", "flexbox", "grid", "responsive"],
-      author: "Bob Wilson",
-      avatar: "/placeholder.svg",
-      likes: 28,
-      views: 189,
-      forks: 15,
-      createdAt: "2023-11-25",
-      isPublic: true,
-      isFavorited: false,
-    },
-    {
-      id: 4,
-      title: "Node.js Rate Limiter Middleware",
-      description:
-        "Express middleware for implementing rate limiting with Redis backend and customizable rules",
-      code: `const redis = require('redis');
-const client = redis.createClient();
-
-const rateLimit = (options = {}) => {
-  const {
-    windowMs = 15 * 60 * 1000, // 15 minutes
-    max = 100, // limit each IP to 100 requests per windowMs
-    message = 'Too many requests',
-    statusCode = 429,
-    keyGenerator = (req) => req.ip,
-    skipSuccessfulRequests = false
-  } = options;
-
-  return async (req, res, next) => {
-    const key = \`rate_limit:\${keyGenerator(req)}\`;
-    const now = Date.now();
-    const window = Math.floor(now / windowMs);
-    const redisKey = \`\${key}:\${window}\`;
-
+  const fetchSnippets = async () => {
     try {
-      const current = await client.incr(redisKey);
-      
-      if (current === 1) {
-        await client.expire(redisKey, Math.ceil(windowMs / 1000));
-      }
-
-      if (current > max) {
-        return res.status(statusCode).json({
-          error: message,
-          retryAfter: Math.ceil(windowMs / 1000)
-        });
-      }
-
-      res.set({
-        'X-RateLimit-Limit': max,
-        'X-RateLimit-Remaining': Math.max(0, max - current),
-        'X-RateLimit-Reset': new Date(window * windowMs + windowMs)
+      setIsLoading(true);
+      const params = new URLSearchParams({
+        page: 1,
+        limit: 50,
+        sort: sortBy,
+        ...(selectedLanguage !== "all" && { language: selectedLanguage }),
+        ...(selectedTag !== "all" && { tag: selectedTag }),
+        ...(searchTerm && { search: searchTerm }),
       });
 
-      next();
+      const response = await fetch(`http://localhost:3000/api/snippets?${params}`, {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setSnippets(data.data.snippets);
+        }
+      }
     } catch (error) {
-      console.error('Rate limiting error:', error);
-      next(); // Fail open
+      console.error("Error fetching snippets:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load snippets.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
-};
 
-module.exports = rateLimit;`,
-      language: "javascript",
-      tags: ["nodejs", "express", "middleware", "rate-limiting", "redis"],
-      author: "Carol Davis",
-      avatar: "/placeholder.svg",
-      likes: 67,
-      views: 445,
-      forks: 23,
-      createdAt: "2023-11-22",
-      isPublic: true,
-      isFavorited: true,
-    },
-  ]);
 
   const [newSnippet, setNewSnippet] = useState({
     title: "",
@@ -367,7 +204,12 @@ module.exports = rateLimit;`,
     });
   };
 
-  const handleSaveSnippet = () => {
+  const handleSaveSnippet = async () => {
+    console.log("handleSaveSnippet called");
+    console.log("newSnippet:", newSnippet);
+    console.log("isAuthenticated():", isAuthenticated());
+    console.log("token:", token);
+    
     if (!newSnippet.title || !newSnippet.code) {
       toast({
         title: "Error",
@@ -377,69 +219,139 @@ module.exports = rateLimit;`,
       return;
     }
 
-    const snippet = {
-      id: Date.now(),
-      ...newSnippet,
-      author: "You",
-      avatar: "/placeholder.svg",
-      likes: 0,
-      views: 0,
-      forks: 0,
-      createdAt: new Date().toISOString().split("T")[0],
-      isFavorited: false,
-    };
+    if (!isAuthenticated()) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create snippets.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    setSnippets((prev) => [snippet, ...prev]);
-    setNewSnippet({
-      title: "",
-      description: "",
-      code: "",
-      language: "javascript",
-      tags: [],
-      isPublic: true,
-    });
-    setIsCreateDialogOpen(false);
-    setActiveTab("my-snippets");
+    try {
+      setIsLoading(true);
+      const response = await fetch("http://localhost:3000/api/snippets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: newSnippet.title,
+          description: newSnippet.description,
+          code: newSnippet.code,
+          language: newSnippet.language,
+          tags: newSnippet.tags,
+          isPublic: newSnippet.isPublic,
+        }),
+      });
 
-    toast({
-      title: "Snippet created!",
-      description: "Your code snippet has been saved successfully.",
-    });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Reset form
+        setNewSnippet({
+          title: "",
+          description: "",
+          code: "",
+          language: "javascript",
+          tags: [],
+          isPublic: true,
+        });
+        setIsCreateDialogOpen(false);
+        setActiveTab("my-snippets");
+
+        // Refresh snippets list
+        await fetchSnippets();
+
+        toast({
+          title: "Success!",
+          description: "Your code snippet has been created successfully.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to create snippet.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error creating snippet:", error);
+      toast({
+        title: "Error",
+        description: "Network error. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const mySnippets = snippets.filter((snippet) => snippet.author === "You");
+  const mySnippets = snippets.filter((snippet) => snippet.username === user?.username);
   const favoriteSnippets = snippets.filter((snippet) => snippet.isFavorited);
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Code Snippets</h1>
-            <p className="text-gray-600 mt-2">
-              Discover, share, and save useful code snippets
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
 
-          <Dialog
-            open={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button size="lg">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Snippet
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Create New Code Snippet</DialogTitle>
-              </DialogHeader>
+      <div className="relative z-10 container mx-auto px-4 py-8 pt-24">
+        {/* Header */}
+        <div className="text-center space-y-4 mb-12">
+          <div className="relative inline-block">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
+            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 shadow-2xl">
+              <Code className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+            Code Snippets
+          </h1>
+          <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+            Discover, share, and save useful code snippets
+          </p>
+        </div>
+
+        {isAuthenticated() && (
+          <div className="flex justify-center mb-8">
+            <Button 
+              size="lg"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-xl"
+              onClick={() => {
+                console.log("Create Snippet button clicked!");
+                console.log("Current dialog state:", isCreateDialogOpen);
+                setIsCreateDialogOpen(true);
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Snippet
+            </Button>
+          </div>
+        )}
+
+        {/* Create Snippet Dialog */}
+        {isCreateDialogOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+            <div className="bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-y-auto w-full mx-4 shadow-2xl">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-white">Create New Code Snippet</h2>
+                <button 
+                  onClick={() => setIsCreateDialogOpen(false)}
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="text-slate-300 mb-4">Fill out the form below to create and share your code snippet.</p>
+              
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium">Title *</label>
+                    <label className="text-sm font-medium text-slate-300">Title *</label>
                     <Input
                       value={newSnippet.title}
                       onChange={(e) =>
@@ -449,6 +361,7 @@ module.exports = rateLimit;`,
                         }))
                       }
                       placeholder="Enter snippet title"
+                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                     />
                   </div>
                   <div>
@@ -546,55 +459,63 @@ module.exports = rateLimit;`,
                   >
                     Cancel
                   </Button>
-                  <Button onClick={handleSaveSnippet}>Save Snippet</Button>
+                  <Button 
+                    onClick={() => {
+                      console.log("Save Snippet button clicked");
+                      handleSaveSnippet();
+                    }} 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Creating..." : "Save Snippet"}
+                  </Button>
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+            </div>
+          </div>
+        )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <Code className="h-5 w-5 text-blue-500" />
+                <Code className="h-5 w-5 text-blue-400" />
                 <div>
-                  <p className="text-2xl font-bold">1,234</p>
-                  <p className="text-sm text-gray-500">Total Snippets</p>
+                  <p className="text-2xl font-bold text-white">1,234</p>
+                  <p className="text-sm text-slate-400">Total Snippets</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <TrendingUp className="h-5 w-5 text-green-500" />
+                <TrendingUp className="h-5 w-5 text-green-400" />
                 <div>
-                  <p className="text-2xl font-bold">89</p>
-                  <p className="text-sm text-gray-500">This Week</p>
+                  <p className="text-2xl font-bold text-white">89</p>
+                  <p className="text-sm text-slate-400">This Week</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <Star className="h-5 w-5 text-yellow-500" />
+                <Star className="h-5 w-5 text-yellow-400" />
                 <div>
-                  <p className="text-2xl font-bold">456</p>
-                  <p className="text-sm text-gray-500">Favorited</p>
+                  <p className="text-2xl font-bold text-white">456</p>
+                  <p className="text-sm text-slate-400">Favorited</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <User className="h-5 w-5 text-purple-500" />
+                <User className="h-5 w-5 text-purple-400" />
                 <div>
-                  <p className="text-2xl font-bold">67</p>
-                  <p className="text-sm text-gray-500">Contributors</p>
+                  <p className="text-2xl font-bold text-white">67</p>
+                  <p className="text-sm text-slate-400">Contributors</p>
                 </div>
               </div>
             </CardContent>
@@ -603,12 +524,12 @@ module.exports = rateLimit;`,
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="browse">Browse All</TabsTrigger>
-            <TabsTrigger value="my-snippets">
+          <TabsList className="grid w-full grid-cols-3 bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+            <TabsTrigger value="browse" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Browse All</TabsTrigger>
+            <TabsTrigger value="my-snippets" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
               My Snippets ({mySnippets.length})
             </TabsTrigger>
-            <TabsTrigger value="favorites">
+            <TabsTrigger value="favorites" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
               Favorites ({favoriteSnippets.length})
             </TabsTrigger>
           </TabsList>
@@ -616,16 +537,16 @@ module.exports = rateLimit;`,
           {/* Browse Tab */}
           <TabsContent value="browse" className="space-y-6">
             {/* Filters */}
-            <Card>
+            <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
               <CardContent className="p-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                     <Input
                       placeholder="Search snippets..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-9"
+                      className="pl-9 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                     />
                   </div>
 
@@ -673,35 +594,63 @@ module.exports = rateLimit;`,
             </Card>
 
             {/* Snippets Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {filteredSnippets.map((snippet) => (
-                <Card key={snippet.id} className="flex flex-col">
+            {isLoading ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <Card key={i} className="flex flex-col animate-pulse bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+                    <CardHeader>
+                      <div className="h-4 bg-slate-700 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-slate-700 rounded w-1/2"></div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-32 bg-slate-700 rounded mb-4"></div>
+                      <div className="flex justify-between">
+                        <div className="flex space-x-4">
+                          <div className="h-3 bg-slate-700 rounded w-8"></div>
+                          <div className="h-3 bg-slate-700 rounded w-8"></div>
+                          <div className="h-3 bg-slate-700 rounded w-8"></div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <div className="h-8 w-8 bg-slate-700 rounded"></div>
+                          <div className="h-8 w-8 bg-slate-700 rounded"></div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {filteredSnippets.map((snippet) => (
+                <Card key={snippet.id} className="flex flex-col bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg">
+                        <CardTitle className="text-lg text-white">
                           {snippet.title}
                         </CardTitle>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-slate-300 mt-1">
                           {snippet.description}
                         </p>
                       </div>
-                      <Badge variant="secondary">{snippet.language}</Badge>
+                      <Badge variant="secondary" className="bg-purple-600/20 text-purple-300 border-purple-500/50">{snippet.language}</Badge>
                     </div>
 
-                    <div className="flex items-center space-x-3 text-sm text-gray-500">
+                    <div className="flex items-center space-x-3 text-sm text-slate-400">
                       <div className="flex items-center space-x-1">
                         <Avatar className="h-5 w-5">
                           <AvatarImage src={snippet.avatar} />
                           <AvatarFallback>
-                            {snippet.author.charAt(0)}
+                            {(snippet.firstName || snippet.username || "U").charAt(0)}
                           </AvatarFallback>
                         </Avatar>
-                        <span>{snippet.author}</span>
+                        <span>{snippet.firstName && snippet.lastName 
+                          ? `${snippet.firstName} ${snippet.lastName}` 
+                          : snippet.username}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-4 w-4" />
-                        <span>{snippet.createdAt}</span>
+                        <span>{new Date(snippet.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
 
@@ -710,7 +659,7 @@ module.exports = rateLimit;`,
                         <Badge
                           key={index}
                           variant="outline"
-                          className="text-xs"
+                          className="text-xs bg-slate-700/50 text-slate-300 border-slate-600"
                         >
                           {tag}
                         </Badge>
@@ -719,12 +668,12 @@ module.exports = rateLimit;`,
                   </CardHeader>
 
                   <CardContent className="flex-1">
-                    <div className="bg-gray-900 rounded-lg p-4 text-green-400 font-mono text-sm overflow-x-auto max-h-48 overflow-y-auto">
+                    <div className="bg-slate-900/80 rounded-lg p-4 text-green-400 font-mono text-sm overflow-x-auto max-h-48 overflow-y-auto border border-slate-700/50">
                       <pre className="whitespace-pre-wrap">{snippet.code}</pre>
                     </div>
 
                     <div className="flex items-center justify-between mt-4">
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="flex items-center space-x-4 text-sm text-slate-400">
                         <div className="flex items-center space-x-1">
                           <Heart className="h-4 w-4" />
                           <span>{snippet.likes}</span>
@@ -764,8 +713,9 @@ module.exports = rateLimit;`,
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* My Snippets Tab */}
@@ -906,14 +856,16 @@ module.exports = rateLimit;`,
                           <Avatar className="h-5 w-5">
                             <AvatarImage src={snippet.avatar} />
                             <AvatarFallback>
-                              {snippet.author.charAt(0)}
+                              {(snippet.firstName || snippet.username || "U").charAt(0)}
                             </AvatarFallback>
                           </Avatar>
-                          <span>{snippet.author}</span>
+                          <span>{snippet.firstName && snippet.lastName 
+                            ? `${snippet.firstName} ${snippet.lastName}` 
+                            : snippet.username}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <Calendar className="h-4 w-4" />
-                          <span>{snippet.createdAt}</span>
+                          <span>{new Date(snippet.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>
 
