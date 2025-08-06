@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { api } from '../lib/api';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import {
@@ -85,17 +86,10 @@ export default function CodeSnippets() {
         ...(searchTerm && { search: searchTerm }),
       });
 
-      const response = await fetch(`http://localhost:3000/api/snippets?${params}`, {
-        headers: {
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setSnippets(data.data.snippets);
-        }
+      const response = await api.get(`/snippets?${params}`);
+      
+      if (response.success) {
+        setSnippets(response.data.snippets);
       }
     } catch (error) {
       console.error("Error fetching snippets:", error);
@@ -230,25 +224,16 @@ export default function CodeSnippets() {
 
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:3000/api/snippets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title: newSnippet.title,
-          description: newSnippet.description,
-          code: newSnippet.code,
-          language: newSnippet.language,
-          tags: newSnippet.tags,
-          isPublic: newSnippet.isPublic,
-        }),
+      const response = await api.post('/snippets', {
+        title: newSnippet.title,
+        description: newSnippet.description,
+        code: newSnippet.code,
+        language: newSnippet.language,
+        tags: newSnippet.tags,
+        isPublic: newSnippet.isPublic,
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (response.success) {
         // Reset form
         setNewSnippet({
           title: "",

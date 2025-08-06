@@ -13,6 +13,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 // import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { api } from '../lib/api';
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 import { toast } from 'react-toastify';
 import {
@@ -76,40 +77,21 @@ export default function Login() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+      const response = await api.post('/auth/login', {
+        email: formData.email,
+        password: formData.password,
+      }, false); // Don't include auth token for login
 
-      if (!response.ok) {
-        // Handle HTTP errors
-        if (response.status === 401) {
-          throw new Error("Invalid email or password");
-        } else if (response.status >= 500) {
-          throw new Error("Server error. Please try again later.");
-        } else {
-          throw new Error("Something went wrong. Please try again.");
-        }
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.token) {
         toast.success("🎉 Login Successful! Welcome back to DevHub!");
 
         // Use auth context to store authentication data
-        login(data.data.user, data.data.token, data.data.refreshToken);
+        login(response.user, response.token, response.refreshToken);
 
         // Redirect to dashboard
         navigate("/dashboard");
       } else {
-        const errorMessage = data.error?.message || data.message || "Login failed. Please try again.";
+        const errorMessage = response.error?.message || response.message || "Login failed. Please try again.";
         setError(errorMessage);
         toast.error(`Login failed: ${errorMessage}`);
       }

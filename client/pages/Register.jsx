@@ -13,6 +13,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
+import { api } from '../lib/api';
 import { toast } from 'react-toastify';
 import {
   Eye,
@@ -141,47 +142,29 @@ export default function Register() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          username: formData.username || undefined,
-          bio: formData.bio || undefined,
-          location: formData.location || undefined,
-          website: formData.website || undefined,
-          company: formData.company || undefined,
-          position: formData.position || undefined,
-          github: formData.githubProfile || undefined,
-          linkedin: formData.linkedinProfile || undefined,
-          twitter: formData.twitterProfile || undefined,
-        }),
-      });
+      const response = await api.post('/auth/register', {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        username: formData.username || undefined,
+        bio: formData.bio || undefined,
+        location: formData.location || undefined,
+        website: formData.website || undefined,
+        company: formData.company || undefined,
+        position: formData.position || undefined,
+        github: formData.githubProfile || undefined,
+        linkedin: formData.linkedinProfile || undefined,
+        twitter: formData.twitterProfile || undefined,
+      }, false); // Don't include auth token for registration
 
-      if (!response.ok) {
-        if (response.status === 409) {
-          throw new Error("Email or username already exists");
-        } else if (response.status >= 500) {
-          throw new Error("Server error. Please try again later.");
-        } else {
-          throw new Error("Something went wrong. Please try again.");
-        }
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.success) {
         toast.success("🎉 Account Created Successfully! Welcome to DevHub!");
         setTimeout(() => {
           navigate("/login");
         }, 2000);
       } else {
-        const errorMessage = data.error?.message || data.message || "Registration failed. Please try again.";
+        const errorMessage = response.error?.message || response.message || "Registration failed. Please try again.";
         setError(errorMessage);
         toast.error(`Registration failed: ${errorMessage}`);
       }

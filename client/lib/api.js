@@ -1,6 +1,16 @@
 // API configuration and client
 
-const API_BASE_URL = 'http://localhost:3000/api';
+// Dynamic API base URL - use relative path in production, localhost in development
+const getApiBaseUrl = () => {
+  // In development, use localhost:3000
+  if (import.meta.env.DEV) {
+    return 'http://localhost:3000/api';
+  }
+  // In production, use relative path (same domain)
+  return '/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Helper function to get auth token from localStorage
 const getAuthToken = () => {
