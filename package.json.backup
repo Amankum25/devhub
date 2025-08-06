@@ -1,21 +1,53 @@
 {
   "name": "devhub-ai",
   "version": "1.0.0",
-  "description": "AI-Powered Developer Hub Platform",
+  "description": "AI-Powered Developer Hub Platform  "devDependencies": {
+    "@vitejs/plugin-react": "^4.1.1",
+    "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.53.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "postcss": "^8.4.31",
+    "prettier": "^3.1.0",
+    "tailwindcss": "^3.3.5"
+  },,
   "main": "server/app.js",
   "scripts": {
     "dev": "npm run cleanup-ports && concurrently \"npm run server:dev\" \"npm run client:dev\"",
-    "start": "node server/start.js",
-    "server:dev": "nodemon server/app.js",
-    "client:dev": "vite --host",
-    "client:build": "vite build --root ./client",
+    "dev:clean": "npm run cleanup-ports && concurrently \"npm run server:dev-clean\" \"npm run client:dev\"",
     "cleanup-ports": "node cleanup-ports.js",
+    "server:dev": "nodemon server/app.js",
+    "server:dev-clean": "nodemon server/start-clean.js",
+    "client:dev": "vite",
+    "build": "npm run client:build",
+    "client:build": "vite build",
+    "start": "NODE_ENV=production node server/app.js",
+    "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "build": "npm run client:build"
+    "lint": "eslint . --ext .js,.jsx",
+    "lint:fix": "eslint . --ext .js,.jsx --fix",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "setup": "npm install",
+    "setup:dev": "npm install && npm run dev",
+    "setup:mongodb": "echo 'Please ensure MongoDB is running on mongodb://localhost:27017' && npm run dev"
   },
+  "keywords": [
+    "devhub",
+    "ai",
+    "developer",
+    "platform",
+    "react",
+    "express",
+    "mongodb",
+    "vite"
+  ],
+  "author": "DevHub Team",
+  "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@radix-ui/react-avatar": "^1.0.4",
@@ -76,6 +108,10 @@
     "vite": "^4.5.0"
   },
   "devDependencies": {
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.1.1",
+    "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.2",
     "eslint": "^8.53.0",
     "eslint-plugin-react": "^7.33.2",
@@ -83,7 +119,10 @@
     "eslint-plugin-react-refresh": "^0.4.4",
     "jest": "^29.7.0",
     "nodemon": "^3.0.1",
-    "prettier": "^3.1.0"
+    "postcss": "^8.4.31",
+    "prettier": "^3.1.0",
+    "tailwindcss": "^3.3.5",
+    "vite": "^4.5.0"
   },
   "engines": {
     "node": ">=16.0.0",
@@ -91,19 +130,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Amankum25/devhub.git"
+    "url": "https://github.com/your-org/devhub-ai.git"
   },
   "bugs": {
-    "url": "https://github.com/Amankum25/devhub/issues"
+    "url": "https://github.com/your-org/devhub-ai/issues"
   },
-  "homepage": "https://devhub-ai.com",
-  "keywords": [
-    "ai",
-    "developer-tools",
-    "code-generation",
-    "blog",
-    "social-platform"
-  ],
-  "license": "MIT",
-  "author": "Your Name <your.email@example.com>"
+  "homepage": "https://devhub-ai.com"
 }

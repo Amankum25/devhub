@@ -132,6 +132,17 @@ async function connectDatabase() {
 // Serverless function handler
 module.exports = async (req, res) => {
   try {
+    // Set CORS headers for all requests
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-csrf-token');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+    
     // Ensure database is connected
     await connectDatabase();
     
@@ -141,7 +152,7 @@ module.exports = async (req, res) => {
     console.error("Serverless function error:", error);
     return res.status(500).json({ 
       error: "Internal server error",
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Database connection failed'
     });
   }
 };
