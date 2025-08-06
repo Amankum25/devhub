@@ -8,6 +8,9 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
+// Import database
+const Database = require("../server/config/database");
+
 // Import routes
 const authRoutes = require("../server/routes/auth");
 const userRoutes = require("../server/routes/users");
@@ -25,6 +28,10 @@ const adminRoutes = require("../server/routes/admin");
 const { authenticateToken } = require("../server/middleware/auth");
 const { errorHandler } = require("../server/middleware/errorHandler");
 const { validateRequest } = require("../server/middleware/validation");
+
+// Initialize database connection
+const database = new Database();
+let isDbConnected = false;
 
 const app = express();
 
@@ -108,4 +115,33 @@ app.use("/api/*", (req, res) => {
   res.status(404).json({ error: "API endpoint not found" });
 });
 
-module.exports = app;
+// Connect to database before handling requests
+async function connectDatabase() {
+  if (!isDbConnected) {
+    try {
+      await database.connect();
+      isDbConnected = true;
+      console.log("✅ Database connected for serverless function");
+    } catch (error) {
+      console.error("❌ Database connection failed:", error);
+      throw error;
+    }
+  }
+}
+
+// Serverless function handler
+module.exports = async (req, res) => {
+  try {
+    // Ensure database is connected
+    await connectDatabase();
+    
+    // Handle the request with Express app
+    return app(req, res);
+  } catch (error) {
+    console.error("Serverless function error:", error);
+    return res.status(500).json({ 
+      error: "Internal server error",
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+    });
+  }
+};
