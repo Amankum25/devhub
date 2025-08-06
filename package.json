@@ -1,6 +1,7 @@
 {
   "name": "devhub-ai",
   "version": "1.0.0",
+  "type": "module",
   "description": "AI-Powered Developer Hub Platform",
   "main": "server/app.js",
   "scripts": {
@@ -10,9 +11,8 @@
     "server:dev": "nodemon server/app.js",
     "server:dev-clean": "nodemon server/start-clean.js",
     "client:dev": "vite",
-    "build": "npm run client:build && npm run server:build",
+    "build": "npm run client:build",
     "client:build": "vite build",
-    "server:build": "node server/scripts/build.js",
     "start": "NODE_ENV=production node server/app.js",
     "preview": "vite preview",
     "test": "jest",
