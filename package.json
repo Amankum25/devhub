@@ -8,7 +8,7 @@
     "start": "node server/start.js",
     "server:dev": "nodemon server/app.js",
     "client:dev": "vite --host",
-    "client:build": "vite build --root ./client",
+    "client:build": "vite build",
     "cleanup-ports": "node cleanup-ports.js",
     "test": "jest",
     "test:watch": "jest --watch",
