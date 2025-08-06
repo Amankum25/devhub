@@ -1,8 +1,7 @@
 {
   "name": "devhub-ai",
   "version": "1.0.0",
-  "type": "module",
-  "description": "AI-Powered Developer Hub Platform",
+  "description": "AI-Powered Developer Hub Platform - Fixed Build",
   "main": "server/app.js",
   "scripts": {
     "dev": "npm run cleanup-ports && concurrently \"npm run server:dev\" \"npm run client:dev\"",

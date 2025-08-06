@@ -5,14 +5,14 @@
   "outputDirectory": "dist/spa",
   "installCommand": "npm install",
   "functions": {
-    "netlify/functions/api.js": {
+    "api/index.js": {
       "maxDuration": 30
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/netlify/functions/api"
+      "destination": "/api"
     },
     {
       "source": "/((?!api).*)",
