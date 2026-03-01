@@ -157,6 +157,15 @@ app.use("/api/gemini", geminiRoutes);
 app.use("/api/snippets", snippetRoutes);
 app.use("/api/uploads", authenticateToken, uploadRoutes);
 app.use("/api/admin", authenticateToken, adminRoutes);
+// Health check endpoint (for Render and other hosting platforms)
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "DevHub API is running",
+    timestamp: new Date().toISOString(),
+    frontend: process.env.FRONTEND_URL || "https://devhub-eta.vercel.app"
+  });
+});
 
 // API documentation endpoint
 app.get("/api", (req, res) => {
