@@ -197,15 +197,8 @@ app.use("/api/*", (req, res) => {
   });
 });
 
-// Serve static files from React build (production)
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/dist")));
-
-  // Handle React routing, return all requests to React app
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
-  });
-}
+// Note: Frontend is deployed separately on Vercel
+// Backend only serves API endpoints and uploads
 
 // Global error handler
 app.use(errorHandler);

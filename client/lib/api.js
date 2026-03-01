@@ -1,13 +1,13 @@
 // API configuration and client
 
-// Dynamic API base URL - use relative path in production, localhost in development
+// Dynamic API base URL
 const getApiBaseUrl = () => {
-  // In development, use localhost:3000
-  if (import.meta.env.DEV) {
-    return 'http://localhost:3000/api';
+  // Use environment variable if set (production), otherwise localhost
+  if (import.meta.env.VITE_API_URL) {
+    return `${import.meta.env.VITE_API_URL}/api`;
   }
-  // In production, use relative path (same domain)
-  return '/api';
+  // Fallback to localhost in development
+  return 'http://localhost:3000/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();
