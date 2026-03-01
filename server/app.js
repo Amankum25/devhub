@@ -30,7 +30,7 @@ const { errorHandler } = require("./middleware/errorHandler");
 const { validateRequest } = require("./middleware/validation");
 
 const app = express();
-const PORT = 3000; // Fixed to always use port 3000
+const PORT = 3000; // Fixed port 3000
 
 // Trust proxy for rate limiting behind reverse proxy
 app.set("trust proxy", 1);
@@ -164,6 +164,15 @@ app.get("/", (req, res) => {
     message: "DevHub API is running",
     timestamp: new Date().toISOString(),
     frontend: process.env.FRONTEND_URL || "https://devhub-eta.vercel.app"
+  });
+});
+
+// Ping endpoint (for Render health checks)
+app.get("/api/ping", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    message: "pong",
+    timestamp: new Date().toISOString()
   });
 });
 
