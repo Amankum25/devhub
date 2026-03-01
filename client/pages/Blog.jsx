@@ -35,134 +35,59 @@ import {
   Bookmark,
   Share2,
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function Blog() {
   usePageTitle("Blog - DevHub");
-  
+
   const [posts, setPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mock blog posts data
-  const mockPosts = [
-    {
-      id: 1,
-      title: "Advanced React Patterns for 2024",
-      excerpt:
-        "Explore the latest React patterns including Compound Components, Render Props, and Custom Hooks that will make your React applications more maintainable and scalable.",
-      author: "Sarah Chen",
-      authorAvatar: "SC",
-      publishDate: "2024-01-15",
-      readTime: "8 min read",
-      tags: ["React", "JavaScript", "Frontend"],
-      likes: 89,
-      comments: 23,
-      views: 1250,
-      featured: true,
-      category: "frontend",
-    },
-    {
-      id: 2,
-      title: "Building Scalable APIs with Node.js",
-      excerpt:
-        "Learn how to build robust and scalable backend APIs using Node.js, Express, and modern best practices including error handling, authentication, and database optimization.",
-      author: "Marcus Rodriguez",
-      authorAvatar: "MR",
-      publishDate: "2024-01-12",
-      readTime: "12 min read",
-      tags: ["Node.js", "API", "Backend"],
-      likes: 67,
-      comments: 15,
-      views: 980,
-      featured: false,
-      category: "backend",
-    },
-    {
-      id: 3,
-      title: "CSS Grid vs Flexbox: When to Use Each",
-      excerpt:
-        "A comprehensive guide to modern CSS layout techniques. Understand the differences between CSS Grid and Flexbox and learn when to use each for maximum effectiveness.",
-      author: "Emily Johnson",
-      authorAvatar: "EJ",
-      publishDate: "2024-01-10",
-      readTime: "6 min read",
-      tags: ["CSS", "Layout", "Frontend"],
-      likes: 45,
-      comments: 8,
-      views: 750,
-      featured: false,
-      category: "frontend",
-    },
-    {
-      id: 4,
-      title: "Understanding TypeScript Generics",
-      excerpt:
-        "Deep dive into TypeScript generics and their practical applications. Learn how to write type-safe, reusable code that scales with your application.",
-      author: "David Kim",
-      authorAvatar: "DK",
-      publishDate: "2024-01-08",
-      readTime: "10 min read",
-      tags: ["TypeScript", "JavaScript"],
-      likes: 78,
-      comments: 19,
-      views: 1100,
-      featured: true,
-      category: "programming",
-    },
-    {
-      id: 5,
-      title: "Database Optimization Techniques",
-      excerpt:
-        "Performance optimization strategies for modern databases. Learn indexing, query optimization, and caching techniques to speed up your applications.",
-      author: "Alex Thompson",
-      authorAvatar: "AT",
-      publishDate: "2024-01-05",
-      readTime: "15 min read",
-      tags: ["Database", "Performance", "Backend"],
-      likes: 92,
-      comments: 27,
-      views: 1400,
-      featured: false,
-      category: "backend",
-    },
-    {
-      id: 6,
-      title: "Modern JavaScript ES2024 Features",
-      excerpt:
-        "Discover the latest JavaScript features in ES2024 and how they can improve your development workflow and code quality.",
-      author: "Jennifer Lee",
-      authorAvatar: "JL",
-      publishDate: "2024-01-03",
-      readTime: "7 min read",
-      tags: ["JavaScript", "ES2024", "Features"],
-      likes: 56,
-      comments: 12,
-      views: 890,
-      featured: false,
-      category: "programming",
-    },
-  ];
+  // Removed mockPosts
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setPosts(mockPosts);
+    fetchPosts();
+  }, [searchTerm, selectedFilter]);
+
+  const fetchPosts = async () => {
+    setIsLoading(true);
+    try {
+      // Construct query parameters
+      let params = new URLSearchParams();
+      if (searchTerm) params.append("search", searchTerm);
+      if (selectedFilter !== "all") params.append("tag", selectedFilter); // Assuming category maps to tag for now, or add category to backend
+
+      const response = await api.get(`/posts?${params.toString()}`);
+      if (response.data.success) {
+        // Map backend structure to frontend structure if needed
+        const mappedPosts = response.data.data.posts.map(post => ({
+          id: post._id,
+          title: post.title,
+          excerpt: post.excerpt,
+          author: post.author?.username || "Unknown",
+          authorAvatar: (post.author?.firstName?.[0] || "") + (post.author?.lastName?.[0] || ""), // Initials
+          publishDate: post.publishedAt || post.createdAt,
+          readTime: `${post.readTime} min read`,
+          tags: post.tags || [],
+          likes: post.likes || 0,
+          comments: post.commentCount || 0,
+          views: post.views || 0,
+          featured: (post.likes > 10 || post.views > 100), // Simple featured logic
+          category: "programming", // Default for now
+        }));
+        setPosts(mappedPosts);
+      }
+    } catch (error) {
+      console.error("Failed to fetch posts:", error);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
+  };
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  const filteredPosts = posts.filter((post) => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesFilter = selectedFilter === "all" || post.category === selectedFilter;
-    
-    return matchesSearch && matchesFilter;
-  });
+  // filteredPosts is now just posts because we filter on backend
+  const filteredPosts = posts;
 
   const featuredPosts = posts.filter(post => post.featured);
 
@@ -173,28 +98,34 @@ export default function Blog() {
     { value: "programming", label: "Programming" },
   ];
 
-  const handleLike = (postId) => {
-    setPosts(prev => 
-      prev.map(post => 
-        post.id === postId 
-          ? { ...post, likes: post.likes + 1 }
-          : post
-      )
-    );
+  const handleLike = async (postId) => {
+    try {
+      const response = await api.post(`/posts/${postId}/like`);
+      if (response.data.success) {
+        setPosts(prev =>
+          prev.map(post =>
+            post.id === postId
+              ? { ...post, likes: response.data.data.likesCount }
+              : post
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Failed to like post:", error);
+    }
   };
 
   const PostCard = ({ post, featured = false }) => (
     <Card className={`group hover:shadow-lg transition-all duration-300 ${featured ? 'border-primary/20' : ''}`}>
       {/* Post Image */}
       <div className="relative overflow-hidden">
-        <div 
+        <div
           className="h-48 bg-gradient-to-br from-blue-500/20 to-purple-500/20 group-hover:scale-105 transition-transform duration-300"
           style={{
-            background: `linear-gradient(135deg, ${
-              post.category === 'frontend' ? 'rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%' :
-              post.category === 'backend' ? 'rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%' :
-              'rgba(147, 51, 234, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%'
-            })`
+            background: `linear-gradient(135deg, ${post.category === 'frontend' ? 'rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%' :
+                post.category === 'backend' ? 'rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%' :
+                  'rgba(147, 51, 234, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%'
+              })`
           }}
         />
         {featured && (
@@ -300,7 +231,7 @@ export default function Blog() {
           </div>
           <div className="h-10 w-32 bg-muted animate-pulse rounded" />
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
             <Card key={i} className="space-y-4">
@@ -323,22 +254,22 @@ export default function Blog() {
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iYSIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVHJhbnNmb3JtPSJyb3RhdGUoNDUpIj48cmVjdCB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNhKSIvPjwvc3ZnPg==')] opacity-10"></div>
-        
+
         <div className="relative container mx-auto px-6 py-16">
           <div className="text-center space-y-6">
             <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full border border-white/20">
               <BookOpen className="w-6 h-6" />
               <span className="font-medium">Developer Blog</span>
             </div>
-            
+
             <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
               Stories & Insights
             </h1>
-            
+
             <p className="text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
               Discover the latest insights, tutorials, and stories from our developer community
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 shadow-lg">
                 <Link to="/blog/new">
@@ -353,7 +284,7 @@ export default function Blog() {
             </div>
           </div>
         </div>
-        
+
         {/* Floating elements */}
         <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
         <div className="absolute bottom-10 right-10 w-32 h-32 bg-purple-300/20 rounded-full blur-xl"></div>
@@ -374,7 +305,7 @@ export default function Blog() {
                   className="pl-12 h-12 border-0 bg-slate-900/50 text-white placeholder:text-gray-400 focus:bg-slate-900/70 transition-colors"
                 />
               </div>
-              
+
               <Select value={selectedFilter} onValueChange={setSelectedFilter}>
                 <SelectTrigger className="w-full md:w-48 h-12 border-0 bg-slate-900/50 text-white">
                   <Filter className="w-4 h-4 mr-2" />
@@ -405,7 +336,7 @@ export default function Blog() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -417,7 +348,7 @@ export default function Blog() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-br from-pink-500 to-rose-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -429,7 +360,7 @@ export default function Blog() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -453,7 +384,7 @@ export default function Blog() {
               </div>
               <h2 className="text-3xl font-bold text-white">Editor's Picks</h2>
             </div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {featuredPosts.slice(0, 2).map((post) => (
                 <Card key={post.id} className="group hover:shadow-2xl transition-all duration-500 shadow-lg overflow-hidden bg-slate-800/50 backdrop-blur-xl border border-slate-700/50">
@@ -473,10 +404,10 @@ export default function Blog() {
                       </h3>
                     </div>
                   </div>
-                  
+
                   <CardContent className="p-6 space-y-4">
                     <p className="text-slate-300 line-clamp-3">{post.excerpt}</p>
-                    
+
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <Avatar className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500">
@@ -487,7 +418,7 @@ export default function Blog() {
                           <p className="text-slate-400">{new Date(post.publishDate).toLocaleDateString()}</p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-4 text-sm text-slate-400">
                         <div className="flex items-center gap-1">
                           <Heart className="w-4 h-4" />
@@ -514,7 +445,7 @@ export default function Blog() {
             </h2>
             <p className="text-slate-400">Explore our collection of developer insights and tutorials</p>
           </div>
-          
+
           {filteredPosts.length === 0 ? (
             <Card className="max-w-md mx-auto bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 shadow-lg">
               <CardContent className="p-12 text-center space-y-4">
@@ -523,7 +454,7 @@ export default function Blog() {
                 </div>
                 <h3 className="text-xl font-semibold text-white">No articles found</h3>
                 <p className="text-slate-400">
-                  {searchTerm 
+                  {searchTerm
                     ? `No articles match "${searchTerm}". Try adjusting your search.`
                     : "No articles available in this category."
                   }
@@ -550,16 +481,16 @@ export default function Blog() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <CardContent className="p-6 space-y-4">
                     <h3 className="text-lg font-bold text-white line-clamp-2 group-hover:text-blue-400 transition-colors">
                       <Link to={`/blog/${post.id}`}>
                         {post.title}
                       </Link>
                     </h3>
-                    
+
                     <p className="text-slate-300 text-sm line-clamp-3">{post.excerpt}</p>
-                    
+
                     <div className="flex items-center justify-between pt-2 border-t border-slate-700">
                       <div className="flex items-center gap-2">
                         <Avatar className="w-6 h-6 bg-gradient-to-r from-blue-400 to-purple-500">
@@ -567,7 +498,7 @@ export default function Blog() {
                         </Avatar>
                         <span className="text-sm font-medium text-slate-300">{post.author}</span>
                       </div>
-                      
+
                       <div className="flex items-center gap-3 text-xs text-slate-400">
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />

@@ -98,7 +98,7 @@ export default function Login() {
     } catch (err) {
       console.error("Login error:", err);
       let errorMessage = "Network error. Please check your connection and try again.";
-      
+
       if (err.message.includes("Invalid email or password")) {
         errorMessage = "Invalid email or password. Please check your credentials.";
       } else if (err.message.includes("Server error")) {
@@ -108,7 +108,7 @@ export default function Login() {
       } else if (err.message) {
         errorMessage = err.message;
       }
-      
+
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -117,8 +117,8 @@ export default function Login() {
   };
 
   const handleGoogleSuccess = (authData) => {
-    // Google authentication successful
-    // User data and token are already stored by GoogleLoginButton
+    // Google authentication successful - update AuthContext state
+    login(authData.user, authData.token, authData.refreshToken);
     navigate("/dashboard");
   };
 
@@ -128,9 +128,15 @@ export default function Login() {
   };
 
   const handleGithubLogin = () => {
-    toast({
-      title: "GitHub OAuth",
-      description: "GitHub authentication would be implemented here.",
+    toast.info("GitHub Login Coming Soon! 🚀", {
+      position: "bottom-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
     });
   };
 
@@ -142,7 +148,7 @@ export default function Login() {
         <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
-      
+
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
           {/* Back to Home */}
@@ -155,13 +161,15 @@ export default function Login() {
           </Link>
 
           {/* Login Card */}
-          <Card className="w-full bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
-            <CardHeader className="space-y-1 text-center">
-              <div className="mx-auto w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center mb-4 shadow-lg">
-                <LogIn className="h-6 w-6 text-white" />
+          <Card className="w-full bg-slate-800/50 backdrop-blur-xl border-slate-700/50 shadow-2xl">
+            <CardHeader className="space-y-1 text-center pb-8">
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 via-purple-600 to-blue-600 flex items-center justify-center mb-4 shadow-lg ring-4 ring-purple-500/20 animate-pulse">
+                <LogIn className="h-8 w-8 text-white" />
               </div>
-              <CardTitle className="text-2xl font-bold text-white">Welcome Back</CardTitle>
-              <CardDescription className="text-slate-300">
+              <CardTitle className="text-3xl font-bold text-white tracking-tight">
+                Welcome Back
+              </CardTitle>
+              <CardDescription className="text-slate-400 text-base">
                 Sign in to your DevHub account to continue
               </CardDescription>
             </CardHeader>
@@ -188,129 +196,134 @@ export default function Login() {
                       value={formData.email}
                       onChange={handleChange}
                       className="pl-10 bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400"
-                    disabled={isLoading}
-                  />
+                      disabled={isLoading}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="pl-10 pr-10"
-                    disabled={isLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    disabled={isLoading}
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="pl-10 pr-10"
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      id="remember"
+                      type="checkbox"
+                      className="rounded border-border"
+                    />
+                    <Label htmlFor="remember" className="text-sm">
+                      Remember me
+                    </Label>
+                  </div>
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-purple-400 hover:text-purple-300 transition-colors"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
+                    Forgot password?
+                  </Link>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <input
-                    id="remember"
-                    type="checkbox"
-                    className="rounded border-border"
-                  />
-                  <Label htmlFor="remember" className="text-sm">
-                    Remember me
-                  </Label>
-                </div>
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-primary hover:underline"
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]" 
+                  disabled={isLoading}
                 >
-                  Forgot password?
-                </Link>
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Signing in...
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="h-5 w-5 mr-2" />
+                      Sign In
+                    </>
+                  )}
+                </Button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-slate-600" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-slate-800 px-3 text-slate-400 font-medium">
+                    Or continue with
+                  </span>
+                </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Sign In
-                  </>
-                )}
-              </Button>
-            </form>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+              {/* OAuth Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <GoogleLoginButton
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  disabled={isLoading}
+                />
+                <Button
+                  variant="outline"
+                  className="w-full bg-slate-900 hover:bg-slate-700 text-white border-slate-600 font-medium transition-all duration-200 hover:shadow-md"
+                  onClick={handleGithubLogin}
+                  disabled={isLoading}
+                >
+                  <Github className="h-5 w-5 mr-2" />
+                  GitHub
+                </Button>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
+
+              {/* Sign Up Link */}
+              <div className="text-center pt-4 border-t border-slate-700/50">
+                <span className="text-sm text-slate-400">
+                  Don't have an account?{" "}
+                  <Link
+                    to="/register"
+                    className="text-purple-400 hover:text-purple-300 font-semibold transition-colors"
+                  >
+                    Sign up
+                  </Link>
                 </span>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* OAuth Buttons */}
-            <div className="grid grid-cols-2 gap-4">
-              <GoogleLoginButton
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                disabled={isLoading}
-              />
-              <Button
-                variant="outline"
-                onClick={handleGithubLogin}
-                disabled={isLoading}
-              >
-                <Github className="h-4 w-4 mr-2" />
-                GitHub
-              </Button>
-            </div>
-
-            {/* Sign Up Link */}
-            <div className="text-center">
-              <span className="text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <Link
-                  to="/register"
-                  className="text-primary hover:underline font-medium"
-                >
-                  Sign up
-                </Link>
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Demo Credentials */}
-        <Card className="bg-muted/50">
-          <CardContent className="pt-4">
-            <p className="text-xs text-muted-foreground text-center">
-              <strong>Demo:</strong> Use any valid email and password (6+ chars)
-              to login
-            </p>
-          </CardContent>
-        </Card>
+          {/* Demo Credentials */}
+          <Card className="bg-muted/50">
+            <CardContent className="pt-4">
+              <p className="text-xs text-muted-foreground text-center">
+                <strong>Demo:</strong> Use any valid email and password (6+ chars)
+                to login
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
     </div>
   );
 }

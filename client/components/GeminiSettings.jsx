@@ -42,7 +42,7 @@ const GeminiSettings = () => {
       setApiKey('');
       toast({
         title: "Success",
-        description: "Gemini API key saved successfully",
+        description: "Groq API key saved successfully",
       });
     } catch (error) {
       toast({
@@ -62,7 +62,7 @@ const GeminiSettings = () => {
       setHasApiKey(false);
       toast({
         title: "Success",
-        description: "Gemini API key removed successfully",
+        description: "Groq API key removed successfully",
       });
     } catch (error) {
       toast({
@@ -78,9 +78,9 @@ const GeminiSettings = () => {
   return (
     <Card className="bg-gradient-to-br from-slate-900 via-slate-800 to-purple-900 border-purple-500/20">
       <CardHeader>
-        <CardTitle className="text-white">Gemini API Configuration</CardTitle>
+        <CardTitle className="text-white">Groq API Configuration</CardTitle>
         <CardDescription className="text-gray-300">
-          Configure your Gemini API key to enable AI features
+          Configure your Groq API key to enable AI features (Powered by Llama 3.3)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -104,11 +104,11 @@ const GeminiSettings = () => {
         ) : (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="apiKey" className="text-white">Gemini API Key</Label>
+              <Label htmlFor="apiKey" className="text-white">Groq API Key</Label>
               <Input
                 id="apiKey"
                 type="password"
-                placeholder="Enter your Gemini API key"
+                placeholder="Enter your Groq API key (e.g., gsk_...)"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 className="bg-black/30 border-purple-500/30 text-white placeholder:text-gray-400"
@@ -125,13 +125,14 @@ const GeminiSettings = () => {
               <p className="text-blue-300 text-sm">
                 <strong>Need an API key?</strong> Get one from{' '}
                 <a 
-                  href="https://aistudio.google.com/app/apikey" 
+                  href="https://console.groq.com/keys" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-blue-400 hover:text-blue-300 underline"
                 >
-                  Google AI Studio
+                  Groq Console
                 </a>
+                {' '}(Free tier available)
               </p>
             </div>
           </div>

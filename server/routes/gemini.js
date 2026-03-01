@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const geminiService = require('../services/geminiService');
+const groqService = require('../services/groqService');
 const { authenticateToken } = require('../middleware/auth');
 
 // Middleware to check authentication for most routes
@@ -12,13 +12,25 @@ const authMiddleware = (req, res, next) => {
   return authenticateToken(req, res, next);
 };
 
-// Health check for Gemini service
+// Health check for Groq service
 router.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
-    service: 'gemini',
+    service: 'groq',
     timestamp: new Date().toISOString()
   });
+});
+
+// Check API key endpoint
+router.get('/check-api-key', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const hasKey = groqService.getUserApiKey(userId) !== groqService.defaultApiKey;
+    res.json({ hasKey });
+  } catch (error) {
+    console.error('API key check error:', error);
+    res.status(500).json({ error: 'Failed to check API key' });
+  }
 });
 
 // Explain code endpoint
@@ -31,7 +43,7 @@ router.post('/explain-code', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Code is required' });
     }
 
-    const result = await geminiService.explainCode(userId, code, language);
+    const result = await groqService.explainCode(userId, code, language);
     
     console.log('Sending response:', {
       success: result.success,
@@ -56,7 +68,7 @@ router.post('/review-resume', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Resume text is required' });
     }
 
-    const result = await geminiService.reviewResume(userId, resumeText);
+    const result = await groqService.reviewResume(userId, resumeText);
     res.json(result);
   } catch (error) {
     console.error('Resume review error:', error);
@@ -74,7 +86,7 @@ router.post('/fix-bugs', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Code is required' });
     }
 
-    const result = await geminiService.fixBugs(userId, code, language, errorMessage);
+    const result = await groqService.fixBugs(userId, code, language, errorMessage);
     res.json(result);
   } catch (error) {
     console.error('Bug fixing error:', error);
@@ -94,7 +106,7 @@ router.post('/suggest-projects', async (req, res) => {
       return res.status(400).json({ error: 'Skills are required' });
     }
 
-    const result = await geminiService.suggestProjects(userId, skills, experience, interests);
+    const result = await groqService.suggestProjects(userId, skills, experience, interests);
     console.log('Project suggestion result:', { success: result.success, hasData: !!result.data, dataLength: result.data ? result.data.length : 0 });
     res.json(result);
   } catch (error) {
@@ -115,7 +127,7 @@ router.post('/generate-code', async (req, res) => {
       return res.status(400).json({ error: 'Description is required' });
     }
 
-    const result = await geminiService.generateCode(userId, description, language, framework);
+    const result = await groqService.generateCode(userId, description, language, framework);
     console.log('Code generation result:', { success: result.success, hasData: !!result.data, dataLength: result.data ? result.data.length : 0 });
     res.json(result);
   } catch (error) {
@@ -136,7 +148,7 @@ router.post('/explain-algorithm', async (req, res) => {
       return res.status(400).json({ error: 'Algorithm name is required' });
     }
 
-    const result = await geminiService.explainAlgorithm(userId, algorithmName, problemType, context);
+    const result = await groqService.explainAlgorithm(userId, algorithmName, problemType, context);
     console.log('Algorithm explanation result:', { success: result.success, hasData: !!result.data, dataLength: result.data ? result.data.length : 0 });
     res.json(result);
   } catch (error) {
@@ -155,7 +167,7 @@ router.post('/custom-tool', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Tool configuration and user input are required' });
     }
 
-    const result = await geminiService.executeCustomTool(userId, toolConfig, userInput);
+    const result = await groqService.executeCustomTool(userId, toolConfig, userInput);
     res.json(result);
   } catch (error) {
     console.error('Custom tool execution error:', error);
@@ -173,7 +185,7 @@ router.post('/set-api-key', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'API key is required' });
     }
 
-    geminiService.setUserApiKey(userId, apiKey);
+    groqService.setUserApiKey(userId, apiKey);
     res.json({ success: true, message: 'API key set successfully' });
   } catch (error) {
     console.error('API key setting error:', error);
@@ -186,7 +198,20 @@ router.delete('/api-key', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    geminiService.removeUserApiKey(userId);
+    groqService.removeUserApiKey(userId);
+    res.json({ success: true, message: 'API key removed successfully' });
+  } catch (error) {
+    console.error('API key removal error:', error);
+    res.status(500).json({ error: 'Failed to remove API key' });
+  }
+});
+
+// Alias for remove-api-key (frontend compatibility)
+router.delete('/remove-api-key', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    groqService.removeUserApiKey(userId);
     res.json({ success: true, message: 'API key removed successfully' });
   } catch (error) {
     console.error('API key removal error:', error);

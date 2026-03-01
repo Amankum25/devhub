@@ -22,10 +22,7 @@ import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import BlogNew from "./pages/BlogNew";
-import BlogEdit from "./pages/BlogEdit";
+import Practice from "./pages/Practice";
 import CodeSnippets from "./pages/CodeSnippets";
 import AITools from "./pages/AITools";
 import AIHistory from "./pages/AIHistory";
@@ -80,11 +77,8 @@ const App = () => {
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/:id" element={<UserProfile />} />
 
-              {/* Blog & Posts */}
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/blog/new" element={<BlogNew />} />
-              <Route path="/blog/edit/:id" element={<BlogEdit />} />
+              {/* Practice - LeetCode Problems */}
+              <Route path="/practice" element={<Practice />} />
 
               {/* Code Snippets */}
               <Route path="/code-snippets" element={<CodeSnippets />} />

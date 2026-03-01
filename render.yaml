@@ -1,0 +1,20 @@
+# Render.com Backend Configuration
+services:
+  # Backend API Service
+  - type: web
+    name: devhub-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/ping
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false  # Set this in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true  # Auto-generate secure secret
+      - key: CLIENT_URL
+        sync: false  # Your Vercel frontend URL
+      - key: PORT
+        value: 3000

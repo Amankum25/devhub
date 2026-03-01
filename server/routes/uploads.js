@@ -80,8 +80,9 @@ router.post(
 
     const fileUrl = `/uploads/avatars/${req.file.filename}`;
 
-    // TODO: Update user avatar in database
-    // await db.run('UPDATE users SET avatar = ? WHERE id = ?', [fileUrl, req.user.id]);
+    // Update user avatar in database
+    const User = require('../models/User');
+    await User.findByIdAndUpdate(req.user.userId, { avatar: fileUrl });
 
     res.json({
       success: true,
@@ -183,11 +184,21 @@ router.delete(
       throw new AppError("File not found", 404, "FILE_NOT_FOUND");
     }
 
-    // TODO: Check if user owns the file or is admin
-    // const fileOwner = await checkFileOwnership(filename, req.user.id);
-    // if (!fileOwner && !req.user.isAdmin) {
-    //   throw new AppError('Access denied', 403, 'ACCESS_DENIED');
-    // }
+    // Check if user owns the file or is admin
+    // Note: Since we don't store file ownership in a separate collection yet, 
+    // strictly speaking we can only verify semantic ownership (e.g. if filename contains user ID)
+    // or rely on admin status. For now, allow admins or if the file path matches user's upload pattern.
+    // Ideally, we should have a File model to track ownership.
+
+    if (!req.user.isAdmin) {
+      // Simple check: most uploads don't have user ID in filename in current impl, 
+      // but for avatars, we could check. 
+      // For a strict implementation, we need a File model. 
+      // As a fallback security measure for this project's scope:
+      // Only admins can delete arbitrary files, OR we assume fine if it's in their session scope (not implemented here).
+      // Let's restrict deletion to Admins for now to be safe, unless we add a File model.
+      throw new AppError('Only administrators can delete files', 403, 'ACCESS_DENIED');
+    }
 
     fs.unlinkSync(filePath);
 

@@ -577,15 +577,26 @@ const authService = require('../services/authService');
  * @access  Public
  */
 router.post('/google', catchAsync(async (req, res) => {
-  const { idToken } = req.body;
+  const { idToken, email, name, picture, googleId, verified } = req.body;
 
-  if (!idToken) {
-    throw new AppError('Google ID token is required', 400);
-  }
+  let googleProfile;
 
   try {
-    // Verify Google token and get user info
-    const googleProfile = await authService.verifyGoogleToken(idToken);
+    if (idToken) {
+      // ID token flow (legacy)
+      googleProfile = await authService.verifyGoogleToken(idToken);
+    } else if (email && googleId) {
+      // Direct user info flow (OAuth2 access token flow)
+      googleProfile = {
+        email,
+        name: name || '',
+        picture: picture || '',
+        googleId,
+        verified: verified || false,
+      };
+    } else {
+      throw new AppError('Google ID token or user info is required', 400);
+    }
     
     // Check if user exists by email or Google ID
     let user = await User.findOne({

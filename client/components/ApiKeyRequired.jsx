@@ -47,7 +47,7 @@ const ApiKeyRequired = ({ children, toolName }) => {
           <Alert className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/30 mb-6">
             <AlertTriangle className="h-4 w-4 text-orange-400" />
             <AlertDescription className="text-orange-200">
-              <strong>API Key Required:</strong> You need to configure your Gemini API key to use this tool.
+              <strong>API Key Required:</strong> You need to configure your Groq API key to use this tool.
             </AlertDescription>
           </Alert>
 

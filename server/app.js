@@ -3,6 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const compression = require("compression");
+const mongoSanitize = require('express-mongo-sanitize');
 const morgan = require("morgan");
 const path = require("path");
 const cookieParser = require("cookie-parser");
@@ -15,8 +16,7 @@ const logger = require("./utils/logger");
 // Import routes
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
-const postRoutes = require("./routes/posts");
-const commentRoutes = require("./routes/comments");
+const practiceRoutes = require("./routes/practice");
 const chatRoutes = require("./routes/chat");
 const aiRoutes = require("./routes/ai");
 const geminiRoutes = require("./routes/gemini");
@@ -50,6 +50,9 @@ app.use(
     },
   }),
 );
+
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
 
 // Rate limiting
 const limiter = rateLimit({
@@ -91,7 +94,7 @@ app.use(
       if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
         return callback(null, true);
       }
-      
+
       // Allow specific development ports
       const allowedOrigins = [
         'http://localhost:8080',
@@ -101,27 +104,27 @@ app.use(
         'http://127.0.0.1:3000',
         'http://127.0.0.1:5173'
       ];
-      
+
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      
+
       if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
         return callback(null, true);
       }
-      
+
       // In development, be more permissive
       if (process.env.NODE_ENV === 'development') {
         return callback(null, true);
       }
-      
+
       callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
-      "Content-Type", 
-      "Authorization", 
+      "Content-Type",
+      "Authorization",
       "X-Requested-With",
       "Accept",
       "Origin",
@@ -147,8 +150,7 @@ app.get("/health", (req, res) => {
 // API routes
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/users", authenticateToken, userRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/comments", commentRoutes);
+app.use("/api/practice", practiceRoutes);
 app.use("/api/chat", authenticateToken, chatRoutes);
 app.use("/api/ai", authenticateToken, aiRoutes);
 app.use("/api/gemini", geminiRoutes);
@@ -165,8 +167,7 @@ app.get("/api", (req, res) => {
     endpoints: {
       auth: "/api/auth",
       users: "/api/users",
-      posts: "/api/posts",
-      comments: "/api/comments",
+      practice: "/api/practice",
       chat: "/api/chat",
       ai: "/api/ai",
       snippets: "/api/snippets",
@@ -272,6 +273,12 @@ async function startServer() {
         throw err;
       }
     });
+
+    // Initialize Socket.io
+    const { initializeSocket } = require('./socket');
+    const io = initializeSocket(server);
+    app.set('io', io);
+    logger.info("🔌 Socket.io initialized");
 
     return server;
   } catch (error) {

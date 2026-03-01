@@ -260,46 +260,46 @@ export default function Register() {
                   </div>
                 </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-slate-300">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input id="email" name="email" type="email" placeholder="john.doe@example.com" value={formData.email} onChange={handleChange} className="pl-10" disabled={isLoading} required />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input id="email" name="email" type="email" placeholder="john.doe@example.com" value={formData.email} onChange={handleChange} className="pl-10 bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400" disabled={isLoading} required />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-slate-300">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Create a strong password" value={formData.password} onChange={handleChange} className="pl-10 pr-10" disabled={isLoading} required />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground" disabled={isLoading}>
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Create a strong password" value={formData.password} onChange={handleChange} className="pl-10 pr-10 bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400" disabled={isLoading} required />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-200" disabled={isLoading}>
                     {showPassword ? (<EyeOff className="h-4 w-4" />) : (<Eye className="h-4 w-4" />)}
                   </button>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-slate-300">Confirm Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" value={formData.confirmPassword} onChange={handleChange} className="pl-10 pr-10" disabled={isLoading} required />
-                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground" disabled={isLoading}>
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" value={formData.confirmPassword} onChange={handleChange} className="pl-10 pr-10 bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400" disabled={isLoading} required />
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-200" disabled={isLoading}>
                     {showConfirmPassword ? (<EyeOff className="h-4 w-4" />) : (<Eye className="h-4 w-4" />)}
                   </button>
                 </div>
               </div>
               <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Social Profiles (Optional)</h4>
+                <h4 className="text-sm font-medium text-slate-400">Social Profiles (Optional)</h4>
                 <div className="space-y-2">
-                  <Label htmlFor="githubProfile">GitHub Profile</Label>
+                  <Label htmlFor="githubProfile" className="text-slate-300">GitHub Profile</Label>
                   <div className="relative">
-                    <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input id="githubProfile" name="githubProfile" type="url" placeholder="https://github.com/username" value={formData.githubProfile} onChange={handleChange} className="pl-10" disabled={isLoading} />
+                    <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input id="githubProfile" name="githubProfile" type="url" placeholder="https://github.com/username" value={formData.githubProfile} onChange={handleChange} className="pl-10 bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400" disabled={isLoading} />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="linkedinProfile">LinkedIn Profile</Label>
+                  <Label htmlFor="linkedinProfile" className="text-slate-300">LinkedIn Profile</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input id="linkedinProfile" name="linkedinProfile" type="url" placeholder="https://linkedin.com/in/username" value={formData.linkedinProfile} onChange={handleChange} className="pl-10" disabled={isLoading} />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input id="linkedinProfile" name="linkedinProfile" type="url" placeholder="https://linkedin.com/in/username" value={formData.linkedinProfile} onChange={handleChange} className="pl-10 bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400" disabled={isLoading} />
                   </div>
                 </div>
               </div>

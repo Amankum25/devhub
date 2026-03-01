@@ -7,6 +7,7 @@ const ChatRoom = require("../models/ChatRoom");
 const ChatMessage = require("../models/ChatMessage");
 const User = require("../models/User");
 const mongoose = require("mongoose");
+const { getIo } = require("../socket");
 
 const router = express.Router();
 
@@ -14,15 +15,15 @@ const router = express.Router();
 const validatePaginationParams = (page, limit) => {
   const parsedPage = parseInt(page) || 1;
   const parsedLimit = parseInt(limit) || 50;
-  
+
   if (parsedPage < 1) {
     throw new AppError("Page number must be greater than 0", 400, "INVALID_PAGE");
   }
-  
+
   if (parsedLimit < 1 || parsedLimit > 100) {
     throw new AppError("Limit must be between 1 and 100", 400, "INVALID_LIMIT");
   }
-  
+
   return { page: parsedPage, limit: parsedLimit };
 };
 
@@ -30,14 +31,14 @@ const validatePaginationParams = (page, limit) => {
 const findOrCreateDirectRoom = async (userId1, userId2) => {
   // Ensure consistent ordering for direct message room lookup
   const sortedIds = [userId1, userId2].sort();
-  
+
   // Try to find existing direct message room
   let room = await ChatRoom.findOne({
     type: "direct",
     "members.user": { $all: sortedIds },
     memberCount: 2
   }).populate("members.user", "firstName lastName username avatar");
-  
+
   if (!room) {
     // Create new direct message room
     room = new ChatRoom({
@@ -53,7 +54,7 @@ const findOrCreateDirectRoom = async (userId1, userId2) => {
     await room.save();
     await room.populate("members.user", "firstName lastName username avatar");
   }
-  
+
   return room;
 };
 
@@ -85,7 +86,7 @@ router.get(
 
       res.json({
         success: true,
-        data: { 
+        data: {
           rooms,
           count: rooms.length
         },
@@ -103,10 +104,10 @@ router.get(
   validationRules.withRoomId,
   catchAsync(async (req, res) => {
     const { roomId } = req.params;
-    
+
     // Validate ObjectId format
     validateObjectId(roomId, "Room ID");
-    
+
     // Validate pagination parameters
     const { page, limit } = validatePaginationParams(req.query.page, req.query.limit);
     const skip = (page - 1) * limit;
@@ -154,7 +155,7 @@ router.get(
 
       res.json({
         success: true,
-        data: { 
+        data: {
           messages,
           pagination: {
             currentPage: page,
@@ -182,11 +183,11 @@ router.post(
 
     // Validate inputs
     validateObjectId(roomId, "Room ID");
-    
+
     if (!message || message.trim().length === 0) {
       throw new AppError("Message content cannot be empty", 400, "EMPTY_MESSAGE");
     }
-    
+
     if (message.length > 1000) {
       throw new AppError("Message too long (max 1000 characters)", 400, "MESSAGE_TOO_LONG");
     }
@@ -237,18 +238,25 @@ router.post(
       // Update room's last activity
       await ChatRoom.findByIdAndUpdate(
         roomId,
-        { 
+        {
           lastActivity: new Date(),
           $inc: { messageCount: 1 }
         }
       );
 
-      // Populate author info
       await newMessage.populate({
         path: "author",
         select: "firstName lastName username avatar",
         options: { lean: true }
       });
+
+      // Emit real-time event
+      try {
+        const io = getIo();
+        io.to(roomId).emit('receive_message', newMessage);
+      } catch (err) {
+        console.error('Socket emission failed:', err.message);
+      }
 
       res.status(201).json({
         success: true,
@@ -297,10 +305,10 @@ router.post(
 
     try {
       // Check if room name already exists (case-insensitive)
-      const existingRoom = await ChatRoom.findOne({ 
+      const existingRoom = await ChatRoom.findOne({
         name: { $regex: new RegExp(`^${sanitizedName}$`, 'i') }
       }).lean();
-      
+
       if (existingRoom) {
         throw new AppError("Room name already exists", 409, "ROOM_NAME_EXISTS");
       }
@@ -365,7 +373,7 @@ router.get(
       // Validate date range if provided
       const { startDate, endDate } = req.query;
       let dateFilter = {};
-      
+
       if (startDate || endDate) {
         dateFilter.createdAt = {};
         if (startDate) {
@@ -483,26 +491,26 @@ router.get(
   catchAsync(async (req, res) => {
     try {
       const userId = req.user.id;
-      
+
       // Find all direct message rooms the user is part of
       const directRooms = await ChatRoom.find({
         type: "direct",
         "members.user": userId
       })
-      .populate({
-        path: "members.user",
-        select: "firstName lastName username avatar",
-        options: { lean: true }
-      })
-      .sort({ lastActivity: -1 })
-      .lean();
+        .populate({
+          path: "members.user",
+          select: "firstName lastName username avatar",
+          options: { lean: true }
+        })
+        .sort({ lastActivity: -1 })
+        .lean();
 
       // Get the other participant for each conversation
       const conversations = directRooms.map(room => {
-        const otherMember = room.members.find(member => 
+        const otherMember = room.members.find(member =>
           member.user._id.toString() !== userId
         );
-        
+
         return {
           id: room._id,
           participant: otherMember.user,
@@ -513,7 +521,7 @@ router.get(
 
       res.json({
         success: true,
-        data: { 
+        data: {
           conversations,
           count: conversations.length
         }
@@ -552,7 +560,7 @@ router.post(
       res.json({
         success: true,
         message: "Conversation ready",
-        data: { 
+        data: {
           roomId: room._id,
           participant: room.members.find(m => m.user._id.toString() !== currentUserId).user
         }
@@ -584,13 +592,13 @@ router.get(
 
     try {
       const searchLimit = Math.min(parseInt(limit) || 10, 50);
-      
+
       console.log('🔍 Searching with params:', {
         searchQuery: query,
         searchLimit: searchLimit,
         excludeUserId: currentUserId
       });
-      
+
       const users = await User.find({
         _id: { $ne: currentUserId }, // Exclude current user
         $or: [
@@ -599,9 +607,9 @@ router.get(
           { username: { $regex: query, $options: 'i' } }
         ]
       })
-      .select('firstName lastName username avatar')
-      .limit(searchLimit)
-      .lean();
+        .select('firstName lastName username avatar')
+        .limit(searchLimit)
+        .lean();
 
       console.log('✅ Search results:', {
         query: query,
@@ -611,7 +619,7 @@ router.get(
 
       res.json({
         success: true,
-        data: { 
+        data: {
           users,
           count: users.length
         }
@@ -632,7 +640,7 @@ router.use((error, req, res, next) => {
     method: req.method,
     timestamp: new Date().toISOString()
   });
-  
+
   if (error instanceof AppError) {
     return res.status(error.statusCode).json({
       success: false,
@@ -643,7 +651,7 @@ router.use((error, req, res, next) => {
       }
     });
   }
-  
+
   // Handle mongoose validation errors
   if (error.name === 'ValidationError') {
     return res.status(400).json({
@@ -655,7 +663,7 @@ router.use((error, req, res, next) => {
       }
     });
   }
-  
+
   // Generic server error
   res.status(500).json({
     success: false,

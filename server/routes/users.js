@@ -6,7 +6,7 @@ const {
   catchAsync,
   createValidationError,
 } = require("../middleware/errorHandler");
-const { requireAdmin } = require("../middleware/auth");
+const { requireAdmin, authenticateToken } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -748,6 +748,91 @@ router.patch(
       message: "User status updated successfully",
     });
   }),
+);
+
+// Update user profile
+router.put(
+  "/:userId",
+  authenticateToken,
+  [
+    body("firstName").optional().trim().notEmpty().withMessage("First name cannot be empty"),
+    body("lastName").optional().trim().notEmpty().withMessage("Last name cannot be empty"),
+    body("bio").optional().trim().isLength({ max: 500 }).withMessage("Bio too long"),
+    body("location").optional().trim().isLength({ max: 100 }).withMessage("Location too long"),
+    body("website").optional().trim().isURL().withMessage("Invalid website URL"),
+    body("github").optional().trim(),
+    body("linkedin").optional().trim(),
+    body("twitter").optional().trim(),
+    body("company").optional().trim(),
+    body("position").optional().trim(),
+    body("skills").optional().isArray().withMessage("Skills must be an array"),
+  ],
+  catchAsync(async (req, res) => {
+    checkValidation(req);
+
+    const { userId } = req.params;
+
+    // Check if user is updating their own profile or is admin
+    if (parseInt(userId) !== req.user.id && !req.user.isAdmin) {
+      throw new AppError("Access denied", 403, "ACCESS_DENIED");
+    }
+
+    const db = database.getDb();
+
+    // Check if user exists
+    const user = await db.get("SELECT id FROM users WHERE id = ?", [userId]);
+    if (!user) {
+      throw new AppError("User not found", 404, "USER_NOT_FOUND");
+    }
+
+    const updates = [];
+    const values = [];
+    const allowedFields = [
+      "firstName", "lastName", "bio", "location", "website",
+      "github", "linkedin", "twitter", "company", "position"
+    ];
+
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updates.push(`${field} = ?`);
+        values.push(req.body[field]);
+      }
+    });
+
+    if (req.body.skills) {
+      updates.push("skills = ?");
+      values.push(JSON.stringify(req.body.skills));
+    }
+
+    if (updates.length === 0) {
+      return res.json({ success: true, message: "No changes made" });
+    }
+
+    updates.push('updatedAt = datetime("now")');
+    values.push(userId);
+
+    await db.run(
+      `UPDATE users SET ${updates.join(", ")} WHERE id = ?`,
+      values
+    );
+
+    // Fetch updated user
+    const updatedUser = await db.get(
+      `SELECT 
+        id, email, firstName, lastName, username, avatar, bio, location, website,
+        company, position, github, linkedin, twitter, skills, isAdmin 
+       FROM users WHERE id = ?`,
+      [userId]
+    );
+
+    updatedUser.skills = updatedUser.skills ? JSON.parse(updatedUser.skills) : [];
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      data: { user: updatedUser }
+    });
+  })
 );
 
 module.exports = router;

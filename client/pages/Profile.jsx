@@ -18,6 +18,8 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { Switch } from "../components/ui/switch";
+import { api } from "../lib/api";
+import { useAuth } from "../contexts/AuthContext";
 import {
   Select,
   SelectContent,
@@ -57,32 +59,67 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
 
+  const { user, updateUser } = useAuth();
   const [profileData, setProfileData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    bio: "Full-stack developer passionate about React, Node.js, and AI. Building the future one line of code at a time.",
-    location: "San Francisco, CA",
-    website: "https://johndoe.dev",
-    github: "johndoe",
-    linkedin: "johndoe",
-    twitter: "johndoe",
-    company: "TechCorp Inc.",
-    position: "Senior Frontend Developer",
-    experience: "5+ years",
-    skills: [
-      "React",
-      "JavaScript",
-      "TypeScript",
-      "Node.js",
-      "Python",
-      "AWS",
-      "Docker",
-      "Git",
-    ],
-    avatar: "/placeholder.svg",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    bio: "",
+    location: "",
+    website: "",
+    github: "",
+    linkedin: "",
+    twitter: "",
+    company: "",
+    position: "",
+    experience: "",
+    skills: [],
+    avatar: "",
   });
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get(`/users/${user.id}`);
+        if (response.data.success) {
+          const userData = response.data.data.user;
+          setProfileData({
+            firstName: userData.firstName || "",
+            lastName: userData.lastName || "",
+            email: userData.email || "",
+            phone: userData.phone || "", // Note: Phone might not be in DB schema shown in users.js, but keeping safely
+            bio: userData.bio || "",
+            location: userData.location || "",
+            website: userData.website || "",
+            github: userData.github || "",
+            linkedin: userData.linkedin || "",
+            twitter: userData.twitter || "",
+            company: userData.company || "",
+            position: userData.position || "",
+            experience: userData.experience || "", // Not in users.js schema?
+            skills: userData.skills || [],
+            avatar: userData.avatar || "/placeholder.svg",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user?.id) {
+      fetchProfile();
+    }
+  }, [user?.id]);
 
   const [settings, setSettings] = useState({
     emailNotifications: true,
@@ -179,15 +216,35 @@ export default function Profile() {
     }));
   };
 
-  const handleSaveProfile = () => {
-    // Simulate API call
-    setTimeout(() => {
-      setIsEditing(false);
+  const handleSaveProfile = async () => {
+    try {
+      // Need an endpoint to update profile. users.js doesn't seem to have a generic update profile PUT?
+      // Wait, users.js has PATCH /admin/:userId/status, but no general update for self? 
+      // Let's check auth.js or maybe I missed it in users.js?
+      // users.js has GET /:identifier, GET /, POST /:userId/follow and admin routes.
+      // It DOES NOT have a profile update route!
+      // I might need to create it or check if it's in auth setup?
+      // Assuming I should create it/use what exists. 
+      // For now I will assume I need to implement the backend route too if it's missing.
+      // But let's write the frontend assuming it exists or I will add it.
+      const response = await api.put(`/users/${user.id}`, profileData); // I will implement this route next
+
+      if (response.data.success) {
+        setIsEditing(false);
+        updateUser({ ...user, ...response.data.data.user });
+        toast({
+          title: "Profile updated",
+          description: "Your profile has been successfully updated.",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update profile:", error);
       toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated.",
+        title: "Error",
+        description: error.response?.data?.message || "Failed to update profile",
+        variant: "destructive",
       });
-    }, 1000);
+    }
   };
 
   const handleAvatarChange = () => {
@@ -256,213 +313,213 @@ export default function Profile() {
                         <Camera className="h-4 w-4 text-slate-300" />
                       </Button>
                     </div>
-                  <h2 className="text-xl font-bold mt-2">{profileData.firstName} {profileData.lastName}</h2>
-                  <p className="text-muted-foreground">{profileData.position} at {profileData.company}</p>
-                  <div className="flex items-center justify-center space-x-1 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    <span>{profileData.location}</span>
+                    <h2 className="text-xl font-bold mt-2">{profileData.firstName} {profileData.lastName}</h2>
+                    <p className="text-muted-foreground">{profileData.position} at {profileData.company}</p>
+                    <div className="flex items-center justify-center space-x-1 text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      <span>{profileData.location}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{profileData.bio}</p>
+                    <div className="flex justify-center space-x-3 mt-2">
+                      {profileData.github && (<Button variant="ghost" size="sm" className="p-2"><Github className="h-4 w-4" /></Button>)}
+                      {profileData.linkedin && (<Button variant="ghost" size="sm" className="p-2"><Linkedin className="h-4 w-4" /></Button>)}
+                      {profileData.twitter && (<Button variant="ghost" size="sm" className="p-2"><Twitter className="h-4 w-4" /></Button>)}
+                      {profileData.website && (<Button variant="ghost" size="sm" className="p-2"><Globe className="h-4 w-4" /></Button>)}
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t w-full">
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-blue-600">{stats.posts}</div>
+                        <div className="text-xs text-muted-foreground">Posts</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-green-600">{stats.followers}</div>
+                        <div className="text-xs text-muted-foreground">Followers</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-purple-600">{stats.reputation}</div>
+                        <div className="text-xs text-muted-foreground">Reputation</div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{profileData.bio}</p>
-                  <div className="flex justify-center space-x-3 mt-2">
-                    {profileData.github && (<Button variant="ghost" size="sm" className="p-2"><Github className="h-4 w-4" /></Button>)}
-                    {profileData.linkedin && (<Button variant="ghost" size="sm" className="p-2"><Linkedin className="h-4 w-4" /></Button>)}
-                    {profileData.twitter && (<Button variant="ghost" size="sm" className="p-2"><Twitter className="h-4 w-4" /></Button>)}
-                    {profileData.website && (<Button variant="ghost" size="sm" className="p-2"><Globe className="h-4 w-4" /></Button>)}
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t w-full">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-600">{stats.posts}</div>
-                      <div className="text-xs text-muted-foreground">Posts</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-green-600">{stats.followers}</div>
-                      <div className="text-xs text-muted-foreground">Followers</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-purple-600">{stats.reputation}</div>
-                      <div className="text-xs text-muted-foreground">Reputation</div>
-                    </div>
-                  </div>
-                </div>
-                <Card className="mt-8">
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>Personal Information</CardTitle>
-                    <Button variant={isEditing ? "outline" : "default"} size="sm" onClick={() => setIsEditing(!isEditing)}>
-                      {isEditing ? (<X className="h-4 w-4 mr-2" />) : (<Edit3 className="h-4 w-4 mr-2" />)}
-                      {isEditing ? "Cancel" : "Edit"}
-                    </Button>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName">First Name</Label>
-                        <Input id="firstName" value={profileData.firstName} onChange={(e) => handleInputChange("firstName", e.target.value)} disabled={!isEditing} />
+                  <Card className="mt-8">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle>Personal Information</CardTitle>
+                      <Button variant={isEditing ? "outline" : "default"} size="sm" onClick={() => setIsEditing(!isEditing)}>
+                        {isEditing ? (<X className="h-4 w-4 mr-2" />) : (<Edit3 className="h-4 w-4 mr-2" />)}
+                        {isEditing ? "Cancel" : "Edit"}
+                      </Button>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="firstName">First Name</Label>
+                          <Input id="firstName" value={profileData.firstName} onChange={(e) => handleInputChange("firstName", e.target.value)} disabled={!isEditing} />
+                        </div>
+                        <div>
+                          <Label htmlFor="lastName">Last Name</Label>
+                          <Input id="lastName" value={profileData.lastName} onChange={(e) => handleInputChange("lastName", e.target.value)} disabled={!isEditing} />
+                        </div>
                       </div>
                       <div>
-                        <Label htmlFor="lastName">Last Name</Label>
-                        <Input id="lastName" value={profileData.lastName} onChange={(e) => handleInputChange("lastName", e.target.value)} disabled={!isEditing} />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" value={profileData.email} onChange={(e) => handleInputChange("email", e.target.value)} disabled={!isEditing} />
-                    </div>
-                    <div>
-                      <Label htmlFor="bio">Bio</Label>
-                      <Textarea id="bio" value={profileData.bio} onChange={(e) => handleInputChange("bio", e.target.value)} disabled={!isEditing} rows={3} />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="company">Company</Label>
-                        <Input id="company" value={profileData.company} onChange={(e) => handleInputChange("company", e.target.value)} disabled={!isEditing} />
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" type="email" value={profileData.email} onChange={(e) => handleInputChange("email", e.target.value)} disabled={!isEditing} />
                       </div>
                       <div>
-                        <Label htmlFor="position">Position</Label>
-                        <Input id="position" value={profileData.position} onChange={(e) => handleInputChange("position", e.target.value)} disabled={!isEditing} />
+                        <Label htmlFor="bio">Bio</Label>
+                        <Textarea id="bio" value={profileData.bio} onChange={(e) => handleInputChange("bio", e.target.value)} disabled={!isEditing} rows={3} />
                       </div>
-                    </div>
-                    <div>
-                      <Label>Skills</Label>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {profileData.skills.map((skill, index) => (
-                          <Badge key={index} variant="secondary" className="text-sm">
-                            {skill}
-                            {isEditing && (<button onClick={() => removeSkill(skill)} className="ml-2 text-muted-foreground hover:text-red-500"><X className="h-3 w-3" /></button>)}
-                          </Badge>
-                        ))}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="company">Company</Label>
+                          <Input id="company" value={profileData.company} onChange={(e) => handleInputChange("company", e.target.value)} disabled={!isEditing} />
+                        </div>
+                        <div>
+                          <Label htmlFor="position">Position</Label>
+                          <Input id="position" value={profileData.position} onChange={(e) => handleInputChange("position", e.target.value)} disabled={!isEditing} />
+                        </div>
+                      </div>
+                      <div>
+                        <Label>Skills</Label>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {profileData.skills.map((skill, index) => (
+                            <Badge key={index} variant="secondary" className="text-sm">
+                              {skill}
+                              {isEditing && (<button onClick={() => removeSkill(skill)} className="ml-2 text-muted-foreground hover:text-red-500"><X className="h-3 w-3" /></button>)}
+                            </Badge>
+                          ))}
+                        </div>
+                        {isEditing && (
+                          <Input placeholder="Add a skill and press Enter" className="mt-2" onKeyDown={(e) => { if (e.key === "Enter") { addSkill(e.target.value); e.target.value = ""; } }} />
+                        )}
                       </div>
                       {isEditing && (
-                        <Input placeholder="Add a skill and press Enter" className="mt-2" onKeyDown={(e) => {if (e.key === "Enter") {addSkill(e.target.value);e.target.value = "";}}} />
+                        <div className="flex justify-end space-x-2 pt-4">
+                          <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+                          <Button onClick={handleSaveProfile}><Save className="h-4 w-4 mr-2" />Save Changes</Button>
+                        </div>
                       )}
-                    </div>
-                    {isEditing && (
-                      <div className="flex justify-end space-x-2 pt-4">
-                        <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-                        <Button onClick={handleSaveProfile}><Save className="h-4 w-4 mr-2" />Save Changes</Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="activity" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {activity.map((item, index) => (
-                        <div key={index} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                          <Activity className="h-5 w-5 text-blue-500" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground">{item.title}</p>
-                            <p className="text-xs text-muted-foreground">{item.time}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="achievements" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Achievements</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {achievements.map((achievement, index) => (
-                        <div key={index} className={`p-4 rounded-lg border ${achievement.earned ? "bg-yellow-50 border-yellow-200" : "bg-muted border-muted-foreground"}`}>
-                          <div className="flex items-center space-x-3">
-                            <div className={`p-2 rounded-full ${achievement.earned ? "bg-yellow-100" : "bg-muted"}`}>
-                              <Trophy className={`h-5 w-5 ${achievement.earned ? "text-yellow-600" : "text-muted-foreground"}`} />
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-medium text-foreground">{achievement.name}</h4>
-                              <p className="text-sm text-muted-foreground">{achievement.description}</p>
-                              {achievement.earned ? (
-                                <p className="text-xs text-green-600 mt-1">Earned on {achievement.date}</p>
-                              ) : (
-                                <div className="mt-2">
-                                  <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>Progress</span>
-                                    <span>{achievement.progress}/50</span>
-                                  </div>
-                                  <div className="w-full bg-muted rounded-full h-2 mt-1">
-                                    <div className="bg-gradient-to-r from-primary to-accent h-2 rounded-full" style={{width: `${(achievement.progress / 50) * 100}%`}}></div>
-                                  </div>
-                                </div>
-                              )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="activity" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Recent Activity</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {activity.map((item, index) => (
+                          <div key={index} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                            <Activity className="h-5 w-5 text-blue-500" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground">{item.title}</p>
+                              <p className="text-xs text-muted-foreground">{item.time}</p>
                             </div>
                           </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="achievements" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Achievements</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {achievements.map((achievement, index) => (
+                          <div key={index} className={`p-4 rounded-lg border ${achievement.earned ? "bg-yellow-50 border-yellow-200" : "bg-muted border-muted-foreground"}`}>
+                            <div className="flex items-center space-x-3">
+                              <div className={`p-2 rounded-full ${achievement.earned ? "bg-yellow-100" : "bg-muted"}`}>
+                                <Trophy className={`h-5 w-5 ${achievement.earned ? "text-yellow-600" : "text-muted-foreground"}`} />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-medium text-foreground">{achievement.name}</h4>
+                                <p className="text-sm text-muted-foreground">{achievement.description}</p>
+                                {achievement.earned ? (
+                                  <p className="text-xs text-green-600 mt-1">Earned on {achievement.date}</p>
+                                ) : (
+                                  <div className="mt-2">
+                                    <div className="flex justify-between text-xs text-muted-foreground">
+                                      <span>Progress</span>
+                                      <span>{achievement.progress}/50</span>
+                                    </div>
+                                    <div className="w-full bg-muted rounded-full h-2 mt-1">
+                                      <div className="bg-gradient-to-r from-primary to-accent h-2 rounded-full" style={{ width: `${(achievement.progress / 50) * 100}%` }}></div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="settings" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Privacy & Notifications</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label htmlFor="email-notifications">Email Notifications</Label>
+                            <p className="text-sm text-muted-foreground">Receive email updates about your activity</p>
+                          </div>
+                          <Switch id="email-notifications" checked={settings.emailNotifications} onCheckedChange={(checked) => handleSettingChange("emailNotifications", checked)} />
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="settings" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Privacy & Notifications</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label htmlFor="email-notifications">Email Notifications</Label>
-                          <p className="text-sm text-muted-foreground">Receive email updates about your activity</p>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label htmlFor="push-notifications">Push Notifications</Label>
+                            <p className="text-sm text-muted-foreground">Receive push notifications in your browser</p>
+                          </div>
+                          <Switch id="push-notifications" checked={settings.pushNotifications} onCheckedChange={(checked) => handleSettingChange("pushNotifications", checked)} />
                         </div>
-                        <Switch id="email-notifications" checked={settings.emailNotifications} onCheckedChange={(checked) => handleSettingChange("emailNotifications", checked)} />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label htmlFor="push-notifications">Push Notifications</Label>
-                          <p className="text-sm text-muted-foreground">Receive push notifications in your browser</p>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label htmlFor="show-activity">Show Activity</Label>
+                            <p className="text-sm text-muted-foreground">Make your activity visible to other users</p>
+                          </div>
+                          <Switch id="show-activity" checked={settings.showActivity} onCheckedChange={(checked) => handleSettingChange("showActivity", checked)} />
                         </div>
-                        <Switch id="push-notifications" checked={settings.pushNotifications} onCheckedChange={(checked) => handleSettingChange("pushNotifications", checked)} />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label htmlFor="show-activity">Show Activity</Label>
-                          <p className="text-sm text-muted-foreground">Make your activity visible to other users</p>
+                        <div className="space-y-2">
+                          <Label htmlFor="profile-visibility">Profile Visibility</Label>
+                          <Select value={settings.profileVisibility} onValueChange={(value) => handleSettingChange("profileVisibility", value)}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="public">Public</SelectItem>
+                              <SelectItem value="private">Private</SelectItem>
+                              <SelectItem value="friends">Friends Only</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
-                        <Switch id="show-activity" checked={settings.showActivity} onCheckedChange={(checked) => handleSettingChange("showActivity", checked)} />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="profile-visibility">Profile Visibility</Label>
-                        <Select value={settings.profileVisibility} onValueChange={(value) => handleSettingChange("profileVisibility", value)}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="public">Public</SelectItem>
-                            <SelectItem value="private">Private</SelectItem>
-                            <SelectItem value="friends">Friends Only</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-red-600">Danger Zone</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+                          <h4 className="font-medium text-red-900">Delete Account</h4>
+                          <p className="text-sm text-red-700 mt-1">Once you delete your account, there is no going back. Please be certain.</p>
+                          <Button variant="destructive" size="sm" className="mt-3"><Trash2 className="h-4 w-4 mr-2" />Delete Account</Button>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-red-600">Danger Zone</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="p-4 border border-red-200 rounded-lg bg-red-50">
-                        <h4 className="font-medium text-red-900">Delete Account</h4>
-                        <p className="text-sm text-red-700 mt-1">Once you delete your account, there is no going back. Please be certain.</p>
-                        <Button variant="destructive" size="sm" className="mt-3"><Trash2 className="h-4 w-4 mr-2" />Delete Account</Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
     </div>
   );
 }

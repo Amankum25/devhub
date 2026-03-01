@@ -13,7 +13,7 @@ import {
   User,
   Code,
   MessageSquare,
-  BookOpen,
+  Target,
   Zap,
   Shield,
   ChevronDown,
@@ -68,7 +68,7 @@ export default function Navigation() {
 
   const navItems = [
     { name: "Home", path: "/", icon: null },
-    { name: "Blog", path: "/blog", icon: BookOpen },
+    { name: "Practice", path: "/practice", icon: Target },
     { name: "AI Tools", path: "/ai-tools", icon: Zap },
     { name: "Snippets", path: "/code-snippets", icon: Code },
     { name: "Chat", path: "/chat", icon: MessageSquare },

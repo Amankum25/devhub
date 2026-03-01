@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { io } from "socket.io-client";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
@@ -32,10 +33,61 @@ export default function DirectMessages() {
   const [loading, setLoading] = useState(true);
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
   const messagesEndRef = useRef(null);
+  const socketRef = useRef(null);
 
   // Load conversations on component mount
+  // Ref to track current conversation ID for socket handlers
+  const selectedConversationIdRef = useRef(null);
+  useEffect(() => {
+    selectedConversationIdRef.current = selectedConversation?.id;
+  }, [selectedConversation]);
+
   useEffect(() => {
     loadConversations();
+
+    // Initialize Socket.io
+    const token = localStorage.getItem('devhub_token');
+    if (token) {
+      socketRef.current = io(import.meta.env.VITE_API_URL || "http://localhost:3000", {
+        auth: { token },
+        transports: ['websocket', 'polling']
+      });
+
+      socketRef.current.on('connect', () => {
+        console.log('🔌 DM Socket connected');
+      });
+
+      socketRef.current.on('receive_message', (newMessage) => {
+        const currentId = selectedConversationIdRef.current;
+
+        // Update messages if we are in the conversation
+        if (currentId === newMessage.chatRoom) {
+          setMessages(prev => {
+            // Deduplication
+            if (prev.some(msg => msg._id === newMessage._id)) return prev;
+            return [...prev, newMessage];
+          });
+        }
+
+        // Also update conversations list lastActivity
+        setConversations(prev => {
+          const updated = prev.map(conv => {
+            if (conv.id === newMessage.chatRoom) {
+              return {
+                ...conv,
+                lastActivity: newMessage.createdAt,
+              };
+            }
+            return conv;
+          });
+          return updated.sort((a, b) => new Date(b.lastActivity) - new Date(a.lastActivity));
+        });
+      });
+    }
+
+    return () => {
+      socketRef.current?.disconnect();
+    };
   }, []);
 
   // Auto-scroll to bottom when messages change
@@ -113,7 +165,7 @@ export default function DirectMessages() {
       const response = await api.post(`/chat/direct-messages/${userId}`);
       if (response.data.success) {
         const { roomId, participant } = response.data.data;
-        
+
         // Create or update conversation in local state
         const newConversation = {
           id: roomId,
@@ -141,15 +193,22 @@ export default function DirectMessages() {
     }
   };
 
+  // Join room when conversation is selected
+  useEffect(() => {
+    if (selectedConversation && socketRef.current) {
+      socketRef.current.emit('join_room', selectedConversation.id);
+    }
+  }, [selectedConversation]);
+
   const handleConversationSelect = async (conversation) => {
     setSelectedConversation(conversation);
     await loadMessages(conversation.id);
   };
 
   const formatTime = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -199,7 +258,7 @@ export default function DirectMessages() {
                       className="pl-9"
                     />
                   </div>
-                  
+
                   <ScrollArea className="h-64">
                     {isSearching ? (
                       <div className="text-center py-4">
@@ -249,9 +308,8 @@ export default function DirectMessages() {
               {conversations.map((conversation) => (
                 <div
                   key={conversation.id}
-                  className={`flex items-center p-3 rounded-lg cursor-pointer hover:bg-muted transition-colors ${
-                    selectedConversation?.id === conversation.id ? 'bg-muted' : ''
-                  }`}
+                  className={`flex items-center p-3 rounded-lg cursor-pointer hover:bg-muted transition-colors ${selectedConversation?.id === conversation.id ? 'bg-muted' : ''
+                    }`}
                   onClick={() => handleConversationSelect(conversation)}
                 >
                   <div className="relative">
@@ -328,9 +386,8 @@ export default function DirectMessages() {
                 {messages.map((msg) => (
                   <div
                     key={msg._id}
-                    className={`flex ${
-                      msg.author._id === user?.id ? 'justify-end' : 'justify-start'
-                    }`}
+                    className={`flex ${msg.author._id === user?.id ? 'justify-end' : 'justify-start'
+                      }`}
                   >
                     <div className={`flex items-start space-x-2 max-w-xs lg:max-w-md`}>
                       {msg.author._id !== user?.id && (
@@ -340,11 +397,10 @@ export default function DirectMessages() {
                         </Avatar>
                       )}
                       <div
-                        className={`rounded-lg px-3 py-2 ${
-                          msg.author._id === user?.id
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted'
-                        }`}
+                        className={`rounded-lg px-3 py-2 ${msg.author._id === user?.id
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                          }`}
                       >
                         <p className="text-sm">{msg.content}</p>
                         <p className="text-xs opacity-70 mt-1">
@@ -368,8 +424,8 @@ export default function DirectMessages() {
                   onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                   className="flex-1"
                 />
-                <Button 
-                  onClick={sendMessage} 
+                <Button
+                  onClick={sendMessage}
                   disabled={!message.trim()}
                   size="sm"
                 >
