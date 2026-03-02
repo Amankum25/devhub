@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
   Bot, 
   Code, 
   FileText, 
@@ -21,10 +11,7 @@ import {
   Brain,
   Lightbulb,
   Target,
-  TrendingUp,
-  Star,
   ChevronRight,
-  Sparkles
 } from "lucide-react";
 
 const AITools = () => {
@@ -190,299 +177,135 @@ const AITools = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
-
-      {/* Notifications */}
-      {notifications.length > 0 && (
-        <div className="fixed top-4 right-4 z-50 space-y-2">
-          {notifications.map((notification) => (
-            <Alert 
-              key={notification.id}
-              className={`w-80 animate-in slide-in-from-right duration-300 backdrop-blur-lg bg-slate-800/80 border-slate-700/50 text-white ${
-                notification.type === 'success' ? 'border-green-500/50' :
-                notification.type === 'error' ? 'border-red-500/50' :
-                'border-blue-500/50'
-              }`}
-            >
-              <AlertDescription className="text-sm font-medium text-slate-200">
-                {notification.message}
-              </AlertDescription>
-            </Alert>
-          ))}
-        </div>
-      )}
-
-      <div className="relative z-10 container mx-auto px-4 py-8 pt-24">
+    <div className="min-h-screen bg-[#0B0E1A] pt-20 pb-12 px-4">
+      <div className="container mx-auto max-w-6xl">
         {/* Header */}
-        <div className="text-center space-y-4 mb-12">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
-            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 shadow-2xl">
-              <Brain className="h-8 w-8 text-white" />
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-lg bg-[#3BD671]/15 border border-[#3BD671]/25 flex items-center justify-center">
+              <Brain className="h-5 w-5 text-[#3BD671]" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">AI Tools</h1>
+              <p className="text-slate-500 text-sm">Powered by Groq LLM — fast, smart, free</p>
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-            AI-Powered Developer Tools
-          </h1>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-            Supercharge your development workflow with intelligent AI assistants
-            designed specifically for developers
-          </p>
-          <Badge variant="secondary" className="text-sm bg-slate-800/50 text-slate-200 border-slate-700">
-            <Sparkles className="h-3 w-3 mr-1" />
-            Powered by Advanced AI Models
-          </Badge>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
+        {/* Tool Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+          {aiTools.map((tool) => {
+            const Icon = tool.icon;
+            const colorMap = {
+              "bg-blue-500": "#60A5FA",
+              "bg-green-500": "#3BD671",
+              "bg-red-500": "#F87171",
+              "bg-purple-500": "#A78BFA",
+              "bg-yellow-500": "#FBBF24",
+              "bg-indigo-500": "#818CF8",
+            };
+            const accent = colorMap[tool.color] || "#3BD671";
             return (
-              <Card key={index} className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300">
-                <CardContent className="p-6 text-center">
-                  <Icon className="h-8 w-8 text-purple-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">
-                    {stat.value}
+              <div
+                key={tool.id}
+                className="group rounded-xl border border-[#252B40] bg-[#0E1120] hover:bg-[#141829] hover:border-[#252B40] transition-all duration-200 cursor-pointer p-5"
+                onClick={() => handleNavigateToTool(tool.path)}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: accent + "20", border: "1px solid " + accent + "30" }}
+                  >
+                    <Icon className="h-5 w-5" style={{ color: accent }} />
                   </div>
-                  <p className="text-sm text-slate-400">{stat.label}</p>
-                </CardContent>
-              </Card>
+                  {tool.popular && (
+                    <span className="text-xs bg-[#3BD671]/15 text-[#3BD671] border border-[#3BD671]/25 px-2 py-0.5 rounded-full font-medium">
+                      Popular
+                    </span>
+                  )}
+                </div>
+                <h3 className="font-semibold text-white mb-1 text-sm">{tool.title}</h3>
+                <p className="text-slate-500 text-xs leading-relaxed mb-3">{tool.description}</p>
+                <ul className="space-y-1 mb-4">
+                  {tool.features.map((f, i) => (
+                    <li key={i} className="text-xs text-slate-600 flex items-center gap-1.5">
+                      <ChevronRight className="h-3 w-3 text-[#3BD671]/60" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-700">{tool.usageCount.toLocaleString()} uses</span>
+                  <span className="text-xs text-[#3BD671] group-hover:underline font-medium flex items-center gap-0.5">
+                    Open <ChevronRight className="h-3 w-3" />
+                  </span>
+                </div>
+              </div>
             );
           })}
         </div>
 
-        {/* Built-in AI Tools Grid */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
-            <Bot className="h-6 w-6 mr-2 text-purple-400" />
-            Available AI Tools
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {aiTools.map((tool) => {
-              const Icon = tool.icon;
-              return (
-                <Card
-                  key={tool.id}
-                  className="relative overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 hover:border-slate-600/50"
-                  onClick={() => handleNavigateToTool(tool.path)}
-                >
-                  {tool.popular && (
-                    <div className="absolute top-4 right-4 z-10">
-                      <Badge className="bg-yellow-500/90 text-yellow-900">
-                        <Star className="h-3 w-3 mr-1" />
-                        Popular
-                      </Badge>
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Recent history */}
+          <div className="rounded-xl border border-[#252B40] bg-[#0E1120] p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock className="h-4 w-4 text-slate-500" />
+              <h2 className="text-sm font-semibold text-white">Recent Interactions</h2>
+            </div>
+            <div className="space-y-3">
+              {recentPrompts.map((prompt) => (
+                <div key={prompt.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-[#141829] transition-colors">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#3BD671] mt-2 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs font-semibold text-white truncate">{prompt.tool}</p>
+                      <span className="text-xs text-slate-600 whitespace-nowrap">{formatTimeAgo(prompt.timestamp)}</span>
                     </div>
-                  )}
+                    <p className="text-xs text-slate-500 truncate">{prompt.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => navigate('/ai/history')}
+              className="mt-3 w-full text-xs text-slate-600 hover:text-[#3BD671] transition-colors border border-[#252B40] rounded-lg py-2"
+            >
+              View all history
+            </button>
+          </div>
 
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-5 group-hover:opacity-10 transition-opacity`}
-                  />
-
-                  <CardHeader className="relative">
-                    <div
-                      className={`inline-flex items-center justify-center w-12 h-12 rounded-lg ${tool.color} mb-4 shadow-lg`}
-                    >
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
-                    <CardTitle className="text-lg text-white">{tool.title}</CardTitle>
-                    <CardDescription className="text-sm text-slate-400">
-                      {tool.description}
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="relative space-y-4">
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium text-slate-400">
-                        Key Features:
-                      </p>
-                      <ul className="space-y-1">
-                        {tool.features.map((feature, index) => (
-                          <li
-                            key={index}
-                            className="text-xs text-slate-400 flex items-center"
-                          >
-                            <ChevronRight className="h-3 w-3 mr-1 text-purple-400" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2">
-                      <div className="text-xs text-slate-500">
-                        {tool.usageCount} uses this month
-                      </div>
-                      <Button
-                        size="sm"
-                        className="group-hover:scale-105 transition-transform bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleNavigateToTool(tool.path);
-                        }}
-                      >
-                        Try Now
-                        <ChevronRight className="h-3 w-3 ml-1" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          {/* Quick guide */}
+          <div className="rounded-xl border border-[#252B40] bg-[#0E1120] p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Lightbulb className="h-4 w-4 text-[#FBBF24]" />
+              <h2 className="text-sm font-semibold text-white">Tips for better results</h2>
+            </div>
+            <div className="space-y-3">
+              {[
+                { step: "1", tip: "Be specific", detail: "Mention the language, framework and exact problem" },
+                { step: "2", tip: "Provide context", detail: "Include error messages or expected behaviour" },
+                { step: "3", tip: "Iterate", detail: "Ask follow-ups to dig deeper into complex topics" },
+                { step: "4", tip: "Learn from it", detail: "Use AI answers as learning material, not just quick fixes" },
+              ].map((item) => (
+                <div key={item.step} className="flex items-start gap-3">
+                  <span className="w-5 h-5 rounded-full bg-[#3BD671]/15 text-[#3BD671] text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                    {item.step}
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold text-white">{item.tip}</p>
+                    <p className="text-xs text-slate-500">{item.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              className="mt-4 w-full btn-gradient text-[#0B0E1A] font-semibold text-xs py-2 rounded-lg flex items-center justify-center gap-1"
+              onClick={() => handleNavigateToTool('/ai/code-explain')}
+            >
+              <Brain className="h-3.5 w-3.5" /> Start with Code Explainer
+            </button>
           </div>
         </div>
-
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-white">
-                <Clock className="h-5 w-5 mr-2" />
-                Recent AI Interactions
-              </CardTitle>
-              <CardDescription className="text-slate-400">Your latest AI assistant usage</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentPrompts.map((prompt) => (
-                  <div
-                    key={prompt.id}
-                    className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-700/50 transition-colors"
-                  >
-                    <div className="w-2 h-2 rounded-full bg-green-400 mt-2"></div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-white">{prompt.tool}</p>
-                        <span className="text-xs text-slate-400">
-                          {formatTimeAgo(prompt.timestamp)}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-400">
-                        {prompt.text}
-                      </p>
-                      <Badge variant="secondary" className="text-xs bg-slate-700 text-slate-300">
-                        {prompt.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <Button variant="outline" className="w-full mt-4 border-slate-600 text-slate-300 hover:bg-slate-700/50" onClick={() => navigate('/ai/history')}>
-                View All History
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Quick Start */}
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-white">
-                <Zap className="h-5 w-5 mr-2" />
-                Quick Start Guide
-              </CardTitle>
-              <CardDescription className="text-slate-400">Get the most out of AI tools</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center justify-center text-xs font-bold">
-                    1
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-white">Choose Your Tool</p>
-                    <p className="text-xs text-slate-400">
-                      Select the AI tool that matches your current need
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center justify-center text-xs font-bold">
-                    2
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-white">Provide Clear Input</p>
-                    <p className="text-xs text-slate-400">
-                      Be specific about what you want the AI to help with
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center justify-center text-xs font-bold">
-                    3
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-white">Get Instant Results</p>
-                    <p className="text-xs text-slate-400">
-                      Receive AI-powered suggestions and explanations
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center justify-center text-xs font-bold">
-                    4
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-white">Apply & Learn</p>
-                    <p className="text-xs text-slate-400">
-                      Use the insights to improve your development skills
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <Button 
-                className="w-full mt-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                onClick={() => handleNavigateToTool('/ai/code-explain')}
-              >
-                <Brain className="h-4 w-4 mr-2" />
-                Start with Code Explainer
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Pro Tips */}
-        <Card className="mt-8 bg-slate-800/30 backdrop-blur-xl border-slate-700/50">
-          <CardContent className="p-6">
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <Lightbulb className="h-6 w-6 text-purple-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2 text-white">
-                  Pro Tips for Better AI Interactions
-                </h3>
-                <ul className="space-y-2 text-sm text-slate-400">
-                  <li>
-                    • Be specific about the programming language and framework
-                    you're using
-                  </li>
-                  <li>
-                    • Include relevant context like error messages or expected
-                    behavior
-                  </li>
-                  <li>
-                    • Ask follow-up questions to dive deeper into complex topics
-                  </li>
-                  <li>
-                    • Use the AI suggestions as learning opportunities, not just
-                    quick fixes
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

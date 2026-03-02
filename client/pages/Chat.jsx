@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
-import { Input } from '../components/ui/input';
-import { Card } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Alert, AlertDescription } from '../components/ui/alert';
-import { Plus, Hash, Send, Users, Search, Settings, LogIn, RefreshCw, MessageCircle, User } from 'lucide-react';
+import { Plus, Hash, Send, Search, LogIn, RefreshCw, MessageCircle, User } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -15,25 +11,24 @@ import '../components/ChatAnimations.css';
 const customStyles = `
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+    scrollbar-color: rgba(59, 214, 113, 0.2) transparent;
   }
   
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(59, 130, 246, 0.1);
-    border-radius: 3px;
+    background: transparent;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(59, 130, 246, 0.3);
-    border-radius: 3px;
+    background: rgba(59, 214, 113, 0.2);
+    border-radius: 2px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(59, 130, 246, 0.5);
+    background: rgba(59, 214, 113, 0.4);
   }
 `;
 
@@ -643,15 +638,12 @@ const Chat = () => {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-[#0B0E1A]">
         <Navigation />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="relative mx-auto w-16 h-16 mb-4">
-              <div className="absolute inset-0 border-4 border-purple-300/30 rounded-full animate-spin"></div>
-              <div className="absolute inset-2 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <p className="text-slate-300 font-medium">Loading chat...</p>
+            <div className="w-8 h-8 border-2 border-[#3BD671]/30 border-t-[#3BD671] rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-slate-500 text-sm">Loading chat...</p>
           </div>
         </div>
       </div>
@@ -665,24 +657,16 @@ const Chat = () => {
     const storedUser = localStorage.getItem('devhub_user');
     if (!storedToken || !storedUser) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="min-h-screen bg-[#0B0E1A]">
           <Navigation />
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-center h-96">
-              <div className="text-center max-w-md">
-                <LogIn className="h-16 w-16 mx-auto mb-4 text-slate-400" />
-                <h3 className="text-lg font-medium text-white mb-2">
-                  Authentication Required
-                </h3>
-                <p className="text-slate-300 mb-4">
-                  Please log in to access the chat feature
-                </p>
-                <Button onClick={() => navigate('/login')} className="mr-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                  Log In
-                </Button>
-                <Button variant="outline" onClick={() => navigate('/register')} className="border-slate-600 text-slate-300 hover:bg-slate-800/50">
-                  Sign Up
-                </Button>
+          <div className="flex items-center justify-center h-[80vh]">
+            <div className="text-center">
+              <LogIn className="h-10 w-10 mx-auto mb-3 text-slate-600" />
+              <h3 className="text-base font-semibold text-white mb-1">Sign in to chat</h3>
+              <p className="text-slate-500 text-sm mb-4">Authentication required to use DevHub Chat</p>
+              <div className="flex gap-2 justify-center">
+                <button onClick={() => navigate('/login')} className="btn-gradient text-[#0B0E1A] font-semibold text-sm px-4 py-2 rounded-lg">Log In</button>
+                <button onClick={() => navigate('/register')} className="border border-[#252B40] text-slate-400 hover:text-white text-sm px-4 py-2 rounded-lg transition-colors">Sign Up</button>
               </div>
             </div>
           </div>
@@ -694,24 +678,16 @@ const Chat = () => {
   // Show authentication error state
   if (error && (error.includes('log in') || error.includes('Session expired'))) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-[#0B0E1A]">
         <Navigation />
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center h-96">
-            <div className="text-center max-w-md">
-              <LogIn className="h-16 w-16 mx-auto mb-4 text-slate-400" />
-              <h3 className="text-lg font-medium text-white mb-2">
-                Authentication Required
-              </h3>
-              <p className="text-slate-300 mb-4">
-                {error}
-              </p>
-              <Button onClick={() => navigate('/login')} className="mr-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                Log In
-              </Button>
-              <Button variant="outline" onClick={() => window.location.reload()} className="border-slate-600 text-slate-300 hover:bg-slate-800/50">
-                Refresh
-              </Button>
+        <div className="flex items-center justify-center h-[80vh]">
+          <div className="text-center">
+            <LogIn className="h-10 w-10 mx-auto mb-3 text-slate-600" />
+            <h3 className="text-base font-semibold text-white mb-1">Session expired</h3>
+            <p className="text-slate-500 text-sm mb-4">{error}</p>
+            <div className="flex gap-2 justify-center">
+              <button onClick={() => navigate('/login')} className="btn-gradient text-[#0B0E1A] font-semibold text-sm px-4 py-2 rounded-lg">Log In</button>
+              <button onClick={() => window.location.reload()} className="border border-[#252B40] text-slate-400 hover:text-white text-sm px-4 py-2 rounded-lg transition-colors">Refresh</button>
             </div>
           </div>
         </div>
@@ -720,493 +696,312 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Inject custom styles */}
+    <div className="min-h-screen bg-[#0B0E1A]">
       <style dangerouslySetInnerHTML={{ __html: customStyles }} />
-
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
-
       <Navigation />
 
-      {/* Enhanced Notifications with animations */}
+      {/* Notifications */}
       <div className="fixed top-4 right-4 z-50 space-y-2">
         {notifications.map(notification => (
           <div
             key={notification.id}
-            className={`p-4 rounded-xl shadow-2xl transition-all duration-500 transform animate-slide-in-right backdrop-blur-sm ${notification.type === 'success'
-              ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white border border-green-300/30'
-              : 'bg-gradient-to-r from-red-500 to-pink-500 text-white border border-red-300/30'
-              } hover:scale-105`}
+            className={`px-4 py-3 rounded-lg text-sm font-medium border ${
+              notification.type === 'success'
+                ? 'bg-[#3BD671]/15 border-[#3BD671]/30 text-[#3BD671]'
+                : 'bg-red-950/50 border-red-800/50 text-red-400'
+            }`}
           >
-            <div className="flex items-center gap-3">
-              {notification.type === 'success' ? (
-                <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center animate-bounce">
-                  <span className="text-white text-sm">✓</span>
-                </div>
-              ) : (
-                <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center animate-pulse">
-                  <span className="text-white text-sm">✕</span>
-                </div>
-              )}
-              <span className="text-sm font-medium">{notification.message}</span>
-            </div>
+            {notification.message}
           </div>
         ))}
       </div>
 
-      <div className="container mx-auto px-4 py-4 max-w-full h-screen">
-        <div className="flex gap-8 h-[calc(100vh-100px)]">
-          {/* Enhanced Sidebar with glass morphism effect */}
-          <div className="w-96 bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 animate-fade-in-left flex flex-col h-full">
-            <div className="p-6 border-b border-gray-200/50">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Channels ({Array.isArray(rooms) ? rooms.length : 0})
-                </h2>
-                <div className="flex items-center gap-3">
+      <div className="pt-16 h-screen flex flex-col">
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar */}
+          <div className="w-72 bg-[#0E1120] border-r border-[#252B40] flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-[#252B40]">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Channels ({Array.isArray(rooms) ? rooms.length : 0})</span>
+                <div className="flex gap-1">
                   <button
-                    className="inline-flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 hover:from-gray-200 hover:to-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-300 transform hover:scale-110 hover:rotate-180"
-                    onClick={() => {
-                      loadRooms();
-                      addNotification('Rooms refreshed', 'success');
-                    }}
-                    title="Refresh rooms"
+                    className="w-7 h-7 rounded-lg bg-[#141829] border border-[#252B40] text-slate-500 hover:text-white flex items-center justify-center transition-colors"
+                    onClick={() => { loadRooms(); addNotification('Rooms refreshed', 'success'); }}
+                    title="Refresh"
                   >
-                    <RefreshCw className="h-5 w-5" />
+                    <RefreshCw className="h-3.5 w-3.5" />
                   </button>
-                  <div style={{ position: 'relative', zIndex: 999 }}>
-                    <button
-                      className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 focus:outline-none focus:ring-4 focus:ring-blue-500/30 cursor-pointer shadow-2xl transition-all duration-300 transform hover:scale-110 hover:rotate-12"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log('🔥 BUTTON CLICKED! Count:', testClickCount + 1);
-                        setTestClickCount(prev => prev + 1);
-                        console.log('+ button clicked, current showCreateRoom:', showCreateRoom);
-                        setShowCreateRoom(!showCreateRoom);
-                        console.log('+ button clicked, new showCreateRoom:', !showCreateRoom);
-                      }}
-                      type="button"
-                      style={{ position: 'relative', zIndex: 1000 }}
-                    >
-                      <Plus className="h-6 w-6" />
-                    </button>
-                  </div>
+                  <button
+                    className="w-7 h-7 rounded-lg bg-[#3BD671]/15 border border-[#3BD671]/25 text-[#3BD671] hover:bg-[#3BD671]/25 flex items-center justify-center transition-colors"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setTestClickCount(prev => prev + 1); setShowCreateRoom(!showCreateRoom); }}
+                    type="button"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
 
               {showCreateRoom && (
-                <div className="mb-6 space-y-3 animate-fade-in">
-                  <div className="relative">
-                    <Input
-                      placeholder="Enter room name..."
-                      value={newRoomName}
-                      onChange={(e) => setNewRoomName(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && createRoom()}
-                      className="bg-gradient-to-r from-white to-blue-50 border-2 border-blue-200/50 rounded-xl px-4 py-3 focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 transition-all duration-300"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400/5 to-purple-400/5 rounded-xl pointer-events-none"></div>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button
-                      size="sm"
-                      onClick={createRoom}
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 rounded-xl px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                    >
-                      ✨ Create
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setShowCreateRoom(false)}
-                      className="border-2 border-gray-300 hover:border-gray-400 rounded-xl px-6 py-2 transition-all duration-300 transform hover:scale-105"
-                    >
-                      Cancel
-                    </Button>
+                <div className="mb-3 space-y-2">
+                  <input
+                    placeholder="Room name..."
+                    value={newRoomName}
+                    onChange={(e) => setNewRoomName(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && createRoom()}
+                    className="w-full px-3 py-1.5 text-sm bg-[#141829] border border-[#252B40] rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-[#3BD671]/50"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={createRoom} className="flex-1 btn-gradient text-[#0B0E1A] font-semibold text-xs py-1.5 rounded-lg">Create</button>
+                    <button onClick={() => setShowCreateRoom(false)} className="flex-1 border border-[#252B40] text-slate-500 text-xs py-1.5 rounded-lg hover:text-white transition-colors">Cancel</button>
                   </div>
                 </div>
               )}
 
-              {/* Enhanced User Search */}
-              <div className="mb-6">
-                <div className="relative group">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 transition-colors duration-300 group-focus-within:text-blue-500" />
-                  <Input
-                    placeholder="Search users..."
-                    value={searchUsers}
-                    onChange={handleUserSearch}
-                    className="pl-12 bg-gradient-to-r from-white to-purple-50 border-2 border-purple-200/50 rounded-xl py-3 focus:border-purple-400 focus:ring-4 focus:ring-purple-400/20 transition-all duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-xl pointer-events-none"></div>
-                </div>
-
-                {foundUsers.length > 0 && (
-                  <div className="mt-3 bg-gradient-to-r from-white to-blue-50 rounded-xl p-3 max-h-40 overflow-y-auto border border-blue-200/30 shadow-lg animate-fade-in">
-                    {Array.isArray(foundUsers) && foundUsers.map(foundUser => (
-                      <div key={foundUser._id} className="flex items-center gap-3 p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 rounded-xl transition-all duration-300 transform hover:scale-105 cursor-pointer">
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
-                          {foundUser.username?.charAt(0)?.toUpperCase() || 'U'}
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-sm font-semibold text-gray-800">{foundUser.username}</span>
-                          <span className="text-xs text-gray-500 ml-2">({foundUser.email})</span>
-                        </div>
-                        <button
-                          onClick={() => startDirectMessage(foundUser)}
-                          className="ml-auto text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-xs px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-110 shadow-lg"
-                        >
-                          💬 Message
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              {/* User search */}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-600" />
+                <input
+                  placeholder="Search users..."
+                  value={searchUsers}
+                  onChange={handleUserSearch}
+                  className="w-full pl-8 pr-3 py-1.5 text-sm bg-[#141829] border border-[#252B40] rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-[#3BD671]/50"
+                />
               </div>
 
-              {/* Enhanced Direct Messages Section */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    💬 Direct Messages
-                  </h3>
-                  {directMessages.length > 0 && (
-                    <button
-                      onClick={() => {
-                        setDirectMessages([]);
-                        setSelectedDM(null);
-                        localStorage.removeItem('chatDirectMessages');
-                        addNotification('Direct messages cleared', 'success');
-                      }}
-                      className="text-xs text-gray-500 hover:text-red-500 transition-colors duration-300 hover:scale-110 transform"
-                    >
-                      🗑️ Clear All
-                    </button>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  {directMessages.map(dm => (
-                    <div
-                      key={dm.id}
-                      onClick={() => {
-                        setSelectedDM(dm);
-                        setSelectedRoom(null);
-                      }}
-                      className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 ${selectedDM?.id === dm.id
-                        ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border-2 border-purple-300 shadow-lg'
-                        : 'hover:bg-gradient-to-r hover:from-gray-50 hover:to-purple-50 border border-transparent'
-                        }`}
-                    >
-                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
-                        {dm.user.username?.charAt(0)?.toUpperCase() || 'U'}
+              {foundUsers.length > 0 && (
+                <div className="mt-2 bg-[#141829] rounded-lg border border-[#252B40] max-h-36 overflow-y-auto">
+                  {Array.isArray(foundUsers) && foundUsers.map(foundUser => (
+                    <div key={foundUser._id} className="flex items-center gap-2 px-3 py-2 hover:bg-[#1a2035] cursor-pointer">
+                      <div className="w-6 h-6 bg-[#3BD671]/20 rounded-full flex items-center justify-center text-[#3BD671] text-xs font-bold flex-shrink-0">
+                        {foundUser.username?.charAt(0)?.toUpperCase() || 'U'}
                       </div>
-                      <div className="flex-1">
-                        <span className="text-sm font-semibold">{dm.user.username}</span>
-                        {dm.messages.length > 0 && (
-                          <p className="text-xs text-gray-500 truncate">
-                            {dm.messages[dm.messages.length - 1].content}
-                          </p>
-                        )}
-                      </div>
-                      <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full animate-pulse shadow-lg"></div>
+                      <span className="text-xs text-white flex-1 truncate">{foundUser.username}</span>
+                      <button onClick={() => startDirectMessage(foundUser)} className="text-xs text-[#3BD671] hover:underline">DM</button>
                     </div>
                   ))}
-
-                  {directMessages.length === 0 && (
-                    <div className="text-center py-6 px-4 bg-gradient-to-r from-gray-50 to-purple-50 rounded-xl border border-purple-200/30">
-                      <div className="text-4xl mb-2">💭</div>
-                      <p className="text-xs text-gray-500">
-                        Search for users above to start a conversation
-                      </p>
-                    </div>
-                  )}
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Enhanced Room List */}
-            <div className="p-6 space-y-4 flex-1 overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white/50 rounded-b-2xl" style={{ minHeight: '300px', maxHeight: 'calc(100vh - 400px)' }}>
+            {/* DMs */}
+            {directMessages.length > 0 && (
+              <div className="p-4 border-b border-[#252B40]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Direct Messages</span>
+                  <button onClick={() => { setDirectMessages([]); setSelectedDM(null); localStorage.removeItem('chatDirectMessages'); }} className="text-xs text-slate-600 hover:text-red-400 transition-colors">Clear</button>
+                </div>
+                {directMessages.map(dm => (
+                  <div
+                    key={dm.id}
+                    onClick={() => { setSelectedDM(dm); setSelectedRoom(null); }}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer mb-1 transition-colors ${
+                      selectedDM?.id === dm.id ? 'bg-[#3BD671]/10 border border-[#3BD671]/20' : 'hover:bg-[#141829]'
+                    }`}
+                  >
+                    <div className="w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-xs text-white font-bold">
+                      {dm.user.username?.charAt(0)?.toUpperCase() || 'U'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-white truncate">{dm.user.username}</p>
+                      {dm.messages.length > 0 && (
+                        <p className="text-xs text-slate-600 truncate">{dm.messages[dm.messages.length - 1].content}</p>
+                      )}
+                    </div>
+                    <div className="w-1.5 h-1.5 bg-[#3BD671] rounded-full flex-shrink-0"></div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Room list */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1">
               {Array.isArray(rooms) && rooms.map(room => (
                 <div
                   key={room._id}
                   onClick={() => {
-                    console.log('Selecting room:', room);
-
-                    // Load cached messages immediately for better UX
                     const roomMessagesKey = `chatRoomMessages_${room._id}`;
                     const cachedMessages = localStorage.getItem(roomMessagesKey);
                     if (cachedMessages) {
-                      try {
-                        const parsedMessages = JSON.parse(cachedMessages);
-                        setMessages(parsedMessages);
-                        console.log('Loaded cached messages for room:', room.name, parsedMessages.length, 'messages');
-                      } catch (error) {
-                        console.error('Error loading cached messages:', error);
-                      }
+                      try { setMessages(JSON.parse(cachedMessages)); } catch (error) { /* ignore */ }
                     }
-
                     setSelectedRoom(room);
-                    setSelectedDM(null); // Clear DM selection
-                    setError(''); // Clear any errors
-
-                    // Scroll to top when selecting a new room
-                    setTimeout(() => {
-                      scrollToTop();
-                    }, 100);
+                    setSelectedDM(null);
+                    setError('');
+                    setTimeout(() => { scrollToTop(); }, 100);
                   }}
-                  className={`flex items-center gap-4 p-5 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 ${selectedRoom?._id === room._id
-                    ? 'bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 border-2 border-blue-300 shadow-xl backdrop-blur-sm'
-                    : 'bg-white/80 hover:bg-gradient-to-r hover:from-white hover:to-blue-50 border border-gray-200/50 shadow-lg hover:shadow-xl backdrop-blur-sm'
-                    }`}
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                    selectedRoom?._id === room._id
+                      ? 'bg-[#3BD671]/10 border border-[#3BD671]/20 text-white'
+                      : 'text-slate-500 hover:bg-[#141829] hover:text-white'
+                  }`}
                 >
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <Hash className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <span className="font-bold text-gray-800 text-lg">{room.name}</span>
-                    <div className="text-sm text-gray-500 mt-1">Click to join conversation</div>
-                  </div>
+                  <Hash className="h-3.5 w-3.5 flex-shrink-0" />
+                  <span className="text-sm font-medium truncate flex-1">{room.name}</span>
                   {room.participants && (
-                    <Badge variant="secondary" className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-3 py-1 rounded-full shadow-md">
-                      👥 {room.participants.length}
-                    </Badge>
+                    <span className="text-xs text-slate-700">{room.participants.length}</span>
                   )}
                 </div>
               ))}
 
               {(!Array.isArray(rooms) || rooms.length === 0) && (
-                <div className="text-center py-8 px-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-blue-200/30">
-                  <div className="text-6xl mb-4">🏠</div>
-                  <p className="text-gray-500 font-medium">No rooms available</p>
-                  <p className="text-sm text-gray-400 mt-2">Create your first room above!</p>
+                <div className="text-center py-8">
+                  <Hash className="h-6 w-6 text-slate-700 mx-auto mb-2" />
+                  <p className="text-xs text-slate-600">No channels yet</p>
+                  <p className="text-xs text-slate-700 mt-0.5">Create one above</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Enhanced Main Chat Area */}
-          <div className="flex-1 flex flex-col bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 animate-fade-in-right h-full">
+          {/* Main chat area */}
+          <div className="flex-1 flex flex-col overflow-hidden">
             {!selectedRoom && !selectedDM ? (
               <div className="flex-1 flex items-center justify-center">
-                <div className="text-center space-y-6 p-8">
-                  <div className="relative mx-auto w-24 h-24">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse opacity-20"></div>
-                    <div className="absolute inset-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center shadow-2xl">
-                      <MessageCircle className="h-10 w-10 text-white animate-bounce" />
-                    </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-xl bg-[#0E1120] border border-[#252B40] flex items-center justify-center mx-auto mb-3">
+                    <MessageCircle className="h-5 w-5 text-slate-600" />
                   </div>
-                  <div className="space-y-3">
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      Welcome to DevHub Chat
-                    </h2>
-                    <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
-                      ✨ Select a room from the sidebar or start a direct message to begin your conversation journey
-                    </p>
                   </div>
-                  <div className="flex gap-3 justify-center">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
+                  <p className="text-sm font-semibold text-white mb-1">Select a channel</p>
+                  <p className="text-xs text-slate-600">Choose a channel from the sidebar or start a DM</p>
                 </div>
               </div>
             ) : (
               <>
-                {/* Enhanced Chat Header */}
-                <div className="border-b border-blue-200/50 bg-gradient-to-r from-white/80 to-blue-50/80 backdrop-blur-md p-6 shadow-lg">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-200">
-                      {selectedRoom ? (
-                        <Hash className="h-6 w-6 text-white" />
-                      ) : (
-                        <User className="h-6 w-6 text-white" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-xl bg-gradient-to-r from-gray-800 to-blue-700 bg-clip-text text-transparent">
-                        {selectedRoom ? selectedRoom.name : `Chat with ${selectedDM?.user.username}`}
-                      </h3>
-                      <p className="text-sm text-gray-500 mt-1">
-                        {selectedRoom
-                          ? `${selectedRoom.participants?.length || 0} members • Room chat`
-                          : 'Direct message • Private conversation'
-                        }
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-green-400 rounded-full shadow-lg animate-pulse"></div>
-                        <span className="text-sm text-gray-600 font-medium">Auto-sync enabled</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" className="hover:bg-blue-100/50 rounded-xl transition-all duration-300 transform hover:scale-105">
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                    </div>
+                {/* Chat header */}
+                <div className="flex items-center gap-3 px-5 py-3 border-b border-[#252B40] bg-[#0E1120]">
+                  <div className="w-8 h-8 bg-[#3BD671]/15 border border-[#3BD671]/25 rounded-lg flex items-center justify-center">
+                    {selectedRoom ? <Hash className="h-4 w-4 text-[#3BD671]" /> : <User className="h-4 w-4 text-[#3BD671]" />}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-white">
+                      {selectedRoom ? selectedRoom.name : `@ ${selectedDM?.user.username}`}
+                    </h3>
+                    <p className="text-xs text-slate-600">
+                      {selectedRoom ? `${selectedRoom.participants?.length || 0} members` : 'Direct message'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-[#3BD671] rounded-full"></div>
+                    <span className="text-xs text-slate-600">Live</span>
                   </div>
                 </div>
 
-                {/* Enhanced Messages Area */}
+                {/* Messages */}
                 <div
                   ref={messagesContainerRef}
-                  className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-transparent to-blue-50/20 custom-scrollbar"
-                  style={{ maxHeight: 'calc(100vh - 300px)', minHeight: '400px' }}
+                  className="flex-1 overflow-y-auto custom-scrollbar px-5 py-4 space-y-3"
                 >
                   {error && (
-                    <Alert className="mb-4 bg-gradient-to-r from-red-50 to-pink-50 border-red-200 animate-shake">
-                      <AlertDescription className="text-red-700">{error}</AlertDescription>
-                    </Alert>
+                    <div className="text-xs text-red-400 bg-red-950/40 border border-red-800/40 rounded-lg px-3 py-2">{error}</div>
                   )}
 
                   {loadingMessages && (
-                    <div className="flex justify-center py-8">
-                      <div className="relative">
-                        <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
-                        <div className="absolute inset-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-20 animate-pulse"></div>
-                      </div>
+                    <div className="flex justify-center py-6">
+                      <div className="w-5 h-5 border-2 border-[#3BD671]/30 border-t-[#3BD671] rounded-full animate-spin" />
                     </div>
                   )}
 
-                  <div className="space-y-4">
-                    {selectedRoom && Array.isArray(messages) && messages.map((message, index) => (
-                      <div
-                        key={message._id}
-                        className={`flex gap-4 group hover:bg-white/30 hover:backdrop-blur-md p-3 rounded-xl transition-all duration-300 transform hover:scale-[1.02] animate-fade-in ${(message.author?.username || message.sender?.username) === user?.username ? 'flex-row-reverse' : ''
-                          }`}
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg ${(message.author?.username || message.sender?.username) === user?.username
-                          ? 'bg-gradient-to-r from-blue-500 to-purple-500'
-                          : 'bg-gradient-to-r from-green-500 to-teal-500'
-                          }`}>
+                  {selectedRoom && Array.isArray(messages) && messages.map((message) => {
+                    const isOwn = (message.author?.username || message.sender?.username) === user?.username;
+                    return (
+                      <div key={message._id} className={`flex gap-3 ${isOwn ? 'flex-row-reverse' : ''}`}>
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                          isOwn ? 'bg-[#3BD671]/20 text-[#3BD671]' : 'bg-slate-700 text-slate-300'
+                        }`}>
                           {((message.author?.username || message.sender?.username) || 'U')[0].toUpperCase()}
                         </div>
-                        <div className={`flex-1 ${(message.author?.username || message.sender?.username) === user?.username ? 'text-right' : ''}`}>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-gray-800">
-                              {(message.author?.username || message.sender?.username) || 'Unknown User'}
+                        <div className={`flex-1 ${isOwn ? 'items-end' : 'items-start'} flex flex-col`}>
+                          <div className={`flex items-center gap-2 mb-0.5 ${isOwn ? 'flex-row-reverse' : ''}`}>
+                            <span className="text-xs font-semibold text-slate-400">
+                              {(message.author?.username || message.sender?.username) || 'Unknown'}
                             </span>
-                            <span className="text-xs text-gray-500">
-                              {formatTime(message.createdAt)}
-                            </span>
+                            <span className="text-xs text-slate-700">{formatTime(message.createdAt)}</span>
                           </div>
-                          <div className={`inline-block p-3 rounded-xl shadow-md max-w-lg backdrop-blur-sm ${(message.author?.username || message.sender?.username) === user?.username
-                            ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-br-md'
-                            : 'bg-white/90 border border-blue-200/30 text-gray-800 rounded-bl-md'
-                            }`}>
-                            <p className="leading-relaxed">{message.content}</p>
+                          <div className={`px-3 py-2 rounded-xl text-sm max-w-md ${
+                            isOwn
+                              ? 'bg-[#3BD671]/15 border border-[#3BD671]/20 text-white rounded-tr-sm'
+                              : 'bg-[#141829] border border-[#252B40] text-slate-300 rounded-tl-sm'
+                          }`}>
+                            {message.content}
                           </div>
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
 
-                    {selectedDM && selectedDM.messages.map((message, index) => (
-                      <div
-                        key={message.id}
-                        className={`flex gap-4 group hover:bg-white/30 hover:backdrop-blur-md p-3 rounded-xl transition-all duration-300 transform hover:scale-[1.02] animate-fade-in ${message.author?.username === user?.username ? 'flex-row-reverse' : ''
-                          }`}
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg ${message.author?.username === user?.username
-                          ? 'bg-gradient-to-r from-blue-500 to-purple-500'
-                          : 'bg-gradient-to-r from-purple-500 to-pink-500'
-                          }`}>
+                  {selectedDM && selectedDM.messages.map((message) => {
+                    const isOwn = message.author?.username === user?.username;
+                    return (
+                      <div key={message.id} className={`flex gap-3 ${isOwn ? 'flex-row-reverse' : ''}`}>
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                          isOwn ? 'bg-[#3BD671]/20 text-[#3BD671]' : 'bg-slate-700 text-slate-300'
+                        }`}>
                           {(message.author?.username || 'U')[0].toUpperCase()}
                         </div>
-                        <div className={`flex-1 ${message.author?.username === user?.username ? 'text-right' : ''}`}>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-gray-800">
-                              {message.author?.username || 'You'}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {formatTime(message.createdAt)}
-                            </span>
+                        <div className={`flex-1 flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
+                          <div className={`flex items-center gap-2 mb-0.5 ${isOwn ? 'flex-row-reverse' : ''}`}>
+                            <span className="text-xs font-semibold text-slate-400">{message.author?.username || 'You'}</span>
+                            <span className="text-xs text-slate-700">{formatTime(message.createdAt)}</span>
                           </div>
-                          <div className={`inline-block p-3 rounded-xl shadow-md max-w-lg backdrop-blur-sm ${message.author?.username === user?.username
-                            ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-br-md'
-                            : 'bg-white/90 border border-purple-200/30 text-gray-800 rounded-bl-md'
-                            }`}>
-                            <p className="leading-relaxed">{message.content}</p>
+                          <div className={`px-3 py-2 rounded-xl text-sm max-w-md ${
+                            isOwn
+                              ? 'bg-[#3BD671]/15 border border-[#3BD671]/20 text-white rounded-tr-sm'
+                              : 'bg-[#141829] border border-[#252B40] text-slate-300 rounded-tl-sm'
+                          }`}>
+                            {message.content}
                           </div>
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
 
-                    {selectedRoom && (!Array.isArray(messages) || messages.length === 0) && (
-                      <div className="text-center py-12">
-                        <div className="text-6xl mb-4">💬</div>
-                        <p className="text-gray-500 font-medium">No messages yet</p>
-                        <p className="text-sm text-gray-400 mt-2">Be the first to start the conversation!</p>
-                      </div>
-                    )}
+                  {selectedRoom && (!Array.isArray(messages) || messages.length === 0) && (
+                    <div className="text-center py-12">
+                      <Hash className="h-6 w-6 text-slate-700 mx-auto mb-2" />
+                      <p className="text-sm text-slate-600">No messages yet — say hello!</p>
+                    </div>
+                  )}
 
-                    {selectedDM && selectedDM.messages.length === 0 && (
-                      <div className="text-center py-12">
-                        <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-xl">
-                          {selectedDM.user.username?.charAt(0)?.toUpperCase() || 'U'}
-                        </div>
-                        <p className="text-gray-500 font-medium">Start your conversation with {selectedDM.user.username}!</p>
-                        <p className="text-sm text-gray-400 mt-2">Send the first message to break the ice! 🧊</p>
-                      </div>
-                    )}
-                  </div>
+                  {selectedDM && selectedDM.messages.length === 0 && (
+                    <div className="text-center py-12">
+                      <p className="text-sm text-slate-600">Start a conversation with {selectedDM.user.username}</p>
+                    </div>
+                  )}
+
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Enhanced Message Input */}
-                <div className="border-t border-blue-200/50 bg-gradient-to-r from-white/90 to-blue-50/90 backdrop-blur-md p-6">
-                  <div className="flex gap-4">
-                    <div className="flex-1 relative">
-                      <Input
-                        placeholder={selectedRoom ? `Message #${selectedRoom.name}...` : `Message ${selectedDM?.user.username}...`}
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            if (selectedRoom) {
-                              sendMessage();
-                            } else if (selectedDM) {
-                              sendDirectMessage(selectedDM.id, newMessage);
-                              setNewMessage('');
-                            }
-                          }
-                        }}
-                        disabled={sending}
-                        className="w-full px-6 py-4 bg-white/80 backdrop-blur-sm border-2 border-blue-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-300/30 focus:border-blue-400 transition-all duration-300 text-gray-800 placeholder-gray-500 shadow-lg"
-                      />
-                      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                        💭
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => {
-                        if (selectedRoom) {
-                          sendMessage();
-                        } else if (selectedDM) {
-                          sendDirectMessage(selectedDM.id, newMessage);
-                          setNewMessage('');
+                {/* Input */}
+                <div className="px-4 py-3 border-t border-[#252B40] bg-[#0E1120]">
+                  <div className="flex gap-2">
+                    <input
+                      placeholder={selectedRoom ? `Message #${selectedRoom.name}` : `Message ${selectedDM?.user.username}`}
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          if (selectedRoom) { sendMessage(); }
+                          else if (selectedDM) { sendDirectMessage(selectedDM.id, newMessage); setNewMessage(''); }
                         }
                       }}
+                      disabled={sending}
+                      className="flex-1 px-4 py-2.5 text-sm bg-[#141829] border border-[#252B40] rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-[#3BD671]/50 disabled:opacity-50"
+                    />
+                    <button
+                      onClick={() => {
+                        if (selectedRoom) { sendMessage(); }
+                        else if (selectedDM) { sendDirectMessage(selectedDM.id, newMessage); setNewMessage(''); }
+                      }}
                       disabled={!newMessage.trim() || sending}
-                      className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl font-bold hover:from-blue-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                      className="btn-gradient text-[#0B0E1A] font-semibold px-4 py-2.5 rounded-lg flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-sm"
                     >
                       {sending ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Sending...
-                        </>
+                        <div className="w-4 h-4 border-2 border-[#0B0E1A] border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        <>
-                          <Send className="h-5 w-5" />
-                          Send
-                        </>
+                        <><Send className="h-3.5 w-3.5" /> Send</>
                       )}
-                    </Button>
+                    </button>
                   </div>
                 </div>
               </>

@@ -1,338 +1,196 @@
-import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import {
   Code,
-  Users,
-  Zap,
-  Star,
-  ArrowRight,
-  Play,
-  Github,
-  Twitter,
-  Linkedin,
-  ChevronDown,
-  Sparkles,
-  Trophy,
-  Brain,
-  Rocket,
-  Shield,
-  Globe,
-  Heart,
-  TrendingUp,
-  CheckCircle,
   MessageSquare,
+  Zap,
+  ArrowRight,
+  Terminal,
+  Brain,
+  Users,
   BookOpen,
-  Coffee,
+  Target,
+  ChevronRight,
+  Shield,
+  Cpu,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+
+const features = [
+  {
+    icon: Brain,
+    title: "AI-Powered Tools",
+    description:
+      "Code explainer, bug fixer, resume reviewer, project suggestions powered by Groq LLM.",
+    accent: "#3BD671",
+  },
+  {
+    icon: Terminal,
+    title: "Code Snippets",
+    description:
+      "Save, discover and share useful code snippets with syntax highlighting across any language.",
+    accent: "#60A5FA",
+  },
+  {
+    icon: MessageSquare,
+    title: "Real-time Chat",
+    description:
+      "Topic-specific chat rooms for developers. Connect instantly via WebSockets.",
+    accent: "#A78BFA",
+  },
+  {
+    icon: Target,
+    title: "DSA Practice",
+    description:
+      "LeetCode-style problem sets with difficulty filtering and progress tracking.",
+    accent: "#FB923C",
+  },
+  {
+    icon: Users,
+    title: "Developer Community",
+    description:
+      "Profiles, direct messages and a feed to share knowledge with the broader dev community.",
+    accent: "#F472B6",
+  },
+  {
+    icon: BookOpen,
+    title: "Blog & Posts",
+    description:
+      "Write and read technical articles. Stay up-to-date with content from fellow engineers.",
+    accent: "#34D399",
+  },
+];
+
+const stats = [
+  { value: "10+", label: "AI Tools" },
+  { value: "500+", label: "Practice Problems" },
+  { value: "Real-time", label: "Chat Engine" },
+  { value: "Free", label: "Always" },
+];
 
 export default function Index() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [currentFeature, setCurrentFeature] = useState(0);
-
-  useEffect(() => {
-    setIsVisible(true);
-
-    // Auto-rotate features
-    const interval = setInterval(() => {
-      setCurrentFeature((prev) => (prev + 1) % 3);
-    }, 4000);
-
-    // Add custom CSS animations
-    const style = document.createElement("style");
-    style.textContent = `
-      @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-      }
-
-      .animate-blob {
-        animation: blob 7s infinite;
-      }
-
-      .animation-delay-2000 {
-        animation-delay: 2s;
-      }
-
-      .animation-delay-4000 {
-        animation-delay: 4s;
-      }
-
-      .animation-delay-200 {
-        animation-delay: 0.2s;
-      }
-
-      .animation-delay-400 {
-        animation-delay: 0.4s;
-      }
-
-      .animation-delay-600 {
-        animation-delay: 0.6s;
-      }
-    `;
-
-    if (!document.getElementById("index-animations")) {
-      style.id = "index-animations";
-      document.head.appendChild(style);
-    }
-
-    return () => {
-      clearInterval(interval);
-      // Clean up styles when component unmounts
-      const existingStyle = document.getElementById("index-animations");
-      if (existingStyle) {
-        existingStyle.remove();
-      }
-    };
-  }, []);
-
-  const features = [
-    {
-      icon: Brain,
-      title: "AI-Powered Tools",
-      description:
-        "Leverage cutting-edge AI to explain code, suggest projects, and review resumes",
-      color: "from-purple-500 to-pink-500",
-    },
-    {
-      icon: Code,
-      title: "Code Snippets",
-      description:
-        "Share, discover, and organize code snippets with syntax highlighting",
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      icon: MessageSquare,
-      title: "Real-time Chat",
-      description:
-        "Connect with developers worldwide in topic-specific chat rooms",
-      color: "from-green-500 to-emerald-500",
-    },
-  ];
-
-  const stats = [
-    { label: "Active Developers", value: "50K+", icon: Users },
-    { label: "Code Snippets", value: "100K+", icon: Code },
-    { label: "AI Interactions", value: "1M+", icon: Zap },
-    { label: "Success Stories", value: "500+", icon: Trophy },
-  ];
-
-  const testimonials = [
-    {
-      name: "Sarah Chen",
-      role: "Senior Developer at Google",
-      avatar: "/placeholder.svg",
-      content:
-        "DevHub transformed how I share knowledge and collaborate with other developers. The AI tools are incredibly helpful!",
-    },
-    {
-      name: "Marcus Rodriguez",
-      role: "Startup Founder",
-      avatar: "/placeholder.svg",
-      content:
-        "Found my co-founder through DevHub's community. The platform brings together the most talented developers.",
-    },
-    {
-      name: "Emily Watson",
-      role: "Full Stack Developer",
-      avatar: "/placeholder.svg",
-      content:
-        "The code snippet library saved me countless hours. It's like having a personal coding assistant.",
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 right-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
+    <div className="min-h-screen bg-[#0B0E1A] text-white">
+      {/* Hero */}
+      <section className="relative pt-32 pb-24 px-4 overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "linear-gradient(#3BD671 1px, transparent 1px), linear-gradient(to right, #3BD671 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        <div className="absolute top-20 left-1/4 w-96 h-96 bg-[#3BD671]/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-10 right-1/4 w-72 h-72 bg-blue-500/8 rounded-full blur-[80px] pointer-events-none" />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="relative container mx-auto px-4 py-20 lg:py-32">
-          <div
-            className={`text-center max-w-5xl mx-auto transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-          >
-            {/* Badge */}
-            <div className="inline-flex items-center space-x-2 bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-full px-4 py-2 mb-8 shadow-lg animate-slide-down">
-              <Sparkles className="h-4 w-4 text-yellow-400" />
-              <span className="text-sm font-medium text-slate-200">
-                New: AI-Powered Code Review
-              </span>
-              <Badge variant="secondary" className="text-xs bg-slate-700 text-slate-300">
-                Beta
-              </Badge>
-            </div>
+        <div className="container mx-auto max-w-5xl relative">
+          <div className="flex justify-center mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#3BD671]/30 bg-[#3BD671]/10 text-[#3BD671] text-xs font-semibold uppercase tracking-wider">
+              <Cpu className="h-3 w-3" /> AI-Powered Developer Platform
+            </span>
+          </div>
 
-            {/* Main Title */}
-            <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">Build Amazing</span>
-              <br />
-              <span className="text-white">
-                Things Together
-              </span>
-            </h1>
+          <h1 className="text-center text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6">
+            The platform built{" "}
+            <span className="text-[#3BD671]">for developers</span>
+            <br className="hidden sm:block" /> who ship fast
+          </h1>
 
-            {/* Subtitle */}
-            <p className="text-xl lg:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed animate-slide-up animation-delay-200">
-              Join the world's most innovative developer community. Share code,
-              learn with AI, and build the future of technology.
-            </p>
+          <p className="text-center text-slate-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+            DevHub combines AI tools, real-time chat, code snippets and DSA
+            practice into one clean, dark workspace.
+          </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12 animate-slide-up animation-delay-400">
-              <Link to="/register">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
-                >
-                  <Rocket className="h-5 w-5 mr-2" />
-                  Start Building
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-              </Link>
-
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link to="/register">
+              <Button className="btn-gradient text-[#0B0E1A] font-bold px-8 py-3 h-12 text-base rounded-lg shadow-[0_0_20px_rgba(59,214,113,0.35)] hover:shadow-[0_0_30px_rgba(59,214,113,0.55)] transition-shadow">
+                Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/ai-tools">
               <Button
                 variant="outline"
-                size="lg"
-                className="px-8 py-4 rounded-full text-lg font-semibold backdrop-blur-lg bg-slate-800/50 border-slate-600/50 hover:bg-slate-700/50 text-white transition-all duration-300"
+                className="px-8 py-3 h-12 text-base rounded-lg border-[#252B40] text-slate-300 hover:text-white hover:border-[#3BD671]/40 hover:bg-[#3BD671]/5"
               >
-                <Play className="h-5 w-5 mr-2" />
-                Watch Demo
+                Explore AI Tools <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
-            </div>
+            </Link>
+          </div>
 
-            {/* Social Proof */}
-            <div className="flex items-center justify-center space-x-8 text-sm text-slate-400 animate-fade-in animation-delay-600">
-              <div className="flex items-center space-x-2">
-                <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                <span>4.9/5 Rating</span>
+          {/* Terminal preview */}
+          <div className="mt-16 rounded-xl border border-[#252B40] bg-[#0E1120] overflow-hidden shadow-2xl shadow-black/50">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-[#252B40] bg-[#141829]">
+              <span className="w-3 h-3 rounded-full bg-red-500/70" />
+              <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
+              <span className="w-3 h-3 rounded-full bg-[#3BD671]/70" />
+              <span className="ml-3 text-xs text-slate-500 font-mono">
+                devhub-ai ~ code-explainer
+              </span>
+            </div>
+            <div className="p-6 font-mono text-sm leading-relaxed">
+              <p className="text-slate-500">
+                &gt; <span className="text-[#3BD671]">explain</span>{" "}
+                <span className="text-slate-300">this async/await pattern</span>
+              </p>
+              <div className="mt-4 space-y-1 text-slate-300">
+                <p><span className="text-blue-400">const</span> <span className="text-yellow-300">fetchData</span> = <span className="text-blue-400">async</span> () =&gt; {'{'}</p>
+                <p className="pl-4"><span className="text-blue-400">const</span> res = <span className="text-blue-400">await</span> <span className="text-yellow-300">fetch</span>(url);</p>
+                <p className="pl-4"><span className="text-blue-400">return</span> res.<span className="text-yellow-300">json</span>();</p>
+                <p>{'}'}</p>
               </div>
-              <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4" />
-                <span>50K+ Developers</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Shield className="h-4 w-4 text-green-500" />
-                <span>Enterprise Ready</span>
+              <div className="mt-4 border-t border-[#252B40] pt-4">
+                <p className="text-slate-500 text-xs mb-2">AI Response:</p>
+                <p className="text-[#3BD671] text-xs">
+                  This is an async arrow function that fetches JSON data. The `await` keyword pauses execution until the Promise resolves, making async code read like synchronous code...
+                </p>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ChevronDown className="h-6 w-6 text-slate-400" />
+      {/* Stats */}
+      <section className="py-12 border-y border-[#252B40] bg-[#0E1120]">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((s) => (
+              <div key={s.label} className="text-center">
+                <p className="text-3xl font-extrabold text-[#3BD671]">{s.value}</p>
+                <p className="text-sm text-slate-500 mt-1">{s.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Interactive Features Section */}
-      <section className="py-20 lg:py-32 relative">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-white">
-              Supercharge Your Development
+      {/* Features */}
+      <section className="py-24 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Everything a developer needs
             </h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Experience the next generation of developer tools with AI-powered
-              assistance and collaborative features.
+            <p className="text-slate-400 max-w-xl mx-auto">
+              From AI assistance to community all in one place, built with performance and simplicity in mind.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Feature Cards */}
-            <div className="space-y-6">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                const isActive = currentFeature === index;
-
-                return (
-                  <Card
-                    key={index}
-                    className={`cursor-pointer transition-all duration-500 hover:scale-105 hover:shadow-xl ${
-                      isActive
-                        ? "ring-2 ring-purple-500 bg-slate-800/70 backdrop-blur-xl border-purple-500/50 scale-105 shadow-purple-500/25 shadow-lg"
-                        : "hover:shadow-lg bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70"
-                    }`}
-                    onClick={() => setCurrentFeature(index)}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-4">
-                        <div
-                          className={`p-3 rounded-xl bg-gradient-to-br ${feature.color} text-white shadow-lg`}
-                        >
-                          <Icon className="h-6 w-6" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-xl font-semibold mb-2 text-white">
-                            {feature.title}
-                          </h3>
-                          <p className="text-slate-300 leading-relaxed">
-                            {feature.description}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-
-            {/* Feature Visualization */}
-            <div className="relative">
-              <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8 h-96 flex items-center justify-center shadow-xl">
-                <div className="text-center">
-                  {(() => {
-                    const FeatureIcon = features[currentFeature].icon;
-                    return (
-                      <FeatureIcon className="h-24 w-24 mx-auto mb-6 text-purple-400 animate-pulse" />
-                    );
-                  })()}
-                  <h3 className="text-2xl font-bold mb-4 text-white">
-                    {features[currentFeature].title}
-                  </h3>
-                  <p className="text-slate-300">
-                    Interactive demo coming soon
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative container mx-auto px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {features.map((f) => {
+              const Icon = f.icon;
               return (
                 <div
-                  key={index}
-                  className="text-center animate-scale-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  key={f.title}
+                  className="group p-6 rounded-xl border border-[#252B40] bg-[#0E1120] hover:bg-[#141829] transition-all duration-200 cursor-default"
                 >
-                  <Icon className="h-12 w-12 mx-auto mb-4 opacity-90" />
-                  <div className="text-3xl lg:text-4xl font-bold mb-2">
-                    {stat.value}
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+                    style={{ backgroundColor: f.accent + "20", border: "1px solid " + f.accent + "30" }}
+                  >
+                    <Icon className="h-5 w-5" style={{ color: f.accent }} />
                   </div>
-                  <div className="text-blue-100 text-sm lg:text-base">
-                    {stat.label}
-                  </div>
+                  <h3 className="font-semibold text-white mb-2">{f.title}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">{f.description}</p>
                 </div>
               );
             })}
@@ -340,121 +198,43 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 lg:py-32">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-white">
-              Loved by Developers
-            </h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              See what the community is saying about their DevHub experience.
+      {/* CTA */}
+      <section className="py-24 px-4">
+        <div className="container mx-auto max-w-2xl">
+          <div className="rounded-2xl border border-[#3BD671]/20 bg-[#0E1120] p-12 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#3BD671]/5 to-transparent pointer-events-none" />
+            <Shield className="h-10 w-10 text-[#3BD671] mx-auto mb-4" />
+            <h2 className="text-3xl font-bold mb-4">Start building today free</h2>
+            <p className="text-slate-400 mb-8">
+              Join developers already using DevHub to write better code, prepare for interviews and connect with the community.
             </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card
-                key={index}
-                className="hover:scale-105 hover:shadow-xl transition-all duration-300 bg-slate-800/50 backdrop-blur-xl border-slate-700/50 shadow-lg animate-slide-up"
-                style={{ animationDelay: `${index * 200}ms` }}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <img
-                      src={testimonial.avatar}
-                      alt={testimonial.name}
-                      className="w-12 h-12 rounded-full mr-4 border-2 border-purple-400"
-                    />
-                    <div>
-                      <h4 className="font-semibold text-white">
-                        {testimonial.name}
-                      </h4>
-                      <p className="text-sm text-slate-400">
-                        {testimonial.role}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-slate-300 leading-relaxed">
-                    "{testimonial.content}"
-                  </p>
-                  <div className="flex mt-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 text-yellow-400 fill-current"
-                      />
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20"></div>
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-        <div className="relative container mx-auto px-4 text-center">
-          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-            Ready to Join the Revolution?
-          </h2>
-          <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
-            Start your journey with the most innovative developer community.
-            Build, learn, and grow with AI-powered tools.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
             <Link to="/register">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition-transform shadow-lg"
-              >
-                <Heart className="h-5 w-5 mr-2 text-red-400" />
-                Join Free Today
+              <Button className="btn-gradient text-[#0B0E1A] font-bold px-10 py-3 h-12 text-base rounded-lg">
+                Create Free Account <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-
-            <Link to="/blog">
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-slate-600/50 text-white hover:bg-slate-800/50 backdrop-blur-lg px-8 py-4 rounded-full text-lg font-semibold"
-              >
-                <BookOpen className="h-5 w-5 mr-2" />
-                Read Our Blog
-              </Button>
-            </Link>
-          </div>
-
-          {/* Social Links */}
-          <div className="flex items-center justify-center space-x-6">
-            <a
-              href="#"
-              className="text-slate-400 hover:text-white transition-colors"
-            >
-              <Github className="h-6 w-6" />
-            </a>
-            <a
-              href="#"
-              className="text-slate-400 hover:text-white transition-colors"
-            >
-              <Twitter className="h-6 w-6" />
-            </a>
-            <a
-              href="#"
-              className="text-slate-400 hover:text-white transition-colors"
-            >
-              <Linkedin className="h-6 w-6" />
-            </a>
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="border-t border-[#252B40] py-8 px-4">
+        <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-[#3BD671] rounded-md flex items-center justify-center">
+              <Terminal className="h-4 w-4 text-[#0B0E1A]" />
+            </div>
+            <span className="font-bold text-white text-sm">Dev<span className="text-[#3BD671]">Hub</span></span>
+          </div>
+          <p className="text-slate-600 text-xs">
+            {new Date().getFullYear()} DevHub. Built for developers.
+          </p>
+          <div className="flex gap-4 text-xs text-slate-500">
+            <Link to="/login" className="hover:text-[#3BD671] transition-colors">Login</Link>
+            <Link to="/register" className="hover:text-[#3BD671] transition-colors">Register</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

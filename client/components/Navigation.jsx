@@ -7,7 +7,6 @@ import {
   Menu,
   X,
   Bell,
-  Search,
   Settings,
   LogOut,
   User,
@@ -16,10 +15,7 @@ import {
   Target,
   Zap,
   Shield,
-  ChevronDown,
-  Sun,
-  Moon,
-  Sparkles,
+  Terminal,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -33,7 +29,6 @@ import {
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -43,23 +38,9 @@ export default function Navigation() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    // Check localStorage for user session
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle("dark");
-  };
 
   const handleLogout = () => {
     logout();
@@ -75,9 +56,7 @@ export default function Navigation() {
   ];
 
   const isActive = (path) => {
-    if (path === "/") {
-      return location.pathname === "/";
-    }
+    if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
 
@@ -86,182 +65,122 @@ export default function Navigation() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-slate-900/90 backdrop-blur-xl border-b border-slate-700/50 shadow-2xl"
-            : "bg-slate-900/50 backdrop-blur-md"
+            ? "bg-[#0B0E1A]/95 backdrop-blur-xl border-b border-[#252B40] shadow-lg shadow-black/30"
+            : "bg-[#0B0E1A]/80 backdrop-blur-md"
         }`}
       >
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+          <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group">
-              <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                  <Code className="h-6 w-6 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-                  <Sparkles className="h-2 w-2 text-white" />
-                </div>
+              <div className="w-9 h-9 bg-[#3BD671] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(59,214,113,0.4)] group-hover:shadow-[0_0_25px_rgba(59,214,113,0.6)] transition-all duration-300">
+                <Terminal className="h-5 w-5 text-[#0B0E1A]" />
               </div>
-              <div className="hidden sm:block">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                  DevHub
-                </h1>
-                <p className="text-xs text-slate-400 -mt-1">
-                  AI-Powered
-                </p>
-              </div>
+              <span className="text-lg font-bold text-white hidden sm:block tracking-wide">
+                Dev<span className="text-[#3BD671]">Hub</span>
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`relative flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 group ${
+                    className={`relative flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive(item.path)
-                        ? "text-purple-400 bg-purple-500/20 backdrop-blur-sm"
-                        : "text-slate-300 hover:text-purple-300 hover:bg-slate-800/50"
+                        ? "text-[#3BD671] bg-[#3BD671]/10 border border-[#3BD671]/20"
+                        : "text-slate-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     {Icon && <Icon className="h-4 w-4" />}
-                    <span className="font-medium">{item.name}</span>
-                    {isActive(item.path) && (
-                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full animate-pulse"></div>
-                    )}
+                    <span>{item.name}</span>
                   </Link>
                 );
               })}
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-4">
-              {/* Search */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hidden sm:flex items-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
-              >
-                <Search className="h-4 w-4" />
-                <span className="hidden md:inline">Search</span>
-              </Button>
-
-              {/* Theme Toggle */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleTheme}
-                className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
-              >
-                {isDark ? (
-                  <Sun className="h-4 w-4" />
-                ) : (
-                  <Moon className="h-4 w-4" />
-                )}
-              </Button>
-
+            <div className="flex items-center space-x-2">
               {user ? (
                 <>
-                  {/* Notifications */}
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="relative text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
+                    className="relative text-slate-400 hover:text-white hover:bg-white/5 hidden sm:flex"
                   >
                     <Bell className="h-4 w-4" />
-                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                      <span className="text-xs text-white font-bold">3</span>
-                    </span>
                   </Button>
 
-                  {/* User Menu */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className="relative h-10 w-10 rounded-full ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all duration-300"
+                        className="relative h-9 w-9 rounded-full ring-2 ring-[#3BD671]/20 hover:ring-[#3BD671]/50 transition-all duration-300 p-0"
                       >
                         <Avatar className="h-9 w-9">
-                          <AvatarImage
-                            src={user.avatar || "/placeholder.svg"}
-                          />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                            {user.firstName?.charAt(0)}
-                            {user.lastName?.charAt(0)}
+                          <AvatarImage src={user.avatar || "/placeholder.svg"} />
+                          <AvatarFallback className="bg-[#3BD671]/20 text-[#3BD671] text-xs font-bold border border-[#3BD671]/30">
+                            {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-64 mt-2 backdrop-blur-lg bg-white/90 dark:bg-slate-900/90 border border-slate-200/20 dark:border-slate-700/20">
+                    <DropdownMenuContent className="w-60 mt-2 bg-[#141829] border border-[#252B40] shadow-xl shadow-black/40">
                       <DropdownMenuLabel className="pb-2">
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage
-                              src={user.avatar || "/placeholder.svg"}
-                            />
-                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                              {user.firstName?.charAt(0)}
-                              {user.lastName?.charAt(0)}
+                            <AvatarImage src={user.avatar || "/placeholder.svg"} />
+                            <AvatarFallback className="bg-[#3BD671]/20 text-[#3BD671] text-sm font-bold border border-[#3BD671]/30">
+                              {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">
+                            <p className="font-semibold text-white text-sm">
                               {user.firstName} {user.lastName}
                             </p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                            <p className="text-xs text-slate-400 truncate max-w-[140px]">
                               {user.email}
                             </p>
                           </div>
                         </div>
                       </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
+                      <DropdownMenuSeparator className="bg-[#252B40]" />
                       <DropdownMenuItem asChild>
-                        <Link
-                          to="/dashboard"
-                          className="flex items-center space-x-2 cursor-pointer"
-                        >
-                          <User className="h-4 w-4" />
+                        <Link to="/dashboard" className="flex items-center space-x-2 cursor-pointer text-slate-300 hover:text-white focus:bg-[#252B40]">
+                          <User className="h-4 w-4 text-[#3BD671]" />
                           <span>Dashboard</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link
-                          to="/profile"
-                          className="flex items-center space-x-2 cursor-pointer"
-                        >
-                          <User className="h-4 w-4" />
+                        <Link to="/profile" className="flex items-center space-x-2 cursor-pointer text-slate-300 hover:text-white focus:bg-[#252B40]">
+                          <User className="h-4 w-4 text-slate-400" />
                           <span>Profile</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link
-                          to="/settings"
-                          className="flex items-center space-x-2 cursor-pointer"
-                        >
-                          <Settings className="h-4 w-4" />
+                        <Link to="/settings" className="flex items-center space-x-2 cursor-pointer text-slate-300 hover:text-white focus:bg-[#252B40]">
+                          <Settings className="h-4 w-4 text-slate-400" />
                           <span>Settings</span>
                         </Link>
                       </DropdownMenuItem>
                       {user.isAdmin && (
                         <>
-                          <DropdownMenuSeparator />
+                          <DropdownMenuSeparator className="bg-[#252B40]" />
                           <DropdownMenuItem asChild>
-                            <Link
-                              to="/admin"
-                              className="flex items-center space-x-2 cursor-pointer text-purple-600 dark:text-purple-400"
-                            >
+                            <Link to="/admin" className="flex items-center space-x-2 cursor-pointer text-purple-400 focus:bg-[#252B40]">
                               <Shield className="h-4 w-4" />
                               <span>Admin Panel</span>
                             </Link>
                           </DropdownMenuItem>
                         </>
                       )}
-                      <DropdownMenuSeparator />
+                      <DropdownMenuSeparator className="bg-[#252B40]" />
                       <DropdownMenuItem
                         onClick={handleLogout}
-                        className="flex items-center space-x-2 cursor-pointer text-red-600 dark:text-red-400"
+                        className="flex items-center space-x-2 cursor-pointer text-red-400 hover:text-red-300 focus:bg-[#252B40]"
                       >
                         <LogOut className="h-4 w-4" />
                         <span>Sign Out</span>
@@ -270,17 +189,14 @@ export default function Navigation() {
                   </DropdownMenu>
                 </>
               ) : (
-                <div className="hidden sm:flex items-center space-x-3">
+                <div className="hidden sm:flex items-center space-x-2">
                   <Link to="/login">
-                    <Button
-                      variant="ghost"
-                      className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
-                    >
+                    <Button variant="ghost" className="text-slate-400 hover:text-white hover:bg-white/5 text-sm">
                       Sign In
                     </Button>
                   </Link>
                   <Link to="/register">
-                    <Button className="btn-gradient text-white px-6 py-2 rounded-full hover-lift">
+                    <Button className="btn-gradient text-[#0B0E1A] text-sm px-4 py-2 h-9 rounded-lg font-semibold">
                       Get Started
                     </Button>
                   </Link>
@@ -292,13 +208,9 @@ export default function Navigation() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
+                className="lg:hidden text-slate-400 hover:text-white hover:bg-white/5"
               >
-                {isOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
+                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
           </div>
@@ -309,27 +221,21 @@ export default function Navigation() {
       {isOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
-          <div className="fixed top-0 right-0 h-full w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-l border-slate-200/20 dark:border-slate-700/20 shadow-2xl animate-slide-left">
-            <div className="p-6 space-y-6">
-              {/* Mobile Header */}
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
-                  Menu
-                </h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsOpen(false)}
-                >
+          <div className="fixed top-0 right-0 h-full w-72 bg-[#0E1120] border-l border-[#252B40] shadow-2xl">
+            <div className="p-5 space-y-5">
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-lg font-bold text-white">
+                  Dev<span className="text-[#3BD671]">Hub</span>
+                </span>
+                <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white">
                   <X className="h-5 w-5" />
                 </Button>
               </div>
 
-              {/* Mobile Navigation Links */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   return (
@@ -337,94 +243,65 @@ export default function Navigation() {
                       key={item.path}
                       to={item.path}
                       onClick={() => setIsOpen(false)}
-                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                         isActive(item.path)
-                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                          ? "bg-[#3BD671]/10 text-[#3BD671] border border-[#3BD671]/20"
+                          : "text-slate-400 hover:text-white hover:bg-white/5"
                       }`}
                     >
-                      {Icon && <Icon className="h-5 w-5" />}
-                      <span className="font-medium">{item.name}</span>
+                      {Icon && <Icon className="h-4 w-4" />}
+                      <span className="font-medium text-sm">{item.name}</span>
                     </Link>
                   );
                 })}
               </div>
 
-              {/* Mobile Auth Buttons */}
               {!user && (
-                <div className="space-y-3 pt-4 border-t border-slate-200/20 dark:border-slate-700/20">
+                <div className="space-y-2 pt-4 border-t border-[#252B40]">
                   <Link to="/login" onClick={() => setIsOpen(false)}>
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full border-[#252B40] text-slate-300 hover:text-white hover:border-[#3BD671]/40">
                       Sign In
                     </Button>
                   </Link>
                   <Link to="/register" onClick={() => setIsOpen(false)}>
-                    <Button className="w-full btn-gradient text-white">
+                    <Button className="w-full btn-gradient text-[#0B0E1A] font-semibold">
                       Get Started
                     </Button>
                   </Link>
                 </div>
               )}
 
-              {/* Mobile User Info */}
               {user && (
-                <div className="pt-4 border-t border-slate-200/20 dark:border-slate-700/20">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <Avatar className="h-12 w-12">
+                <div className="pt-4 border-t border-[#252B40] space-y-1">
+                  <div className="flex items-center space-x-3 px-2 pb-3">
+                    <Avatar className="h-10 w-10">
                       <AvatarImage src={user.avatar || "/placeholder.svg"} />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                        {user.firstName?.charAt(0)}
-                        {user.lastName?.charAt(0)}
+                      <AvatarFallback className="bg-[#3BD671]/20 text-[#3BD671] text-sm font-bold">
+                        {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-slate-800 dark:text-white">
-                        {user.firstName} {user.lastName}
-                      </p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {user.email}
-                      </p>
+                      <p className="font-semibold text-white text-sm">{user.firstName} {user.lastName}</p>
+                      <p className="text-xs text-slate-500 truncate">{user.email}</p>
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <Link
-                      to="/dashboard"
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center space-x-3 px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                    >
-                      <User className="h-4 w-4" />
-                      <span>Dashboard</span>
+                  <Link to="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center space-x-3 px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 text-sm">
+                    <User className="h-4 w-4 text-[#3BD671]" /><span>Dashboard</span>
+                  </Link>
+                  <Link to="/settings" onClick={() => setIsOpen(false)} className="flex items-center space-x-3 px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 text-sm">
+                    <Settings className="h-4 w-4 text-slate-500" /><span>Settings</span>
+                  </Link>
+                  {user.isAdmin && (
+                    <Link to="/admin" onClick={() => setIsOpen(false)} className="flex items-center space-x-3 px-4 py-2 rounded-lg text-purple-400 hover:bg-white/5 text-sm">
+                      <Shield className="h-4 w-4" /><span>Admin Panel</span>
                     </Link>
-                    <Link
-                      to="/settings"
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center space-x-3 px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                    >
-                      <Settings className="h-4 w-4" />
-                      <span>Settings</span>
-                    </Link>
-                    {user.isAdmin && (
-                      <Link
-                        to="/admin"
-                        onClick={() => setIsOpen(false)}
-                        className="flex items-center space-x-3 px-4 py-2 rounded-lg text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                      >
-                        <Shield className="h-4 w-4" />
-                        <span>Admin Panel</span>
-                      </Link>
-                    )}
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setIsOpen(false);
-                      }}
-                      className="flex items-center space-x-3 px-4 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 w-full text-left"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
+                  )}
+                  <button
+                    onClick={() => { handleLogout(); setIsOpen(false); }}
+                    className="flex items-center space-x-3 px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/10 w-full text-left text-sm"
+                  >
+                    <LogOut className="h-4 w-4" /><span>Sign Out</span>
+                  </button>
                 </div>
               )}
             </div>
@@ -434,3 +311,4 @@ export default function Navigation() {
     </>
   );
 }
+

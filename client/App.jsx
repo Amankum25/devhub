@@ -54,6 +54,8 @@ const App = () => {
   // Ensure the title is always set correctly
   useEffect(() => {
     document.title = "DevHub - AI-Powered Developer Platform";
+    // Force dark mode permanently
+    document.documentElement.classList.add("dark");
   }, []);
 
   return (

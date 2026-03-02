@@ -153,185 +153,152 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 relative overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-        
-        <div className="w-full max-w-md space-y-6 relative z-10">
-          <Card className="w-full backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl">
-            <CardHeader className="space-y-1 text-center">
-              <div className="mx-auto w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mb-4 shadow-lg">
-                <Activity className="h-7 w-7 text-white" />
-              </div>
-              <CardTitle className="text-3xl font-extrabold text-white">Please Log In</CardTitle>
-              <CardDescription className="text-lg text-slate-300">
-                Log in to view your dashboard and activity
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 text-center">
-              <Link to="/login">
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold shadow-md">Go to Login</Button>
-              </Link>
-            </CardContent>
-          </Card>
+      <div className="min-h-screen bg-[#0B0E1A] flex items-center justify-center p-4">
+        <div className="rounded-xl border border-[#252B40] bg-[#0E1120] p-8 max-w-sm w-full text-center shadow-xl shadow-black/30">
+          <Activity className="h-10 w-10 text-[#3BD671] mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">Sign in required</h2>
+          <p className="text-slate-500 text-sm mb-6">Log in to view your dashboard and activity.</p>
+          <Link to="/login">
+            <Button className="btn-gradient text-[#0B0E1A] font-bold w-full h-10">Go to Login</Button>
+          </Link>
         </div>
       </div>
     );
   }
 
   const completedAchievements = achievements.filter((a) => a.completed).length;
-  const progressPercentage =
-    (completedAchievements / achievements.length) * 100;
+  const progressPercentage = (completedAchievements / achievements.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
-      
-      <div className="w-full max-w-7xl mx-auto space-y-8 relative z-10 pt-20">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3">
-            <span className="rounded-full bg-gradient-to-br from-purple-500 to-blue-500 p-3 shadow-lg">
-              <Zap className="h-8 w-8 text-white" />
-            </span>
-            <h1 className="text-5xl font-extrabold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent tracking-tight">
-              DevHub <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Dashboard</span>
+    <div className="min-h-screen bg-[#0B0E1A] pt-20 pb-12 px-4">
+      <div className="max-w-6xl mx-auto space-y-6">
+
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white">
+              Good to see you, <span className="text-[#3BD671]">{user.firstName}</span>
             </h1>
+            <p className="text-slate-500 text-sm mt-1">Here's what's happening on your DevHub</p>
           </div>
-          <p className="mt-4 text-lg text-slate-300">Supercharge your development journey with stats, quick actions, and achievements</p>
+          <Link to="/profile">
+            <Button variant="outline" className="border-[#252B40] text-slate-300 hover:text-white hover:border-[#3BD671]/40 text-sm">
+              View Profile
+            </Button>
+          </Link>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Stats Cards */}
-          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl hover:bg-slate-800/70 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-bold text-white">Posts Published</CardTitle>
-              <FileText className="h-6 w-6 text-purple-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-extrabold text-white">{stats.posts}</div>
-              <p className="text-xs text-slate-400 mt-1"><TrendingUp className="h-4 w-4 inline mr-1 text-purple-400" />+2 this week</p>
-            </CardContent>
-          </Card>
-          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl hover:bg-slate-800/70 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-bold text-white">AI Interactions</CardTitle>
-              <Brain className="h-6 w-6 text-purple-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-extrabold text-white">{stats.aiCalls}</div>
-              <p className="text-xs text-slate-400 mt-1"><TrendingUp className="h-4 w-4 inline mr-1 text-purple-400" />+5 this week</p>
-            </CardContent>
-          </Card>
-          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl hover:bg-slate-800/70 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-bold text-white">Messages Sent</CardTitle>
-              <MessageSquare className="h-6 w-6 text-purple-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-extrabold text-white">{stats.messages}</div>
-              <p className="text-xs text-slate-400 mt-1"><TrendingUp className="h-4 w-4 inline mr-1 text-purple-400" />+12 this week</p>
-            </CardContent>
-          </Card>
-          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl hover:bg-slate-800/70 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-bold text-white">Total Likes</CardTitle>
-              <Star className="h-6 w-6 text-purple-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-extrabold text-white">{stats.likes}</div>
-              <p className="text-xs text-slate-400 mt-1"><TrendingUp className="h-4 w-4 inline mr-1 text-purple-400" />+8 this week</p>
-            </CardContent>
-          </Card>
-        </div>
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          {quickActions.map((action, index) => {
-            const Icon = action.icon;
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: "Posts Published", value: stats.posts, icon: FileText, color: "#60A5FA", trend: "+2 this week" },
+            { label: "AI Interactions", value: stats.aiCalls, icon: Brain, color: "#3BD671", trend: "+5 this week" },
+            { label: "Messages Sent", value: stats.messages, icon: MessageSquare, color: "#A78BFA", trend: "+12 this week" },
+            { label: "Total Likes", value: stats.likes, icon: Star, color: "#FB923C", trend: "+8 this week" },
+          ].map((stat) => {
+            const Icon = stat.icon;
             return (
-              <Link key={index} to={action.href}>
-                <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl hover:bg-slate-800/70 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
-                  <CardContent className="p-6 flex items-center gap-4">
-                    <div className={`p-3 rounded-xl ${action.color} shadow-lg`}>
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg text-white">{action.title}</h3>
-                      <p className="text-sm text-slate-400 mt-1">{action.description}</p>
-                    </div>
-                    <ChevronRight className="h-6 w-6 text-slate-500" />
-                  </CardContent>
-                </Card>
-              </Link>
+              <div key={stat.label} className="rounded-xl border border-[#252B40] bg-[#0E1120] p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-slate-500 text-xs">{stat.label}</span>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: stat.color + "20" }}>
+                    <Icon className="h-4 w-4" style={{ color: stat.color }} />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-white">{stat.value}</p>
+                <p className="text-xs text-slate-600 mt-1 flex items-center gap-1">
+                  <TrendingUp className="h-3 w-3 text-[#3BD671]" /> {stat.trend}
+                </p>
+              </div>
             );
           })}
         </div>
-        {/* Recent Activity */}
-        <div className="mt-10">
-          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl font-bold text-white gap-2">
-                <Activity className="h-7 w-7 text-purple-400" />Recent Activity
-              </CardTitle>
-              <CardDescription className="text-slate-400">Your latest interactions and achievements</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Quick Actions */}
+          <div className="lg:col-span-2 space-y-4">
+            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Quick Actions</h2>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {quickActions.map((action, index) => {
+                const Icon = action.icon;
+                return (
+                  <Link key={index} to={action.href}>
+                    <div className="rounded-xl border border-[#252B40] bg-[#0E1120] p-4 hover:bg-[#141829] hover:border-[#3BD671]/20 transition-all duration-200 cursor-pointer group">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${action.color}`}>
+                          <Icon className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-white text-sm">{action.title}</h3>
+                          <p className="text-xs text-slate-500 truncate">{action.description}</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-[#3BD671] transition-colors" />
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Recent Activity */}
+            <div className="mt-2">
+              <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Recent Activity</h2>
+              <div className="rounded-xl border border-[#252B40] bg-[#0E1120] divide-y divide-[#252B40]">
                 {recentActivity.map((activity, index) => {
                   const Icon = activity.icon;
                   return (
-                    <div key={index} className="flex items-start space-x-4 p-4 rounded-xl hover:bg-slate-700/50 transition-colors">
-                      <Icon className={`h-6 w-6 mt-0.5 ${activity.color}`} />
-                      <div className="flex-1 space-y-1">
-                        <p className="text-lg text-white font-semibold">{activity.title}</p>
-                        <div className="flex items-center text-xs text-slate-400">
-                          <Clock className="h-4 w-4 mr-1 text-purple-400" />
-                          {activity.time}
-                        </div>
+                    <div key={index} className="flex items-start gap-3 p-4 hover:bg-[#141829] transition-colors">
+                      <Icon className={`h-4 w-4 mt-0.5 flex-shrink-0 ${activity.color}`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-slate-300 leading-snug">{activity.title}</p>
+                        <p className="text-xs text-slate-600 mt-1 flex items-center gap-1">
+                          <Clock className="h-3 w-3" /> {activity.time}
+                        </p>
                       </div>
                     </div>
                   );
                 })}
               </div>
-            </CardContent>
-          </Card>
-        </div>
-        {/* Achievements */}
-        <div className="mt-10">
-          <Card className="backdrop-blur-xl bg-slate-800/50 border-slate-700/50 shadow-xl rounded-2xl">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl font-bold text-white gap-2">
-                <Award className="h-7 w-7 text-purple-400" />Achievements
-              </CardTitle>
-              <CardDescription className="text-slate-400">{completedAchievements} of {achievements.length} completed</CardDescription>
-            </CardHeader>
-            <CardContent>
+            </div>
+          </div>
+
+          {/* Achievements */}
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Achievements</h2>
+            <div className="rounded-xl border border-[#252B40] bg-[#0E1120] p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm text-white font-semibold">{completedAchievements}/{achievements.length} completed</p>
+                <Award className="h-4 w-4 text-[#3BD671]" />
+              </div>
+              <div className="w-full bg-[#252B40] rounded-full h-2 mb-4">
+                <div
+                  className="bg-[#3BD671] h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
               <div className="space-y-3">
-                <div className="w-full bg-slate-700/50 rounded-full h-3 mb-3">
-                  <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500" style={{ width: `${progressPercentage}%` }}></div>
-                </div>
-                {achievements.slice(0, 4).map((achievement, index) => (
-                  <div key={index} className="flex items-center space-x-4">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${achievement.completed ? "bg-green-500" : "bg-slate-700/50"}`}>
-                      {achievement.completed && <Award className="h-4 w-4 text-white" />}
+                {achievements.map((achievement, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0 ${achievement.completed ? "bg-[#3BD671]" : "bg-[#252B40]"}`}>
+                      {achievement.completed && <Award className="h-3 w-3 text-[#0B0E1A]" />}
                     </div>
-                    <div className="flex-1">
-                      <p className={`text-lg font-bold ${achievement.completed ? "text-white" : "text-slate-500"}`}>{achievement.name}</p>
-                      <p className="text-xs text-slate-400">{achievement.description}</p>
+                    <div>
+                      <p className={`text-sm font-medium ${achievement.completed ? "text-white" : "text-slate-600"}`}>{achievement.name}</p>
+                      <p className="text-xs text-slate-600">{achievement.description}</p>
                     </div>
                   </div>
                 ))}
-                <Button variant="ghost" size="sm" className="w-full mt-3 text-slate-400 hover:text-white hover:bg-slate-700/50">View All Achievements</Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* User Search */}
+            <div>
+              <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Find Developers</h2>
+              <div className="rounded-xl border border-[#252B40] bg-[#0E1120] p-4">
+                <UserSearch />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

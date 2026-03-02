@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevHub Production API Tester</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        h1 { color: #60a5fa; }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+        }
+        button:hover { background: #2563eb; }
+        .result {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .success { border-left-color: #10b981; }
+        .error { border-left-color: #ef4444; }
+        pre {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .endpoint {
+            color: #a78bfa;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 DevHub Production API Tester</h1>
+    <p>Test your Render backend from anywhere!</p>
+
+    <div>
+        <button onclick="testHealth()">Test Health Check (/)</button>
+        <button onclick="testPing()">Test Ping (/api/ping)</button>
+        <button onclick="testAPI()">Test API Info (/api)</button>
+        <button onclick="testAll()">Run All Tests</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const RENDER_URL = 'https://devhub-xzq7.onrender.com';
+        const resultsDiv = document.getElementById('results');
+
+        function addResult(title, status, data, endpoint) {
+            const div = document.createElement('div');
+            div.className = `result ${status}`;
+            div.innerHTML = `
+                <strong>${title}</strong>
+                <div class="endpoint">${endpoint}</div>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            resultsDiv.insertBefore(div, resultsDiv.firstChild);
+        }
+
+        async function makeRequest(endpoint) {
+            const url = `${RENDER_URL}${endpoint}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                return {
+                    status: response.status,
+                    ok: response.ok,
+                    data: data
+                };
+            } catch (error) {
+                return {
+                    status: 0,
+                    ok: false,
+                    error: error.message
+                };
+            }
+        }
+
+        async function testHealth() {
+            const result = await makeRequest('/');
+            addResult(
+                result.ok ? '✅ Health Check Passed' : '❌ Health Check Failed',
+                result.ok ? 'success' : 'error',
+                result.data || result.error,
+                'GET /'
+            );
+        }
+
+        async function testPing() {
+            const result = await makeRequest('/api/ping');
+            addResult(
+                result.ok ? '✅ Ping Test Passed' : '❌ Ping Test Failed',
+                result.ok ? 'success' : 'error',
+                result.data || result.error,
+                'GET /api/ping'
+            );
+        }
+
+        async function testAPI() {
+            const result = await makeRequest('/api');
+            addResult(
+                result.ok ? '✅ API Info Retrieved' : '❌ API Info Failed',
+                result.ok ? 'success' : 'error',
+                result.data || result.error,
+                'GET /api'
+            );
+        }
+
+        async function testAll() {
+            resultsDiv.innerHTML = '<p>Running all tests...</p>';
+            await testHealth();
+            await new Promise(r => setTimeout(r, 500));
+            await testPing();
+            await new Promise(r => setTimeout(r, 500));
+            await testAPI();
+        }
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            setTimeout(testAll, 1000);
+        });
+    </script>
+</body>
+</html>
