@@ -28,3 +28,12 @@ dist-ssr
 
 .vercel
 .env*.local
+
+# Sensitive environment files - NEVER commit these
+.env.production
+.env.vercel
+.env.local
+RENDER_ENV_VARIABLES.txt
+RENDER_ENV_SETUP.md
+migrate-to-atlas.js
+migrate-to-atlas.ps1
