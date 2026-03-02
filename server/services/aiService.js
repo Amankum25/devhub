@@ -7,15 +7,24 @@ class AIService {
   }
 
   initialize() {
-    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your-openai-api-key-here') {
-      console.warn('⚠️ OpenAI API key not configured. Using mock responses.');
-      return;
-    }
+    // Prefer Groq (already configured), fall back to OpenAI
+    const groqKey = process.env.GROQ_API_KEY;
+    const openaiKey = process.env.OPENAI_API_KEY;
 
-    this.client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-    console.log('🤖 OpenAI service initialized successfully');
+    if (groqKey) {
+      this.client = new OpenAI({
+        apiKey: groqKey,
+        baseURL: 'https://api.groq.com/openai/v1',
+      });
+      this.model = process.env.AI_MODEL || 'llama-3.3-70b-versatile';
+      console.log('🤖 AI service initialized with Groq');
+    } else if (openaiKey && openaiKey !== 'your-openai-api-key-here') {
+      this.client = new OpenAI({ apiKey: openaiKey });
+      this.model = process.env.AI_MODEL || 'gpt-3.5-turbo';
+      console.log('🤖 AI service initialized with OpenAI');
+    } else {
+      console.warn('⚠️ No AI API key configured (GROQ_API_KEY or OPENAI_API_KEY). Using mock responses.');
+    }
   }
 
   async explainCode(code) {
@@ -25,7 +34,7 @@ class AIService {
 
     try {
       const response = await this.client.chat.completions.create({
-        model: process.env.AI_MODEL || 'gpt-3.5-turbo',
+        model: this.model,
         messages: [
           {
             role: 'system',
@@ -58,7 +67,7 @@ class AIService {
 
     try {
       const response = await this.client.chat.completions.create({
-        model: process.env.AI_MODEL || 'gpt-3.5-turbo',
+        model: this.model,
         messages: [
           {
             role: 'system',
@@ -91,7 +100,7 @@ class AIService {
 
     try {
       const response = await this.client.chat.completions.create({
-        model: process.env.AI_MODEL || 'gpt-3.5-turbo',
+        model: this.model,
         messages: [
           {
             role: 'system',
@@ -124,7 +133,7 @@ class AIService {
 
     try {
       const response = await this.client.chat.completions.create({
-        model: process.env.AI_MODEL || 'gpt-3.5-turbo',
+        model: this.model,
         messages: [
           {
             role: 'system',
@@ -157,7 +166,7 @@ class AIService {
 
     try {
       const response = await this.client.chat.completions.create({
-        model: process.env.AI_MODEL || 'gpt-3.5-turbo',
+        model: this.model,
         messages: [
           {
             role: 'system',
@@ -190,7 +199,7 @@ class AIService {
 
     try {
       const response = await this.client.chat.completions.create({
-        model: process.env.AI_MODEL || 'gpt-3.5-turbo',
+        model: this.model,
         messages: [
           {
             role: 'system',
