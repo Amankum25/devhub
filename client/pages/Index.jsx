@@ -25,9 +25,9 @@ const features = [
   },
   {
     icon: Terminal,
-    title: "Code Snippets",
+    title: "AI Interview Prep",
     description:
-      "Save, discover and share useful code snippets with syntax highlighting across any language.",
+      "Practice real company interview questions with AI feedback from Amazon, Google, Microsoft and more.",
     accent: "#60A5FA",
   },
   {
