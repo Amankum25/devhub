@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import {
   Card,
   CardContent,
@@ -29,7 +30,7 @@ import {
 import UserSearch from "../components/UserSearch";
 
 export default function Dashboard() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     posts: 0,
     aiCalls: 0,
@@ -38,12 +39,7 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    // Get user from localStorage
-    const userData = localStorage.getItem("devhub_user");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
-
+    if (user) {
       // Simulate loading stats
       setTimeout(() => {
         setStats({
@@ -54,14 +50,14 @@ export default function Dashboard() {
         });
       }, 500);
     }
-  }, []);
+  }, [user]);
 
   const quickActions = [
     {
-      title: "Write a Post",
-      description: "Share your knowledge with the community",
+      title: "Practice Problems",
+      description: "Solve LeetCode-style coding challenges",
       icon: FileText,
-      href: "/blog/new",
+      href: "/practice",
       color: "bg-blue-500",
     },
     {
@@ -96,8 +92,8 @@ export default function Dashboard() {
       color: "text-yellow-400",
     },
     {
-      type: "comment",
-      title: 'New comment on your snippet "useState Hook"',
+      type: "interview",
+      title: "Completed an AI Interview session",
       time: "4 hours ago",
       icon: MessageSquare,
       color: "text-blue-400",
@@ -120,13 +116,13 @@ export default function Dashboard() {
 
   const achievements = [
     {
-      name: "First Post",
-      description: "Published your first blog post",
+      name: "First Login",
+      description: "Joined the DevHub community",
       completed: true,
     },
     {
-      name: "Code Contributor",
-      description: "Shared 5 code snippets",
+      name: "Problem Solver",
+      description: "Practiced 5 coding challenges",
       completed: true,
     },
     {

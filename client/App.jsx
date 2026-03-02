@@ -36,13 +36,15 @@ import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
 
+// Route protection
+import ProtectedRoute from "./components/ProtectedRoute";
+
 // Admin components
 import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPosts from "./pages/admin/AdminPosts";
 import AdminComments from "./pages/admin/AdminComments";
-import AdminSnippets from "./pages/admin/AdminSnippets";
 import AdminChat from "./pages/admin/AdminChat";
 import AdminAILogs from "./pages/admin/AdminAILogs";
 import AdminOAuth from "./pages/admin/AdminOAuth";
@@ -75,41 +77,40 @@ const App = () => {
               <Route path="/auth/callback" element={<AuthCallback />} />
 
               {/* Main User Pages */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/:id" element={<UserProfile />} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/profile/:id" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
 
               {/* Practice - LeetCode Problems */}
-              <Route path="/practice" element={<Practice />} />
+              <Route path="/practice" element={<ProtectedRoute><Practice /></ProtectedRoute>} />
 
               {/* AI Interview */}
-              <Route path="/interview" element={<InterviewPage />} />
+              <Route path="/interview" element={<ProtectedRoute><InterviewPage /></ProtectedRoute>} />
 
               {/* AI Tools */}
-              <Route path="/ai-tools" element={<AITools />} />
-              <Route path="/ai" element={<AITools />} />
-              <Route path="/ai/history" element={<AIHistory />} />
-              <Route path="/ai/code-explain" element={<CodeExplain />} />
-              <Route path="/ai/resume-review" element={<ResumeReview />} />
-              <Route path="/ai/project-suggest" element={<ProjectSuggest />} />
-              <Route path="/ai/bug-fixer" element={<BugFixer />} />
-              <Route path="/ai/algorithm-helper" element={<AlgorithmHelper />} />
-              <Route path="/ai/code-generator" element={<CodeGenerator />} />
+              <Route path="/ai-tools" element={<ProtectedRoute><AITools /></ProtectedRoute>} />
+              <Route path="/ai" element={<ProtectedRoute><AITools /></ProtectedRoute>} />
+              <Route path="/ai/history" element={<ProtectedRoute><AIHistory /></ProtectedRoute>} />
+              <Route path="/ai/code-explain" element={<ProtectedRoute><CodeExplain /></ProtectedRoute>} />
+              <Route path="/ai/resume-review" element={<ProtectedRoute><ResumeReview /></ProtectedRoute>} />
+              <Route path="/ai/project-suggest" element={<ProtectedRoute><ProjectSuggest /></ProtectedRoute>} />
+              <Route path="/ai/bug-fixer" element={<ProtectedRoute><BugFixer /></ProtectedRoute>} />
+              <Route path="/ai/algorithm-helper" element={<ProtectedRoute><AlgorithmHelper /></ProtectedRoute>} />
+              <Route path="/ai/code-generator" element={<ProtectedRoute><CodeGenerator /></ProtectedRoute>} />
 
               {/* Communication */}
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/messages" element={<Messages />} />
+              <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+              <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
 
               {/* Settings */}
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
               {/* Admin Routes */}
-              <Route path="/admin" element={<AdminLayout />}>
+              <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="posts" element={<AdminPosts />} />
                 <Route path="comments" element={<AdminComments />} />
-                <Route path="snippets" element={<AdminSnippets />} />
                 <Route path="chat" element={<AdminChat />} />
                 <Route path="ai-logs" element={<AdminAILogs />} />
                 <Route path="oauth" element={<AdminOAuth />} />

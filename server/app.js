@@ -20,7 +20,6 @@ const practiceRoutes = require("./routes/practice");
 const chatRoutes = require("./routes/chat");
 const aiRoutes = require("./routes/ai");
 const geminiRoutes = require("./routes/gemini");
-const snippetRoutes = require("./routes/snippets");
 const uploadRoutes = require("./routes/uploads");
 const adminRoutes = require("./routes/admin");
 const postRoutes = require("./routes/posts");
@@ -157,7 +156,6 @@ app.use("/api/practice", practiceRoutes);
 app.use("/api/chat", authenticateToken, chatRoutes);
 app.use("/api/ai", authenticateToken, aiRoutes);
 app.use("/api/gemini", geminiRoutes);
-app.use("/api/snippets", snippetRoutes);
 app.use("/api/uploads", authenticateToken, uploadRoutes);
 app.use("/api/admin", authenticateToken, adminRoutes);
 app.use("/api/posts", postRoutes);
@@ -194,7 +192,6 @@ app.get("/api", (req, res) => {
       practice: "/api/practice",
       chat: "/api/chat",
       ai: "/api/ai",
-      snippets: "/api/snippets",
       uploads: "/api/uploads",
       admin: "/api/admin",
     },
@@ -214,7 +211,6 @@ app.use("/api/*", (req, res) => {
       "/api/comments",
       "/api/chat",
       "/api/ai",
-      "/api/snippets",
       "/api/uploads",
       "/api/admin",
     ],

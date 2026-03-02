@@ -4,7 +4,6 @@ import {
   Users,
   FileText,
   MessageSquare,
-  Code,
   MessageCircle,
   Activity,
   Key,
@@ -44,12 +43,6 @@ const AdminNavigation = () => {
       label: "Comments",
       icon: MessageSquare,
       description: "Moderation",
-    },
-    {
-      path: "/admin/snippets",
-      label: "Snippets",
-      icon: Code,
-      description: "Code Management",
     },
     {
       path: "/admin/chat",
