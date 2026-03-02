@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Dark background -->
+  <rect width="64" height="64" rx="14" fill="#0B0E1A"/>
+  <!-- Green rounded square -->
+  <rect x="8" y="8" width="48" height="48" rx="10" fill="#3BD671"/>
+  <!-- Terminal icon: > chevron -->
+  <polyline points="18,22 30,32 18,42" stroke="#0B0E1A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Terminal icon: _ underline -->
+  <line x1="34" y1="42" x2="46" y2="42" stroke="#0B0E1A" stroke-width="5" stroke-linecap="round"/>
+</svg>
