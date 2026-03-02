@@ -5,6 +5,9 @@ import { useToast } from '../hooks/use-toast';
 // Google OAuth Client ID - hardcoded for reliability
 const GOOGLE_CLIENT_ID = '926921206176-ffeokg9mkm4pk3vl795aefl5h28cp2j6.apps.googleusercontent.com';
 
+// Backend API base URL
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 // Google Identity Services script loader
 const loadGoogleScript = () => {
   return new Promise((resolve, reject) => {
@@ -96,7 +99,7 @@ const GoogleLoginButton = ({ onSuccess, onError, disabled = false }) => {
 
   const authenticateWithBackend = async (authData) => {
     try {
-      const response = await fetch('/api/auth/google', {
+      const response = await fetch(`${API_BASE}/api/auth/google`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
