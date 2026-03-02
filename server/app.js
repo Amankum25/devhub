@@ -307,4 +307,28 @@ async function startServer() {
 
 const server = startServer();
 
+// ---- Keep-alive: prevent Render free tier from spinning down ----
+// Render spins down free services after 15 min of inactivity.
+// This self-ping runs every 10 minutes in production to keep it awake.
+if (process.env.NODE_ENV === 'production') {
+  const PING_URL = `${process.env.API_BASE_URL || 'https://devhub-xzq7.onrender.com'}/api/ping`;
+  const INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+
+  setInterval(async () => {
+    try {
+      const https = require('https');
+      https.get(PING_URL, (res) => {
+        console.log(`[keep-alive] pinged ${PING_URL} → ${res.statusCode}`);
+      }).on('error', (err) => {
+        console.warn('[keep-alive] ping failed:', err.message);
+      });
+    } catch (e) {
+      console.warn('[keep-alive] error:', e.message);
+    }
+  }, INTERVAL_MS);
+
+  console.log(`[keep-alive] Self-ping scheduled every 10 minutes → ${PING_URL}`);
+}
+// -----------------------------------------------------------------
+
 module.exports = app;
