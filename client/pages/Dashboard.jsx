@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp,
   MessageSquare,
-  BriefcaseBusiness,
+  Briefcase,
   Brain,
   FileText,
   Users,
@@ -67,7 +67,7 @@ export default function Dashboard() {
     {
       title: "AI Interview",
       description: "Practice with real company questions",
-      icon: BriefcaseBusiness,
+      icon: Briefcase,
       href: "/interview",
       color: "bg-green-500",
     },

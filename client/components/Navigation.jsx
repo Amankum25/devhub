@@ -10,7 +10,7 @@ import {
   Settings,
   LogOut,
   User,
-  BriefcaseBusiness,
+  Briefcase,
   MessageSquare,
   Target,
   Zap,
@@ -51,7 +51,7 @@ export default function Navigation() {
     { name: "Home", path: "/", icon: null },
     { name: "Practice", path: "/practice", icon: Target },
     { name: "AI Tools", path: "/ai-tools", icon: Zap },
-    { name: "Interview", path: "/interview", icon: BriefcaseBusiness },
+    { name: "Interview", path: "/interview", icon: Briefcase },
     { name: "Chat", path: "/chat", icon: MessageSquare },
   ];
 

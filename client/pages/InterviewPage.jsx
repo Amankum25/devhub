@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { api } from "../lib/api";
 import {
-  BriefcaseBusiness,
+  Briefcase,
   Send,
   ChevronDown,
   Bot,
@@ -141,7 +141,7 @@ export default function InterviewPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#3BD671]/15 border border-[#3BD671]/25 mb-4">
-              <BriefcaseBusiness className="h-7 w-7 text-[#3BD671]" />
+              <Briefcase className="h-7 w-7 text-[#3BD671]" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">AI Interview</h1>
             <p className="text-slate-500 text-sm">
@@ -226,7 +226,7 @@ export default function InterviewPage() {
                 </>
               ) : (
                 <>
-                  <BriefcaseBusiness className="h-4 w-4" />
+                  <Briefcase className="h-4 w-4" />
                   Start Interview
                 </>
               )}
