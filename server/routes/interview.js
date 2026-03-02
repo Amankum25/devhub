@@ -3,9 +3,7 @@ const router = express.Router();
 const Groq = require('groq-sdk');
 const { randomUUID } = require('crypto');
 const interviewQuestions = require('../data/interviewQuestions.json');
-
-// In-memory session store
-const sessions = new Map();
+const { getSession, setSession } = require('../config/redis');
 
 // Helper: get Groq client
 function getGroqClient() {
@@ -120,9 +118,9 @@ router.post('/start', async (req, res) => {
       history: [],
       currentQuestion: 1,
       isComplete: false,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     };
-    sessions.set(sessionId, session);
+    await setSession(sessionId, session);
 
     // Get first AI message
     const client = getGroqClient();
@@ -138,9 +136,10 @@ router.post('/start', async (req, res) => {
 
     const aiMessage = completion.choices[0]?.message?.content || '';
 
-    // Save to history
+    // Save to history and persist
     session.history.push({ role: 'user', content: 'Start the interview.' });
     session.history.push({ role: 'assistant', content: aiMessage });
+    await setSession(sessionId, session);
 
     res.json({
       success: true,
@@ -164,7 +163,7 @@ router.post('/chat', async (req, res) => {
       return res.status(400).json({ error: 'sessionId and userMessage are required' });
     }
 
-    const session = sessions.get(sessionId);
+    const session = await getSession(sessionId);
     if (!session) {
       return res.status(404).json({ error: 'Session not found or expired' });
     }
@@ -206,7 +205,7 @@ router.post('/chat', async (req, res) => {
         if (parsed.type === 'INTERVIEW_COMPLETE') {
           isComplete = true;
           session.isComplete = true;
-          evaluation = {
+          evaluation = {  
             score: parsed.score,
             strengths: parsed.strengths,
             weaknesses: parsed.weaknesses,
@@ -225,6 +224,9 @@ router.post('/chat', async (req, res) => {
     ) {
       session.currentQuestion = 2;
     }
+
+    // Persist updated session to Redis
+    await setSession(sessionId, session);
 
     res.json({
       success: true,
@@ -246,14 +248,6 @@ router.get('/companies', (req, res) => {
   res.json({ success: true, companies });
 });
 
-// Cleanup old sessions every 2 hours
-setInterval(() => {
-  const cutoff = Date.now() - 2 * 60 * 60 * 1000;
-  for (const [id, session] of sessions.entries()) {
-    if (new Date(session.createdAt).getTime() < cutoff) {
-      sessions.delete(id);
-    }
-  }
-}, 60 * 60 * 1000);
+// Redis handles TTL-based expiry automatically (SESSION_TTL = 2h set in config/redis.js)
 
 module.exports = router;

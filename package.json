@@ -57,6 +57,7 @@
     "googleapis": "^154.1.0",
     "groq-sdk": "^0.37.0",
     "helmet": "^7.1.0",
+    "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.294.0",
     "mongoose": "^8.17.0",
