@@ -82,11 +82,11 @@ export default function Login() {
         password: formData.password,
       }, false); // Don't include auth token for login
 
-      if (response.token) {
+      if (response.success && response.data?.token) {
         toast.success("🎉 Login Successful! Welcome back to DevHub!");
 
         // Use auth context to store authentication data
-        login(response.user, response.token, response.refreshToken);
+        login(response.data.user, response.data.token, response.data.refreshToken);
 
         // Redirect to dashboard
         navigate("/dashboard");

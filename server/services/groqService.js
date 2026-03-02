@@ -1,9 +1,12 @@
 const Groq = require('groq-sdk');
 
-// Configure the Groq AI client
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY
-});
+// Lazy-initialize the Groq client so missing API key doesn't crash at startup
+let _groq = null;
+function getGroqClient(apiKey) {
+  const key = apiKey || process.env.GROQ_API_KEY;
+  if (!key) throw new Error('GROQ_API_KEY is not configured');
+  return new Groq({ apiKey: key });
+}
 
 class GroqService {
   constructor() {

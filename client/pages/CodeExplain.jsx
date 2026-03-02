@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
@@ -140,22 +140,15 @@ const CodeExplain = () => {
 console.log(fibonacci(10));`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
-
-      <div className="relative z-10 container mx-auto px-4 py-8 pt-24 max-w-6xl">
+    <div className="min-h-screen bg-[#0B0E1A]">
+      <div className="container mx-auto px-4 py-8 pt-24 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-purple-500/20 backdrop-blur-xl rounded-xl border border-purple-500/30 shadow-lg">
-              <Code className="h-8 w-8 text-purple-400" />
+            <div className="p-3 bg-[#3BD671]/10 rounded-xl border border-[#3BD671]/20 shadow-lg">
+              <Code className="h-8 w-8 text-[#3BD671]" />
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-white">
               Code Explainer
             </h1>
           </div>
@@ -166,10 +159,10 @@ console.log(fibonacci(10));`;
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Section */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+        <Card className="bg-[#0E1120] border-[#252B40]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-white">
-              <Code className="h-5 w-5 text-purple-400" />
+              <Code className="h-5 w-5 text-[#3BD671]" />
               Code Input
             </CardTitle>
           </CardHeader>
@@ -182,7 +175,7 @@ console.log(fibonacci(10));`;
                 placeholder="Enter your code snippet..."
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="min-h-[250px] font-mono text-sm bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400"
+                className="min-h-[250px] font-mono text-sm bg-[#141829] border-[#252B40] text-white placeholder:text-slate-400"
               />
             </div>
 
@@ -190,7 +183,7 @@ console.log(fibonacci(10));`;
               variant="outline"
               size="sm"
               onClick={() => setCode(exampleCode)}
-              className="w-full border-slate-600 text-slate-300 hover:bg-slate-700/50"
+              className="w-full border-[#252B40] text-slate-300 hover:bg-slate-700/50"
             >
               <Lightbulb className="h-4 w-4 mr-2" />
               Try Example Code
@@ -207,7 +200,7 @@ console.log(fibonacci(10));`;
               <Button
                 onClick={handleExplain}
                 disabled={isAnalyzing}
-                className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                className="flex-1 bg-gradient-to-r from-[#3BD671] to-emerald-500 hover:from-[#3BD671]/80 hover:to-emerald-400 text-[#0B0E1A] font-semibold"
               >
                 {isAnalyzing ? (
                   <>
@@ -225,7 +218,7 @@ console.log(fibonacci(10));`;
                 variant="outline"
                 onClick={handleTest}
                 disabled={isAnalyzing}
-                className="border-slate-600 text-slate-300 hover:bg-slate-700/50"
+                className="border-[#252B40] text-slate-300 hover:bg-slate-700/50"
                 title="Test UI Display"
               >
                 Test
@@ -234,7 +227,7 @@ console.log(fibonacci(10));`;
                 variant="outline"
                 onClick={handleClear}
                 disabled={isAnalyzing}
-                className="border-slate-600 text-slate-300 hover:bg-slate-700/50"
+                className="border-[#252B40] text-slate-300 hover:bg-slate-700/50"
               >
                 Clear
               </Button>
@@ -243,11 +236,11 @@ console.log(fibonacci(10));`;
         </Card>
 
         {/* Results Section */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+        <Card className="bg-[#0E1120] border-[#252B40]">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-purple-400" />
+                <BookOpen className="h-5 w-5 text-[#3BD671]" />
                 Code Explanation
               </span>
               {result && (
@@ -255,7 +248,7 @@ console.log(fibonacci(10));`;
                   variant="outline"
                   size="sm"
                   onClick={handleCopy}
-                  className="ml-2 border-slate-600 text-slate-300 hover:bg-slate-700/50"
+                  className="ml-2 border-[#252B40] text-slate-300 hover:bg-slate-700/50"
                 >
                   {copied ? (
                     <>
@@ -302,7 +295,7 @@ console.log(fibonacci(10));`;
           Code Explainer Features
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300">
+          <Card className="bg-[#0E1120] border-[#252B40] hover:bg-[#141829] transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2 text-white">
                 <Code className="h-5 w-5 text-blue-400" />
@@ -316,7 +309,7 @@ console.log(fibonacci(10));`;
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300">
+          <Card className="bg-[#0E1120] border-[#252B40] hover:bg-[#141829] transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2 text-white">
                 <BookOpen className="h-5 w-5 text-green-400" />
@@ -330,7 +323,7 @@ console.log(fibonacci(10));`;
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300">
+          <Card className="bg-[#0E1120] border-[#252B40] hover:bg-[#141829] transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2 text-white">
                 <Lightbulb className="h-5 w-5 text-yellow-400" />

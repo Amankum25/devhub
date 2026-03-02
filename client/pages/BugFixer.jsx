@@ -277,15 +277,8 @@ Your code structure was good, but needed some defensive programming practices an
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
-
-      <div className="relative z-10 container mx-auto px-4 py-8 pt-24 max-w-6xl">
+    <div className="min-h-screen bg-[#0B0E1A]">
+      <div className="container mx-auto px-4 py-8 pt-24 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -449,15 +442,15 @@ Your code structure was good, but needed some defensive programming practices an
 
                 {/* Suggestions Section */}
                 {result.suggestions && result.suggestions.length > 0 && (
-                  <div className="p-4 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg">
-                    <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-3 flex items-center gap-2">
+                  <div className="p-4 bg-[#0E1120] border border-[#3BD671]/20 rounded-lg">
+                    <h4 className="font-semibold text-[#3BD671] mb-3 flex items-center gap-2">
                       <Wrench className="h-4 w-4" />
                       Additional Suggestions
                     </h4>
                     <ul className="space-y-2">
                       {result.suggestions.map((suggestion, index) => (
-                        <li key={index} className="text-sm text-purple-800 dark:text-purple-200 flex items-start gap-2">
-                          <span className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></span>
+                        <li key={index} className="text-sm text-slate-300 flex items-start gap-2">
+                          <span className="w-2 h-2 bg-[#3BD671] rounded-full mt-2 flex-shrink-0"></span>
                           {suggestion}
                         </li>
                       ))}

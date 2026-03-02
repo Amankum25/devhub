@@ -12,6 +12,7 @@ import {
   Lightbulb,
   Target,
   ChevronRight,
+  TrendingUp,
 } from "lucide-react";
 
 const AITools = () => {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { Plus, Hash, Send, Search, LogIn, RefreshCw, MessageCircle, User } from 'lucide-react';
-import Navigation from '../components/Navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
@@ -332,7 +331,7 @@ const Chat = () => {
         setRefreshing(false);
       }, 300);
     }
-  }, [loadingMessages, refreshing, messages]);
+  }, [loadingMessages, refreshing]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedRoom || sending) return;
@@ -639,7 +638,6 @@ const Chat = () => {
   if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-[#0B0E1A]">
-        <Navigation />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-[#3BD671]/30 border-t-[#3BD671] rounded-full animate-spin mx-auto mb-3" />
@@ -658,7 +656,6 @@ const Chat = () => {
     if (!storedToken || !storedUser) {
       return (
         <div className="min-h-screen bg-[#0B0E1A]">
-          <Navigation />
           <div className="flex items-center justify-center h-[80vh]">
             <div className="text-center">
               <LogIn className="h-10 w-10 mx-auto mb-3 text-slate-600" />
@@ -679,7 +676,6 @@ const Chat = () => {
   if (error && (error.includes('log in') || error.includes('Session expired'))) {
     return (
       <div className="min-h-screen bg-[#0B0E1A]">
-        <Navigation />
         <div className="flex items-center justify-center h-[80vh]">
           <div className="text-center">
             <LogIn className="h-10 w-10 mx-auto mb-3 text-slate-600" />
@@ -698,9 +694,8 @@ const Chat = () => {
   return (
     <div className="min-h-screen bg-[#0B0E1A]">
       <style dangerouslySetInnerHTML={{ __html: customStyles }} />
-      <Navigation />
 
-      {/* Notifications */}
+      {/* Notifications */}}
       <div className="fixed top-4 right-4 z-50 space-y-2">
         {notifications.map(notification => (
           <div
@@ -827,7 +822,7 @@ const Chat = () => {
                     setSelectedRoom(room);
                     setSelectedDM(null);
                     setError('');
-                    setTimeout(() => { scrollToTop(); }, 100);
+                    setTimeout(() => { scrollToBottom(); }, 100);
                   }}
                   className={`flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
                     selectedRoom?._id === room._id
@@ -860,7 +855,6 @@ const Chat = () => {
                 <div className="text-center">
                   <div className="w-12 h-12 rounded-xl bg-[#0E1120] border border-[#252B40] flex items-center justify-center mx-auto mb-3">
                     <MessageCircle className="h-5 w-5 text-slate-600" />
-                  </div>
                   </div>
                   <p className="text-sm font-semibold text-white mb-1">Select a channel</p>
                   <p className="text-xs text-slate-600">Choose a channel from the sidebar or start a DM</p>

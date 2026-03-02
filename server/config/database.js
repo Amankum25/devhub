@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
 
 class Database {
   constructor() {
@@ -63,12 +62,10 @@ class Database {
       const adminExists = await User.findOne({ email: "admin@devhub.com" });
 
       if (!adminExists) {
-        // Create default admin user
-        const hashedPassword = await bcrypt.hash("admin123", 12);
-
+        // Create default admin user (pre-save hook in User model will hash the password)
         const adminUser = new User({
           email: "admin@devhub.com",
-          password: hashedPassword,
+          password: "admin123",
           firstName: "Admin",
           lastName: "User",
           username: "admin",

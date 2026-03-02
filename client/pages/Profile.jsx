@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -272,19 +272,12 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
-
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 pt-24">
+    <div className="min-h-screen bg-[#0B0E1A]">
+      <div className="min-h-screen flex items-center justify-center p-4 pt-24">
         <div className="w-full max-w-4xl space-y-8">
-          <Card className="w-full bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+          <Card className="w-full bg-[#0E1120] border-[#252B40]">
             <CardHeader className="space-y-1 text-center">
-              <div className="mx-auto w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center mb-4 shadow-lg">
+              <div className="mx-auto w-12 h-12 rounded-lg bg-gradient-to-r from-[#3BD671] to-emerald-500 flex items-center justify-center mb-4 shadow-lg">
                 <User className="h-6 w-6 text-white" />
               </div>
               <CardTitle className="text-2xl font-bold text-white">Your Profile</CardTitle>
@@ -294,22 +287,22 @@ export default function Profile() {
             </CardHeader>
             <CardContent className="space-y-8">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-4 bg-slate-700/50 backdrop-blur-xl">
-                  <TabsTrigger value="profile" className="data-[state=active]:bg-purple-600">Profile</TabsTrigger>
-                  <TabsTrigger value="activity" className="data-[state=active]:bg-purple-600">Activity</TabsTrigger>
-                  <TabsTrigger value="achievements" className="data-[state=active]:bg-purple-600">Achievements</TabsTrigger>
-                  <TabsTrigger value="settings" className="data-[state=active]:bg-purple-600">Settings</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-4 mb-4 bg-[#0E1120]">
+                  <TabsTrigger value="profile" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A]">Profile</TabsTrigger>
+                  <TabsTrigger value="activity" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A]">Activity</TabsTrigger>
+                  <TabsTrigger value="achievements" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A]">Achievements</TabsTrigger>
+                  <TabsTrigger value="settings" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A]">Settings</TabsTrigger>
                 </TabsList>
                 <TabsContent value="profile" className="space-y-6">
                   <div className="flex flex-col items-center space-y-4">
                     <div className="relative inline-block">
-                      <Avatar className="h-24 w-24 mx-auto border-2 border-purple-400/50 shadow-lg">
+                      <Avatar className="h-24 w-24 mx-auto border-2 border-[#3BD671]/50 shadow-lg">
                         <AvatarImage src={profileData.avatar} />
                         <AvatarFallback className="text-xl bg-slate-700 text-white">
                           {profileData.firstName.charAt(0)}{profileData.lastName.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <Button variant="outline" size="sm" className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0 border-slate-600 bg-slate-800/80 hover:bg-slate-700/80" onClick={handleAvatarChange}>
+                      <Button variant="outline" size="sm" className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0 border-slate-600 bg-[#141829] hover:bg-[#252B40]" onClick={handleAvatarChange}>
                         <Camera className="h-4 w-4 text-slate-300" />
                       </Button>
                     </div>

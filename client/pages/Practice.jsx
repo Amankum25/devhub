@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Search, Filter, ExternalLink, Building2, Tag, TrendingUp, CheckSquare } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -112,20 +112,13 @@ export default function Practice() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
-
-      <div className="relative z-10 container mx-auto px-4 py-8 pt-24 max-w-7xl">
+    <div className="min-h-screen bg-[#0B0E1A]">
+      <div className="container mx-auto px-4 py-8 pt-24 max-w-7xl">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="relative inline-block mb-4">
-            <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-blue-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
-            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-blue-500 shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#3BD671] to-emerald-400 rounded-full blur-xl opacity-50 animate-pulse"></div>
+            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#3BD671] to-emerald-400 shadow-2xl">
               <TrendingUp className="h-8 w-8 text-white" />
             </div>
           </div>
@@ -140,9 +133,9 @@ export default function Practice() {
         {/* Statistics */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-            <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300 shadow-xl">
+            <Card className="bg-[#0E1120] border-[#252B40] hover:bg-[#141829] transition-all duration-300 shadow-xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-purple-400 flex items-center gap-2">
+                <CardTitle className="text-sm font-medium text-[#3BD671] flex items-center gap-2">
                   <CheckSquare className="h-4 w-4" />
                   Solved
                 </CardTitle>
@@ -156,7 +149,7 @@ export default function Practice() {
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300 shadow-xl">
+            <Card className="bg-[#0E1120] border-[#252B40] hover:bg-[#141829] transition-all duration-300 shadow-xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-slate-400">
                   Total Problems
@@ -166,7 +159,7 @@ export default function Practice() {
                 <div className="text-3xl font-bold text-white">{stats.total}</div>
               </CardContent>
             </Card>
-            <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300 shadow-xl">
+            <Card className="bg-[#0E1120] border-[#252B40] hover:bg-[#141829] transition-all duration-300 shadow-xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-green-400 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
@@ -177,7 +170,7 @@ export default function Practice() {
                 <div className="text-3xl font-bold text-white">{stats.byDifficulty?.Easy || 0}</div>
               </CardContent>
             </Card>
-            <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300 shadow-xl">
+            <Card className="bg-[#0E1120] border-[#252B40] hover:bg-[#141829] transition-all duration-300 shadow-xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-yellow-400 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
@@ -188,7 +181,7 @@ export default function Practice() {
                 <div className="text-3xl font-bold text-white">{stats.byDifficulty?.Medium || 0}</div>
               </CardContent>
             </Card>
-            <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300 shadow-xl">
+            <Card className="bg-[#0E1120] border-[#252B40] hover:bg-[#141829] transition-all duration-300 shadow-xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-red-400 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
@@ -203,7 +196,7 @@ export default function Practice() {
         )}
 
         {/* Filters */}
-        <Card className="mb-8 bg-slate-800/50 backdrop-blur-xl border-slate-700/50 shadow-xl">
+        <Card className="mb-8 bg-[#0E1120] border-[#252B40] shadow-xl">
           <CardContent className="pt-6">
             <form onSubmit={handleSearch} className="space-y-4">
               {/* Search */}
@@ -215,10 +208,10 @@ export default function Practice() {
                     placeholder="Search problems..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-purple-500"
+                    className="pl-10 bg-[#141829] border-[#252B40] text-white placeholder:text-slate-400 focus:border-[#3BD671]"
                   />
                 </div>
-                <Button type="submit" className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white">
+                <Button type="submit" className="btn-gradient text-[#0B0E1A]">
                   Search
                 </Button>
               </div>
@@ -226,7 +219,7 @@ export default function Practice() {
               {/* Filters Row */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Select value={difficulty} onValueChange={setDifficulty}>
-                  <SelectTrigger className="bg-slate-900/50 border-slate-600 text-white">
+                  <SelectTrigger className="bg-[#141829] border-[#252B40] text-white">
                     <SelectValue placeholder="Difficulty" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-slate-700 text-white">
@@ -238,7 +231,7 @@ export default function Practice() {
                 </Select>
 
                 <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-                  <SelectTrigger className="bg-slate-900/50 border-slate-600 text-white">
+                  <SelectTrigger className="bg-[#141829] border-[#252B40] text-white">
                     <SelectValue placeholder="Company" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-[300px]">
@@ -252,7 +245,7 @@ export default function Practice() {
                 </Select>
 
                 <Select value={selectedTopic} onValueChange={setSelectedTopic}>
-                  <SelectTrigger className="bg-slate-900/50 border-slate-600 text-white">
+                  <SelectTrigger className="bg-[#141829] border-[#252B40] text-white">
                     <SelectValue placeholder="Topic" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-[300px]">
@@ -274,7 +267,7 @@ export default function Practice() {
           {loading ? (
             // Loading skeletons
             Array.from({ length: 10 }).map((_, i) => (
-              <Card key={i} className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+              <Card key={i} className="bg-[#0E1120] border-[#252B40]">
                 <CardContent className="p-4">
                   <Skeleton className="h-6 w-3/4 mb-2 bg-slate-700/50" />
                   <Skeleton className="h-4 w-1/2 bg-slate-700/50" />
@@ -282,19 +275,19 @@ export default function Practice() {
               </Card>
             ))
           ) : problems.length === 0 ? (
-            <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 shadow-xl">
+            <Card className="bg-[#0E1120] border-[#252B40] shadow-xl">
               <CardContent className="p-12 text-center">
                 <p className="text-slate-300 text-lg mb-2">
                   No problems found. Try adjusting your filters or run the data fetcher script.
                 </p>
                 <p className="text-sm text-slate-400 mt-2">
-                  Run: <code className="bg-slate-900/70 px-3 py-1 rounded text-purple-300 border border-slate-700">node scripts/fetch-leetcode-data.js</code>
+                  Run: <code className="bg-[#141829] px-3 py-1 rounded text-[#3BD671] border border-[#252B40]">node scripts/fetch-leetcode-data.js</code>
                 </p>
               </CardContent>
             </Card>
           ) : (
             problems.map((problem) => (
-              <Card key={problem.slug} className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 hover:border-purple-500/30 transition-all duration-300 shadow-lg">
+              <Card key={problem.slug} className="bg-[#0E1120] border-[#252B40] hover:bg-[#141829] hover:border-[#3BD671]/20 transition-all duration-300 shadow-lg">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
                     {/* Checkbox */}
@@ -303,7 +296,7 @@ export default function Practice() {
                         id={`solved-${problem.slug}`}
                         checked={solvedProblems[problem.slug] || false}
                         onCheckedChange={() => toggleSolved(problem.slug)}
-                        className="h-5 w-5 border-2 border-purple-400 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
+                        className="h-5 w-5 border-2 border-[#3BD671]/50 data-[state=checked]:bg-[#3BD671] data-[state=checked]:border-[#3BD671]"
                       />
                     </div>
 
@@ -319,7 +312,7 @@ export default function Practice() {
                           className={`text-lg font-semibold flex items-center gap-2 truncate transition-colors ${
                             solvedProblems[problem.slug] 
                               ? 'text-slate-400 line-through hover:text-slate-300' 
-                              : 'text-white hover:text-purple-300'
+                              : 'text-white hover:text-[#3BD671]'
                           }`}
                         >
                           {problem.title}
@@ -333,12 +326,12 @@ export default function Practice() {
                           <Building2 className="h-4 w-4 text-slate-400 flex-shrink-0" />
                           <div className="flex flex-wrap gap-1">
                             {problem.company.slice(0, 5).map((company, idx) => (
-                              <Badge key={idx} variant="outline" className="text-xs bg-slate-900/50 text-purple-300 border-slate-600">
+                              <Badge key={idx} variant="outline" className="text-xs bg-[#141829] text-[#3BD671]/80 border-[#252B40]">
                                 {company}
                               </Badge>
                             ))}
                             {problem.company.length > 5 && (
-                              <Badge variant="outline" className="text-xs bg-slate-900/50 text-slate-300 border-slate-600">
+                              <Badge variant="outline" className="text-xs bg-[#141829] text-slate-300 border-[#252B40]">
                                 +{problem.company.length - 5} more
                               </Badge>
                             )}
@@ -379,18 +372,18 @@ export default function Practice() {
               variant="outline"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="bg-slate-800/50 border-slate-700 text-white hover:bg-slate-700 disabled:opacity-50"
+              className="bg-[#0E1120] border-[#252B40] text-white hover:bg-[#141829] disabled:opacity-50"
             >
               Previous
             </Button>
-            <span className="text-sm text-slate-300 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700">
-              Page <span className="font-semibold text-purple-300">{currentPage}</span> of <span className="font-semibold text-purple-300">{totalPages}</span>
+            <span className="text-sm text-slate-300 px-4 py-2 bg-[#0E1120] rounded-lg border border-[#252B40]">
+              Page <span className="font-semibold text-[#3BD671]">{currentPage}</span> of <span className="font-semibold text-[#3BD671]">{totalPages}</span>
             </span>
             <Button
               variant="outline"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="bg-slate-800/50 border-slate-700 text-white hover:bg-slate-700 disabled:opacity-50"
+              className="bg-[#0E1120] border-[#252B40] text-white hover:bg-[#141829] disabled:opacity-50"
             >
               Next
             </Button>

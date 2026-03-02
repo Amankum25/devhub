@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { usePageTitle } from "@/hooks/use-page-title";
 import {
@@ -249,9 +249,9 @@ export default function Blog() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-[#0B0E1A]">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white">
+      <div className="relative overflow-hidden bg-gradient-to-r from-[#3BD671]/80 via-[#3BD671]/60 to-emerald-600 text-white">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iYSIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVHJhbnNmb3JtPSJyb3RhdGUoNDUpIj48cmVjdCB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNhKSIvPjwvc3ZnPg==')] opacity-10"></div>
 
@@ -294,7 +294,7 @@ export default function Blog() {
       <div className="container mx-auto px-6 py-12 space-y-12">
         {/* Search and Filters */}
         <div className="max-w-4xl mx-auto">
-          <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-xl p-6">
+          <div className="bg-[#0E1120] border border-[#252B40] rounded-2xl shadow-xl p-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -302,12 +302,12 @@ export default function Blog() {
                   placeholder="Search articles, tags, or authors..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-12 h-12 border-0 bg-slate-900/50 text-white placeholder:text-gray-400 focus:bg-slate-900/70 transition-colors"
+                  className="pl-12 h-12 border-0 bg-[#141829] text-white placeholder:text-gray-400 focus:bg-[#141829] transition-colors"
                 />
               </div>
 
               <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-                <SelectTrigger className="w-full md:w-48 h-12 border-0 bg-slate-900/50 text-white">
+                <SelectTrigger className="w-full md:w-48 h-12 border-0 bg-[#141829] text-white">
                   <Filter className="w-4 h-4 mr-2" />
                   <SelectValue />
                 </SelectTrigger>
@@ -387,7 +387,7 @@ export default function Blog() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {featuredPosts.slice(0, 2).map((post) => (
-                <Card key={post.id} className="group hover:shadow-2xl transition-all duration-500 shadow-lg overflow-hidden bg-slate-800/50 backdrop-blur-xl border border-slate-700/50">
+                <Card key={post.id} className="group hover:shadow-2xl transition-all duration-500 shadow-lg overflow-hidden bg-[#0E1120] border border-[#252B40]">
                   <div className="relative h-64 bg-gradient-to-br from-blue-400 via-purple-500 to-indigo-600 overflow-hidden">
                     <div className="absolute inset-0 bg-black/20"></div>
                     <div className="absolute top-4 left-4">
@@ -447,7 +447,7 @@ export default function Blog() {
           </div>
 
           {filteredPosts.length === 0 ? (
-            <Card className="max-w-md mx-auto bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 shadow-lg">
+            <Card className="max-w-md mx-auto bg-[#0E1120] border border-[#252B40] shadow-lg">
               <CardContent className="p-12 text-center space-y-4">
                 <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto">
                   <BookOpen className="w-8 h-8 text-slate-400" />
@@ -467,7 +467,7 @@ export default function Blog() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredPosts.map((post) => (
-                <Card key={post.id} className="group hover:shadow-xl transition-all duration-300 shadow-md overflow-hidden bg-slate-800/50 backdrop-blur-xl border border-slate-700/50">
+                <Card key={post.id} className="group hover:shadow-xl transition-all duration-300 shadow-md overflow-hidden bg-[#0E1120] border border-[#252B40]">
                   <div className="relative h-48 bg-gradient-to-br from-slate-700 to-slate-600">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-400/80 via-purple-500/80 to-indigo-600/80"></div>
                     <div className="absolute bottom-4 left-4 right-4">
@@ -520,7 +520,7 @@ export default function Blog() {
         {/* Load More */}
         {filteredPosts.length > 0 && (
           <div className="text-center">
-            <Button size="lg" variant="outline" className="px-8 py-3 bg-slate-800/50 backdrop-blur-xl text-white hover:bg-slate-700/50 border-2 border-slate-600/50">
+            <Button size="lg" variant="outline" className="px-8 py-3 bg-[#0E1120] text-white hover:bg-[#141829] border-2 border-[#252B40]">
               Load More Articles
               <TrendingUp className="w-4 h-4 ml-2" />
             </Button>

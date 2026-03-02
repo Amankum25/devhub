@@ -23,7 +23,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import Practice from "./pages/Practice";
-import CodeSnippets from "./pages/CodeSnippets";
+import InterviewPage from "./pages/InterviewPage";
 import AITools from "./pages/AITools";
 import AIHistory from "./pages/AIHistory";
 import CodeExplain from "./pages/CodeExplain";
@@ -82,8 +82,8 @@ const App = () => {
               {/* Practice - LeetCode Problems */}
               <Route path="/practice" element={<Practice />} />
 
-              {/* Code Snippets */}
-              <Route path="/code-snippets" element={<CodeSnippets />} />
+              {/* AI Interview */}
+              <Route path="/interview" element={<InterviewPage />} />
 
               {/* AI Tools */}
               <Route path="/ai-tools" element={<AITools />} />
@@ -131,7 +131,7 @@ const App = () => {
           pauseOnFocusLoss
           draggable
           pauseOnHover
-          theme="light"
+          theme="dark"
         />
       </TooltipProvider>
       </AuthProvider>

@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp,
   MessageSquare,
-  Code,
+  BriefcaseBusiness,
   Brain,
   FileText,
   Users,
@@ -65,10 +65,10 @@ export default function Dashboard() {
       color: "bg-blue-500",
     },
     {
-      title: "Share Code Snippet",
-      description: "Upload useful code snippets",
-      icon: Code,
-      href: "/code-snippets",
+      title: "AI Interview",
+      description: "Practice with real company questions",
+      icon: BriefcaseBusiness,
+      href: "/interview",
       color: "bg-green-500",
     },
     {

@@ -1,0 +1,254 @@
+[
+  {
+    "company": "Amazon",
+    "medium": [
+      {
+        "title": "Two Sum",
+        "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may not use the same element twice.",
+        "link": "https://leetcode.com/problems/two-sum/"
+      },
+      {
+        "title": "Top K Frequent Elements",
+        "description": "Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.",
+        "link": "https://leetcode.com/problems/top-k-frequent-elements/"
+      },
+      {
+        "title": "Meeting Rooms II",
+        "description": "Given an array of meeting time intervals intervals where intervals[i] = [starti, endi], return the minimum number of conference rooms required.",
+        "link": "https://leetcode.com/problems/meeting-rooms-ii/"
+      },
+      {
+        "title": "Product of Array Except Self",
+        "description": "Given an integer array nums, return an array answer such that answer[i] is equal to the product of all the elements of nums except nums[i].",
+        "link": "https://leetcode.com/problems/product-of-array-except-self/"
+      }
+    ],
+    "hard": [
+      {
+        "title": "LRU Cache",
+        "description": "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache. Implement the LRUCache class with get and put operations in O(1) time.",
+        "link": "https://leetcode.com/problems/lru-cache/"
+      },
+      {
+        "title": "Trapping Rain Water",
+        "description": "Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.",
+        "link": "https://leetcode.com/problems/trapping-rain-water/"
+      },
+      {
+        "title": "Word Break II",
+        "description": "Given a string s and a dictionary of strings wordDict, add spaces in s to construct sentences where each word is a valid dictionary word. Return all such possible sentences.",
+        "link": "https://leetcode.com/problems/word-break-ii/"
+      }
+    ]
+  },
+  {
+    "company": "Google",
+    "medium": [
+      {
+        "title": "Group Anagrams",
+        "description": "Given an array of strings strs, group the anagrams together. You can return the answer in any order.",
+        "link": "https://leetcode.com/problems/group-anagrams/"
+      },
+      {
+        "title": "Container With Most Water",
+        "description": "Given n non-negative integers representing heights, find two lines that together with the x-axis form a container that holds the most water.",
+        "link": "https://leetcode.com/problems/container-with-most-water/"
+      },
+      {
+        "title": "3Sum",
+        "description": "Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that they sum to zero and i, j, k are distinct.",
+        "link": "https://leetcode.com/problems/3sum/"
+      },
+      {
+        "title": "Longest Substring Without Repeating Characters",
+        "description": "Given a string s, find the length of the longest substring without repeating characters.",
+        "link": "https://leetcode.com/problems/longest-substring-without-repeating-characters/"
+      }
+    ],
+    "hard": [
+      {
+        "title": "Alien Dictionary",
+        "description": "There is a new alien language that uses the English alphabet. Given a list of strings words from the alien language's dictionary, derive the order of letters in this language.",
+        "link": "https://leetcode.com/problems/alien-dictionary/"
+      },
+      {
+        "title": "Word Ladder",
+        "description": "Given two words beginWord and endWord, and a dictionary wordList, return the number of words in the shortest transformation sequence from beginWord to endWord.",
+        "link": "https://leetcode.com/problems/word-ladder/"
+      },
+      {
+        "title": "Minimum Window Substring",
+        "description": "Given two strings s and t, return the minimum window substring of s such that every character in t is included in the window.",
+        "link": "https://leetcode.com/problems/minimum-window-substring/"
+      }
+    ]
+  },
+  {
+    "company": "Microsoft",
+    "medium": [
+      {
+        "title": "Maximum Subarray",
+        "description": "Given an integer array nums, find the subarray with the largest sum, and return its sum.",
+        "link": "https://leetcode.com/problems/maximum-subarray/"
+      },
+      {
+        "title": "Rotate Array",
+        "description": "Given an integer array nums, rotate the array to the right by k steps, where k is non-negative.",
+        "link": "https://leetcode.com/problems/rotate-array/"
+      },
+      {
+        "title": "Find Minimum in Rotated Sorted Array",
+        "description": "Given the sorted rotated array nums of unique elements, return the minimum element of this array.",
+        "link": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/"
+      },
+      {
+        "title": "Clone Graph",
+        "description": "Given a reference of a node in a connected undirected graph, return a deep copy (clone) of the graph.",
+        "link": "https://leetcode.com/problems/clone-graph/"
+      }
+    ],
+    "hard": [
+      {
+        "title": "Serialize and Deserialize Binary Tree",
+        "description": "Design an algorithm to serialize and deserialize a binary tree. Serialization converts the tree to a string; deserialization restores it.",
+        "link": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/"
+      },
+      {
+        "title": "Course Schedule II",
+        "description": "There are numCourses courses to take. Return the ordering of courses you should take to finish all courses. If impossible, return an empty array.",
+        "link": "https://leetcode.com/problems/course-schedule-ii/"
+      },
+      {
+        "title": "Merge K Sorted Lists",
+        "description": "You are given an array of k linked-lists, each sorted in ascending order. Merge all the linked-lists into one sorted linked-list and return it.",
+        "link": "https://leetcode.com/problems/merge-k-sorted-lists/"
+      }
+    ]
+  },
+  {
+    "company": "Flipkart",
+    "medium": [
+      {
+        "title": "Best Time to Buy and Sell Stock",
+        "description": "Given an array prices where prices[i] is the price of a given stock on the ith day, maximize your profit by choosing a single day to buy and a single day to sell.",
+        "link": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/"
+      },
+      {
+        "title": "Valid Anagram",
+        "description": "Given two strings s and t, return true if t is an anagram of s, and false otherwise.",
+        "link": "https://leetcode.com/problems/valid-anagram/"
+      },
+      {
+        "title": "Number of Islands",
+        "description": "Given an m x n 2D binary grid which represents a map of '1's (land) and '0's (water), return the number of islands.",
+        "link": "https://leetcode.com/problems/number-of-islands/"
+      },
+      {
+        "title": "Subsets",
+        "description": "Given an integer array nums of unique elements, return all possible subsets (the power set).",
+        "link": "https://leetcode.com/problems/subsets/"
+      }
+    ],
+    "hard": [
+      {
+        "title": "Merge Intervals",
+        "description": "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals and return an array of the non-overlapping intervals.",
+        "link": "https://leetcode.com/problems/merge-intervals/"
+      },
+      {
+        "title": "Edit Distance",
+        "description": "Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2 (insert, delete, or replace).",
+        "link": "https://leetcode.com/problems/edit-distance/"
+      },
+      {
+        "title": "Largest Rectangle in Histogram",
+        "description": "Given an array of integers heights representing the histogram's bar heights, find the largest rectangle area in the histogram.",
+        "link": "https://leetcode.com/problems/largest-rectangle-in-histogram/"
+      }
+    ]
+  },
+  {
+    "company": "Adobe",
+    "medium": [
+      {
+        "title": "Spiral Matrix",
+        "description": "Given an m x n matrix, return all elements of the matrix in spiral order.",
+        "link": "https://leetcode.com/problems/spiral-matrix/"
+      },
+      {
+        "title": "Rotate Image",
+        "description": "You are given an n x n 2D matrix representing an image. Rotate the image by 90 degrees (clockwise) in-place.",
+        "link": "https://leetcode.com/problems/rotate-image/"
+      },
+      {
+        "title": "Search a 2D Matrix",
+        "description": "Given an m x n matrix where each row is sorted and the first integer of each row is greater than the last of the previous row, determine if target exists.",
+        "link": "https://leetcode.com/problems/search-a-2d-matrix/"
+      },
+      {
+        "title": "Jump Game",
+        "description": "You are given an integer array nums. You are initially positioned at the first index. Return true if you can reach the last index.",
+        "link": "https://leetcode.com/problems/jump-game/"
+      }
+    ],
+    "hard": [
+      {
+        "title": "Word Search II",
+        "description": "Given an m x n board of characters and a list of strings words, return all words on the board that can be constructed from sequentially adjacent cells.",
+        "link": "https://leetcode.com/problems/word-search-ii/"
+      },
+      {
+        "title": "Decode Ways II",
+        "description": "Given a string s containing digits and '*' (wildcard for 1-9), return the number of ways to decode it modulo 10^9 + 7.",
+        "link": "https://leetcode.com/problems/decode-ways-ii/"
+      },
+      {
+        "title": "Longest Increasing Path in a Matrix",
+        "description": "Given an m x n integers matrix, return the length of the longest increasing path in matrix. You can move in four directions.",
+        "link": "https://leetcode.com/problems/longest-increasing-path-in-a-matrix/"
+      }
+    ]
+  },
+  {
+    "company": "Goldman Sachs",
+    "medium": [
+      {
+        "title": "Valid Parentheses",
+        "description": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.",
+        "link": "https://leetcode.com/problems/valid-parentheses/"
+      },
+      {
+        "title": "Pascal's Triangle",
+        "description": "Given an integer numRows, return the first numRows of Pascal's triangle.",
+        "link": "https://leetcode.com/problems/pascals-triangle/"
+      },
+      {
+        "title": "Coin Change",
+        "description": "Given an integer array coins representing coins of different denominations and an integer amount, return the fewest number of coins needed to make up that amount.",
+        "link": "https://leetcode.com/problems/coin-change/"
+      },
+      {
+        "title": "Longest Common Subsequence",
+        "description": "Given two strings text1 and text2, return the length of their longest common subsequence.",
+        "link": "https://leetcode.com/problems/longest-common-subsequence/"
+      }
+    ],
+    "hard": [
+      {
+        "title": "Jump Game II",
+        "description": "Given a 0-indexed array of integers nums of length n, return the minimum number of jumps to reach nums[n-1].",
+        "link": "https://leetcode.com/problems/jump-game-ii/"
+      },
+      {
+        "title": "Median of Two Sorted Arrays",
+        "description": "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays in O(log(m+n)) time.",
+        "link": "https://leetcode.com/problems/median-of-two-sorted-arrays/"
+      },
+      {
+        "title": "Regular Expression Matching",
+        "description": "Given an input string s and a pattern p, implement regular expression matching with '.' and '*' where '.' matches any single character and '*' matches zero or more.",
+        "link": "https://leetcode.com/problems/regular-expression-matching/"
+      }
+    ]
+  }
+]

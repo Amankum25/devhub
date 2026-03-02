@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { api } from '../lib/api';
 import { Button } from "../components/ui/button";
@@ -276,24 +276,17 @@ export default function CodeSnippets() {
   const favoriteSnippets = snippets.filter((snippet) => snippet.isFavorited);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
-
-      <div className="relative z-10 container mx-auto px-4 py-8 pt-24">
+    <div className="min-h-screen bg-[#0B0E1A]">
+      <div className="container mx-auto px-4 py-8 pt-24">
         {/* Header */}
         <div className="text-center space-y-4 mb-12">
           <div className="relative inline-block">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
-            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#3BD671] to-emerald-400 rounded-full blur-xl opacity-50 animate-pulse"></div>
+            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#3BD671] to-emerald-400 shadow-2xl">
               <Code className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold text-white">
             Code Snippets
           </h1>
           <p className="text-xl text-slate-300 max-w-2xl mx-auto">
@@ -305,7 +298,7 @@ export default function CodeSnippets() {
           <div className="flex justify-center mb-8">
             <Button 
               size="lg"
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-xl"
+              className="bg-gradient-to-r from-[#3BD671] to-emerald-500 hover:from-[#3BD671]/80 hover:to-emerald-400 text-[#0B0E1A] font-semibold shadow-xl"
               onClick={() => {
                 console.log("Create Snippet button clicked!");
                 console.log("Current dialog state:", isCreateDialogOpen);
@@ -321,7 +314,7 @@ export default function CodeSnippets() {
         {/* Create Snippet Dialog */}
         {isCreateDialogOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-            <div className="bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-y-auto w-full mx-4 shadow-2xl">
+            <div className="bg-[#0E1120] border border-[#252B40] rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-y-auto w-full mx-4 shadow-2xl">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-white">Create New Code Snippet</h2>
                 <button 
@@ -461,7 +454,7 @@ export default function CodeSnippets() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+          <Card className="bg-[#0E1120] border-[#252B40]">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <Code className="h-5 w-5 text-blue-400" />
@@ -472,7 +465,7 @@ export default function CodeSnippets() {
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+          <Card className="bg-[#0E1120] border-[#252B40]">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <TrendingUp className="h-5 w-5 text-green-400" />
@@ -483,7 +476,7 @@ export default function CodeSnippets() {
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+          <Card className="bg-[#0E1120] border-[#252B40]">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <Star className="h-5 w-5 text-yellow-400" />
@@ -494,7 +487,7 @@ export default function CodeSnippets() {
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+          <Card className="bg-[#0E1120] border-[#252B40]">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <User className="h-5 w-5 text-purple-400" />
@@ -509,12 +502,12 @@ export default function CodeSnippets() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
-            <TabsTrigger value="browse" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Browse All</TabsTrigger>
-            <TabsTrigger value="my-snippets" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+          <TabsList className="grid w-full grid-cols-3 bg-[#0E1120] border-[#252B40]">
+            <TabsTrigger value="browse" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A]">Browse All</TabsTrigger>
+            <TabsTrigger value="my-snippets" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A]">
               My Snippets ({mySnippets.length})
             </TabsTrigger>
-            <TabsTrigger value="favorites" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+            <TabsTrigger value="favorites" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A]">
               Favorites ({favoriteSnippets.length})
             </TabsTrigger>
           </TabsList>
@@ -522,7 +515,7 @@ export default function CodeSnippets() {
           {/* Browse Tab */}
           <TabsContent value="browse" className="space-y-6">
             {/* Filters */}
-            <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+            <Card className="bg-[#0E1120] border-[#252B40]">
               <CardContent className="p-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="relative">
@@ -582,7 +575,7 @@ export default function CodeSnippets() {
             {isLoading ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {[...Array(6)].map((_, i) => (
-                  <Card key={i} className="flex flex-col animate-pulse bg-slate-800/50 backdrop-blur-xl border-slate-700/50">
+                  <Card key={i} className="flex flex-col animate-pulse bg-[#0E1120] border-[#252B40]">
                     <CardHeader>
                       <div className="h-4 bg-slate-700 rounded w-3/4 mb-2"></div>
                       <div className="h-3 bg-slate-700 rounded w-1/2"></div>
@@ -607,7 +600,7 @@ export default function CodeSnippets() {
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {filteredSnippets.map((snippet) => (
-                <Card key={snippet.id} className="flex flex-col bg-slate-800/50 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/70 transition-all duration-300">
+                <Card key={snippet.id} className="flex flex-col bg-[#0E1120] border-[#252B40] hover:bg-[#141829] transition-all duration-300">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -190,7 +190,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-purple-900">
+    <div className="min-h-screen bg-[#0B0E1A]">
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <div className="space-y-6">
           <div>
@@ -201,14 +201,14 @@ export default function Settings() {
           </div>
 
           <Tabs defaultValue="appearance" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7 bg-black/30 border-purple-500/30">
-              <TabsTrigger value="appearance" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Appearance</TabsTrigger>
-              <TabsTrigger value="notifications" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Notifications</TabsTrigger>
-              <TabsTrigger value="privacy" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Privacy</TabsTrigger>
-              <TabsTrigger value="security" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Security</TabsTrigger>
-              <TabsTrigger value="ai" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">AI Config</TabsTrigger>
-              <TabsTrigger value="content" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Content</TabsTrigger>
-            <TabsTrigger value="data" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Data</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-7 bg-[#0E1120] border-[#252B40]">
+              <TabsTrigger value="appearance" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A] text-gray-300">Appearance</TabsTrigger>
+              <TabsTrigger value="notifications" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A] text-gray-300">Notifications</TabsTrigger>
+              <TabsTrigger value="privacy" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A] text-gray-300">Privacy</TabsTrigger>
+              <TabsTrigger value="security" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A] text-gray-300">Security</TabsTrigger>
+              <TabsTrigger value="ai" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A] text-gray-300">AI Config</TabsTrigger>
+              <TabsTrigger value="content" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A] text-gray-300">Content</TabsTrigger>
+            <TabsTrigger value="data" className="data-[state=active]:bg-[#3BD671] data-[state=active]:text-[#0B0E1A] text-gray-300">Data</TabsTrigger>
           </TabsList>
 
           {/* Appearance Settings */}

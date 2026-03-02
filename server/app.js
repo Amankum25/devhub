@@ -25,6 +25,7 @@ const uploadRoutes = require("./routes/uploads");
 const adminRoutes = require("./routes/admin");
 const postRoutes = require("./routes/posts");
 const commentRoutes = require("./routes/comments");
+const interviewRoutes = require("./routes/interview");
 
 // Import middleware
 const { authenticateToken } = require("./middleware/auth");
@@ -161,6 +162,7 @@ app.use("/api/uploads", authenticateToken, uploadRoutes);
 app.use("/api/admin", authenticateToken, adminRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
+app.use("/api/interview", interviewRoutes);
 // Health check endpoint (for Render and other hosting platforms)
 app.get("/", (req, res) => {
   res.json({
