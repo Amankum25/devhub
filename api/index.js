@@ -23,6 +23,7 @@ const deepseekRoutes = require("../server/routes/deepseek");
 const snippetRoutes = require("../server/routes/snippets");
 const uploadRoutes = require("../server/routes/uploads");
 const adminRoutes = require("../server/routes/admin");
+const interviewRoutes = require("../server/routes/interview");
 
 // Import middleware
 const { authenticateToken } = require("../server/middleware/auth");
@@ -106,6 +107,7 @@ app.use("/api/deepseek", deepseekRoutes);
 app.use("/api/snippets", snippetRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/interview", interviewRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
