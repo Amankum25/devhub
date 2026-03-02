@@ -127,7 +127,7 @@ router.post('/start', async (req, res) => {
     // Get first AI message
     const client = getGroqClient();
     const completion = await client.chat.completions.create({
-      model: 'llama-3.1-70b-versatile',
+      model: 'llama-3.3-70b-versatile',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: 'Start the interview.' },
@@ -184,7 +184,7 @@ router.post('/chat', async (req, res) => {
 
     const client = getGroqClient();
     const completion = await client.chat.completions.create({
-      model: 'llama-3.1-70b-versatile',
+      model: 'llama-3.3-70b-versatile',
       messages: [
         { role: 'system', content: systemPrompt },
         ...session.history,
