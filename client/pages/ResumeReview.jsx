@@ -34,11 +34,12 @@ export default function ResumeReview() {
     setResult(null);
 
     try {
-      const response = await fetch("/api/ai/interact", {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${API_BASE}/api/ai/interact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Authorization": `Bearer ${localStorage.getItem("devhub_token")}`,
         },
         body: JSON.stringify({
           tool: "resume_review",

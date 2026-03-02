@@ -3,11 +3,23 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+
+// Decode JWT payload without verification (safe for client-side user info extraction)
+function decodeJwtPayload(token) {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
 
 export default function AuthCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
   const [status, setStatus] = useState('processing'); // processing, success, error
 
   useEffect(() => {
@@ -36,55 +48,46 @@ export default function AuthCallback() {
           variant: 'destructive',
         });
 
-        // Redirect to login page after a delay
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
+        setTimeout(() => { navigate('/login'); }, 3000);
         return;
       }
 
       if (token) {
         try {
-          // Store the token
-          localStorage.setItem('token', token);
+          // Decode payload to extract user info (no API call needed)
+          const payload = decodeJwtPayload(token);
 
-          // Verify the token and get user info
-          const response = await fetch('/api/auth/verify-token', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ token }),
+          if (!payload || !payload.userId) {
+            throw new Error('Invalid token payload');
+          }
+
+          const userData = {
+            id: payload.userId,
+            email: payload.email,
+            username: payload.username,
+            name: payload.name,
+            role: payload.role,
+          };
+
+          // Store in AuthContext and localStorage using correct keys
+          login(userData, token, null);
+
+          setStatus('success');
+          toast({
+            title: 'Welcome!',
+            description: 'Successfully signed in with Google.',
           });
 
-          const data = await response.json();
-
-          if (data.success) {
-            setStatus('success');
-            toast({
-              title: 'Welcome!',
-              description: 'Successfully signed in with Google.',
-            });
-
-            // Redirect to dashboard after a short delay
-            setTimeout(() => {
-              navigate('/dashboard');
-            }, 2000);
-          } else {
-            throw new Error(data.message || 'Token verification failed');
-          }
+          setTimeout(() => { navigate('/dashboard'); }, 2000);
         } catch (error) {
-          console.error('Token verification error:', error);
+          console.error('Token processing error:', error);
           setStatus('error');
           toast({
             title: 'Authentication Error',
-            description: 'Failed to verify authentication token.',
+            description: 'Failed to process authentication token.',
             variant: 'destructive',
           });
-
-          setTimeout(() => {
-            navigate('/login');
-          }, 3000);
+          setTimeout(() => { navigate('/login'); }, 3000);
         }
       } else {
         setStatus('error');
@@ -93,15 +96,12 @@ export default function AuthCallback() {
           description: 'No authentication token received.',
           variant: 'destructive',
         });
-
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
+        setTimeout(() => { navigate('/login'); }, 3000);
       }
     };
 
     handleAuthCallback();
-  }, [searchParams, navigate, toast]);
+  }, [searchParams, navigate, toast, login]);
 
   const getStatusConfig = () => {
     switch (status) {

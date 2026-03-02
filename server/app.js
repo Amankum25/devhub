@@ -23,6 +23,8 @@ const geminiRoutes = require("./routes/gemini");
 const snippetRoutes = require("./routes/snippets");
 const uploadRoutes = require("./routes/uploads");
 const adminRoutes = require("./routes/admin");
+const postRoutes = require("./routes/posts");
+const commentRoutes = require("./routes/comments");
 
 // Import middleware
 const { authenticateToken } = require("./middleware/auth");
@@ -157,6 +159,8 @@ app.use("/api/gemini", geminiRoutes);
 app.use("/api/snippets", snippetRoutes);
 app.use("/api/uploads", authenticateToken, uploadRoutes);
 app.use("/api/admin", authenticateToken, adminRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/comments", commentRoutes);
 // Health check endpoint (for Render and other hosting platforms)
 app.get("/", (req, res) => {
   res.json({
